@@ -1,0 +1,96 @@
+Shrnutí problému
+Máte Express backend na Replitu, který se při startu nebo při požadavku ukončí (exit code 143 = SIGTERM). Frontend dostane HTML místo JSON (chyba "Unexpected token '<'") a fetch selhává. Níže stručně rozebírám možné příčiny, jak debugovat krok‑po‑kroku a doporučené opravy.
+
+1) Proč se proces ukončí (SIGTERM / exit 143)
+Nejběžnější příčiny:
+
+Replit zabije proces kvůli překročení limitu paměti nebo CPU (OOM / resource limits).
+Replit health check detekuje, že server neodpovídá na veřejném portu, a process je restartován/ukončen.
+Proces sám volá process.exit() nebo je ukončen nechycenou výjimkou (uncaught exception) a Replit posílá SIGTERM při restartu.
+Replit automaticky ukončí long‑running child procesy při určitém chování nebo nesprávném start scriptu.
+Váš kód spouští heavy operace synchronně (blokující smyčky, velké migrace) — Replit to může považovat za problém.
+Pokud Node spouští Supabase client, který dělá síťové volání při importu/initializaci a to blokuje/dojde k timeoutu, Replit může ukončit repl.
+Jak ověřit:
+
+Podívejte se na Replit konzoli/logy před ukončením (stack trace, out of memory, max old space).
+V package.json zkontrolujte start script — Replit musí používat správný script (start) nebo nastavený Run command.
+Zkontrolujte systémové metriky Replitu (pokud dostupné) nebo logy pro OOM.
+2) Proč frontend dostává HTML místo JSON ("Unexpected token '<'")
+HTML je typicky stránka chybového response (např. Replit 404/502 error page, nebo Express error HTML).
+Pokud backend padl, Replit proxy může vrátit default HTML chybu (502/503) místo JSON.
+Pokud URL voláte s portem (např. :3000) nebo špatným hostem, může vracet HTML stránky Replitu nebo jinou stránku.
+Pokud frontend volá HTTP GET bez správných hlaviček a server přesměruje na root, dostanete HTML.
+Jak debugovat:
+
+Otevřete DevTools → Network → vyber request → podívejte se na HTTP status code a response body (HTML často obsahuje chybu a stack).
+Použijte curl -v nebo httpie z lokálu: curl -v https:///api/test/test_shared a zkontrolujte response headers a body.
+Zkontrolujte Express error handling: pokud používáte default error handler Expressu, v production může vracet HTML. Přidejte JSON error handler, aby i při chybě vrátil JSON s chybovým kódem.
+3) Správné spuštění Node.js backendu na Replitu (aby běžel nepřetržitě)
+V package.json definujte:
+"start": "node server.js" (nebo "node ./dist/server.js")
+případně "dev": "nodemon server.js" pro development, ale Replit preferuje start.
+V Replit GUI nastavte Run command nebo zkontrolujte, že Replit používá npm start.
+Server musí naslouchat na portu z environment variable (v Replitu obvykle PROCESS env PORT nebo 3000). Použijte: const PORT = process.env.PORT || 3000; app.listen(PORT, '0.0.0.0', () => { ... });
+Ujistěte se, že Replit proxy nepřidává port do veřejné URL — ve volání z frontendu používejte veřejnou URL bez :port.
+Minimalizujte blokující úkony při startu (neprovádějte velké synchronní migrace při každém startu).
+Přidejte health endpoint (GET /health nebo /) který vrací 200 OK text nebo JSON — Replit a externí checkery tak uvidí, že server běží.
+Pokud Replit ukončuje proces kvůli limitům, optimalizujte paměť nebo přesuněte backend na host, který má větší zdroje.
+4) Používat SUPABASE_SERVICE_KEY na backendu?
+Ano — service_role key patří na backend a poskytuje plná oprávnění (bypass RLS). Je vhodné ho používat pouze v bezpečném serverovém prostředí a nikdy ne v klientu.
+ANON_KEY je pro klienta (frontend) a funguje spolu s RLS politikami. Pokud chcete bezpečnost a aby DB operace byly řízeny RLS, použijte ANON_KEY v klientu + správné RLS politiky; backend může používat service role pro administrativní úkony (migrace, údržba).
+Doporučení: na Replit nastavte SUPABASE_SERVICE_KEY jako secret a používejte ho pouze v backendu.
+5) Jak zajistit, že Supabase klient se správně inicializuje na Replitu
+Běžné chyby při inicializaci:
+
+Env proměnné nejsou nastaveny (undefined), a kód se zhroutí při volání createClient(undefined, undefined).
+Key je příliš dlouhá nebo nekompletní (nesprávně nastavený secret).
+Kód dělá síťové volání během importu modulu (top-level await nebo konstruktér) a to blokuje start.
+Používáte createClient s SUPABASE_SERVICE_KEY ale zároveň se volají API, která očekávají session tokeny — zkontrolujte, že používáte správné metody.
+Doporučený vzor inicializace:
+
+server.js (příklad)
+načíst env hned na začátku a ověřit že existují: if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_KEY) { console.error('Missing SUPABASE env vars'); process.exit(1); }
+vytvořit klienta v rámci funkce nebo modulově, ale bez blokujících top-level callů: const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
+přidejte try/catch kolem asynchronních volání a logujte chyby.
+Jak ověřit:
+
+Dočasně přidejte před createClient console.log hodnotí první 8 znaků klíčů (ne kompletní) pro ověření, že env jsou nastaveny.
+Logujte výsledek await supabase.rpc('pg_dummy') nebo jednoduchého await supabase.from('test_data').select('*').limit(1) s catch blokem, abyste viděli, zda se připojení úspěšné.*
+Známé problémy na Replitu:
+
+Secrets musí být nastaveny přes Secrets/Environment v Replitu; pokud nastavíte env v .env, Replit ho nemusí použít v produkci.
+Replit může restartovat repl, pokud start skript není definován nebo pokud server nenabinduje na správný port/host.
+6) Jak debugovat krok‑po‑kroku (konkrétní akční plán)
+Podívejte se na kompletní Replit log těsně před ukončením — zkopírujte posledních ~50 řádků.
+Přidejte tyto dočasné debug logy v server.js:
+console.log('ENV PORT', process.env.PORT);
+console.log('SUPABASE_URL', process.env.SUPABASE_URL?.slice(0,30));
+console.log('SUPABASE_KEY_PRESENT', !!process.env.SUPABASE_SERVICE_KEY);
+Přidejte try/catch kolem initialization a asynchronních volání a logujte chyby s stack: try { /* init supabase or db call */ } catch (err) { console.error('INIT ERR', err); }
+Přidejte endpoint /health, který vrací 200 a text 'ok'. Ověřte curl https:///health — pokud to taky timeoutuje, problém je na úrovni Replit/port.
+Spusť server lokálně (pokud možné) s těmi samými env proměnnými, abyste ověřili, že kód funguje mimo Replit.
+Pokud proces umírá kvůli OOM, přidejte logy paměti process.memoryUsage() a optimalizujte.
+Pokud Replit vrací HTML error page, otevřete tu HTML a přečtěte si chybový obsah (často obsahuje Replit info nebo 502: worker crashed).
+Upravte Express error handler, aby vše vrátilo JSON (pro usnadnění debugování): app.use((err, req, res, next) => { console.error(err.stack); res.status(500).json({ error: err.message, stack: process.env.NODE_ENV === 'production' ? undefined : err.stack }); });
+7) Rychlé checklist opravy (udělej teď)
+ V package.json nastav "start": "node server.js" a v Replitu se ujistěte, že Run používá npm start.
+ V serveru poslouchejte process.env.PORT a host '0.0.0.0'.
+ Přidejte /health endpoint.
+ Dočasně přidejte konzolové logy env proměnných a inicializace Supabase.
+ Ověřte secrets v Replit: SUPABASE_URL a SUPABASE_SERVICE_KEY jsou nastaveny správně.
+ Otevřete Replit logy a najděte důvod ukončení (OOM, uncaught exception, atd.).
+ Pokud Replit vrací HTML error, stáhněte tu HTML a pošlete sem obsah nebo poslední logy.
+ Otestujte curl -v https:///health a https:///api/test/test_shared.
+8) Specifické tipy pro Supabase klienta v Node 22 / Replit
+Používejte oficiální klient: npm package @supabase/supabase-js (npm:@supabase/supabase-js@x.y.z [blocked]). Ujistěte se, že verze podporuje environment (Node 22).
+Pokud používáte služební klíč, inicializujte klienta pouze jednou a znovu jej nepřepisujte na každém requestu.
+Vyvarujte se top‑level network calls při importu souboru; dělejte test DB call až po spuštění serveru.
+Pokud používáte fetch polyfill nebo globální fetch v Node 22, zkontrolujte kompatibilitu s verzí supabase-js.
+9) Co pošlete sem, abych vám přesně opravil problém
+Pošlete prosím (nejlepší pořadí):
+
+Posledních ~50 řádků z Replit logu těsně před procesem ukončující se (nebo HTML response, které dostanete).
+Obsah vašeho server.js (nebo hlavního souboru) — zejména část inicializace Supabase a spuštění serveru.
+Run command nebo package.json (scripts.start).
+Výsledek curl -v https:///health nebo /api/test/test_shared.
+S těmito informacemi udělám přesné opravy (např. přidám robustní inicializaci supabase, chyby a upravím start skript).

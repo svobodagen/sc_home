@@ -1,0 +1,47 @@
+{
+  "expo": {
+    "name": "Svobodné cechy",
+    "slug": "svobodne-cechy",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/logo-cechy.png",
+    "scheme": "craftapprentice",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.craftapprentice.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#111827",
+        "foregroundImage": "./assets/images/logo-cechy.png"
+      },
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false,
+      "package": "com.craftapprentice.app"
+    },
+    "web": {
+      "output": "single",
+      "favicon": "./assets/images/logo-cechy.png"
+    },
+    "plugins": [
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/logo-cechy.png",
+          "imageWidth": 250,
+          "resizeMode": "contain",
+          "backgroundColor": "#111827",
+          "dark": {
+            "backgroundColor": "#111827"
+          }
+        }
+      ],
+      "expo-web-browser"
+    ],
+    "experiments": {
+      "reactCompiler": true
+    }
+  }
+}

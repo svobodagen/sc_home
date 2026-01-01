@@ -1,0 +1,79 @@
+Shrnutí doporučení
+Máte dvě realistické cesty. Doporučuji možnost A (Frontend → Supabase přímo), protože je nejrychlejší, funguje s Expo na Replitu a nevyžaduje dedikovaný backend host. Možnost B (Frontend → Backend → Supabase) je validní pro složitější business logiku, ale backend musíte přesunout mimo Replit (Railway, Render, Fly, Vercel, AWS).
+
+Níže najdete přesné kroky pro obě možnosti, jak je implementovat, jak opravit chyby (SIGTERM / HTML místo JSON) a co udělat nyní.
+
+Možnost A — Doporučeno: Frontend volá Supabase přímo
+Výhody:
+
+Jednodušší: žádný dlouho běžící server na Replitu.
+Nižší latence a méně bodů selhání.
+Méně nákladů a rychlejší nasazení.
+Kroky implementace:
+
+Přidejte supabase-js do frontend projektu (pokud už není):
+npm install @supabase/supabase-js
+Vytvořte klienta v projektu (bezpečné umístění v mobilní appce):
+Použijte SUPABASE_URL a SUPABASE_ANON_KEY (NE service key v klientu).
+Nahradit fetch/axios volání na backend přímými supabase dotazy:
+POST /api/test/save -> await supabase.from('test_data').upsert({ user_id, test_value, updated_at: new Date().toISOString() })
+GET /api/test/{userId} -> await supabase.from('test_data').select('test_value').eq('user_id', userId).single()
+Nastavte RLS (Row-Level Security) a policy pro test_data:
+Příklad: povolit authenticated uživatelům ukládat/číst vlastní záznam
+CREATE POLICY "authenticated_read_own" ON test_data FOR SELECT TO authenticated USING (user_id = (auth.uid())::text);
+CREATE POLICY "authenticated_upsert_own" ON test_data FOR INSERT, UPDATE TO authenticated WITH CHECK (user_id = (auth.uid())::text);
+(Upravte typ user_id podle vaší tabulky — uuid/text)
+Přidejte do Expo applikační secrets (env) bezpečně:
+Pro vývoj můžete mít .env nebo Replit Secrets, ale ANON_KEY není citlivý jako service role; přesto ho nesdílejte veřejně.
+Otestujte v UI:
+Ulož hodnotu a ověř, že se objeví v Supabase Table → test_data.
+Poznámky o bezpečnosti:
+
+Nikdy nepoužívejte SUPABASE_SERVICE_KEY v klientu.
+RLS musí být správně nastavené, jinak ANON_KEY umožní neřízený přístup.
+Možnost B — Pokud skutečně potřebujete backend (ne hostujte na Replitu)
+Proč Replit selhává:
+
+Replit často zabíjí child procesy na nestandardních portech a má omezené zdroje → exit 143 (SIGTERM).
+Replit není určen jako hostitel pro trvalé backendy na portu 3000.
+Doporučení:
+
+Hostujte backend na platformě určené pro long‑running servers: Railway, Render, Fly.io, Heroku, DigitalOcean App Platform, Vercel (serverless), AWS ECS / Lambda atd.
+Přesuňte SUPABASE_SERVICE_KEY do secrets hostované platformy.
+Backend: použijte tento pattern:
+app.listen(process.env.PORT || 3000, '0.0.0.0')
+health endpoint GET /health vrací 200 OK
+robustní error handler vrací JSON
+inicializace supabase clientu s ověřením env vars a try/catch
+Jak diagnostikovat současný Replit SIGTERM a HTML odpovědi (krok po kroku)
+Zkontrolujte Replit logy na stderr/stdout, najděte posledních ~50 řádků — hledejte:
+"Out of memory", "ENOBUFS", uncaught exception stack, nebo explicitní process.exit().
+Replit default error pages (HTML) často naznačují 502/worker crashed.
+Přidejte debug logy do server.js:
+console.log('PORT', process.env.PORT)
+console.log('SUPABASE_URL present?', !!process.env.SUPABASE_URL)
+console.log('SUPABASE_KEY present?', !!process.env.SUPABASE_SERVICE_KEY)
+console.log('Starting server...')
+Dodělejte health endpoint:
+app.get('/health', (_, res) => res.json({ status: 'ok' }));
+curl -v https:///health — pokud timeout nebo HTML, Replit proxy vrací error.
+Upravte error handler, aby vracel JSON (usnadní debug):
+app.use((err, req, res, next) => { console.error(err.stack); res.status(500).json({ error: err.message }); });
+Lokalní testy:
+Spusť server lokálně se stejnými env (SUPABASE_URL, SUPABASE_SERVICE_KEY) a ověř chování.
+Pokud proces ukončí Replit kvůli resource limitům, migrace na hosting bude řešením._
+Co konkrétně udělat teď (akční checklist)
+Pokud chcete rychlé zprovoznění: implementujte přímé supabase volání ve frontend kódu (postup viz Možnost A).
+Pokud trváte na backendu:
+Přesuň backend mimo Replit (např. Railway free tier).
+Přidejte health endpoint, error handler a správný start script v package.json.
+Neprodleně:
+Pošlete sem část server.js (inicializaci supabase a app.listen). Rychle zkontroluji chyby.
+Nebo pošlete services/api.ts (frontend) — já vám napíšu náhradní verzi, která místo backendu volá Supabase přímo i s příkladem RLS policies.
+Příklad (co mohu poslat teď)
+Pokud chcete přejít na možnost A, pošlete obsah services/api.ts a LoginScreen.tsx; já je upravím tak, aby volaly Supabase přímo (včetně proměnných a jednorázového Supabase klienta).
+Pokud chcete opravit backend na Replitu, pošlete server.js a package.json → opravím inicializaci, přidám health endpoint a doporučím start command.
+Chcete, abych teď:
+
+přepsal services/api.ts pro přímé volání Supabase (pošlete soubor), nebo
+zkontroloval server.js a package.json (pošlete soubory) a navrhl opravy pro Replit / nasazení jinde?

@@ -1,0 +1,1240 @@
+// API - Supabase Cloud First (bez backendu!)
+import { createClient } from "@supabase/supabase-js";
+
+const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL || "https://imivlsfkgmqkhqhhiilf.supabase.co";
+const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImltaXZsc2ZrZ21xa2hxaGhpaWxmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQzNDY3MzEsImV4cCI6MjA3OTkyMjczMX0.KR4RHoQ4UlK2Sg7GB9LxdkaewPbDC86S7gIj8Inf0MA";
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+export const api = {
+  // Auth - Přihlášení
+  async login(email: string, password: string) {
+    try {
+      const { data, error } = await supabase
+        .from("users")
+        .select("*")
+        .eq("email", email)
+        .eq("password", password)
+        .single();
+
+      if (error) throw new Error("Nesprávné přihlašovací údaje");
+      if (!data) throw new Error("Uživatel nenalezen");
+
+      return data;
+    } catch (err: any) {
+      throw new Error(err.message || "Přihlášení selhalo");
+    }
+  },
+
+  // Auth - Registrace
+  async register(email: string, password: string, name: string, role: string) {
+    try {
+      const id = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+      const { data, error } = await supabase
+        .from("users")
+        .insert([{
+          id,
+          email,
+          password,
+          name,
+          role: role || "Učedník",
+          timestamp: Date.now()
+        }])
+        .select()
+        .single();
+
+      if (error) throw new Error(error.message);
+
+      // Automaticky vytvoř certifikáty pro nového uživatele
+      await this.initializeCertificatesForUser(id);
+
+      return data;
+    } catch (err: any) {
+      throw new Error(err.message || "Registrace selhala");
+    }
+  },
+
+  // Auth - Inicializace certifikátů pro nového uživatele
+  async initializeCertificatesForUser(userId: string) {
+    try {
+      // Stáhni všechny šablony certifikátů
+      const { data: templates, error: templErr } = await supabase
+        .from("certificate_templates")
+        .select("*");
+
+      if (templErr || !templates || templates.length === 0) return;
+
+      // Pro každou šablonu vytvoř certificate s locked: true
+      const certificatesToInsert = templates.map((t: any) => ({
+        user_id: userId,
+        title: t.title,
+        category: t.category,
+        points: t.points || 0,
+        requirement: t.description || "",
+        locked: true,
+        earned_at: null
+      }));
+
+      const { error: insertErr } = await supabase
+        .from("certificates")
+        .insert(certificatesToInsert);
+
+      if (insertErr) {
+        console.error("❌ Chyba při vytváření certifikátů:", insertErr);
+      } else {
+        console.log(`✅ Vytvořeno ${certificatesToInsert.length} certifikátů pro uživatele ${userId}`);
+      }
+    } catch (err: any) {
+      console.error("❌ Chyba při inicializaci certifikátů:", err);
+    }
+  },
+
+  // Admin - Všichni uživatelé
+  async getUsers() {
+    try {
+      const { data, error } = await supabase
+        .from("users")
+        .select("*");
+
+      if (error) throw new Error(error.message);
+      return data || [];
+    } catch (err: any) {
+      console.error("Error fetching users:", err);
+      return [];
+    }
+  },
+
+  // User Data - Stažení
+  async getUserData(userId: string) {
+    try {
+      const { data, error } = await supabase
+        .from("user_data")
+        .select("*")
+        .eq("user_id", userId)
+        .single();
+
+      if (error && error.code !== "PGRST116") throw error;
+      return data || { projects: [], hours: [], badges: [] };
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při stažení dat");
+    }
+  },
+
+  // User Data - Uložení
+  async saveUserData(userId: string, data: any) {
+    try {
+      const { data: result, error } = await supabase
+        .from("user_data")
+        .upsert({ user_id: userId, ...data, updated_at: new Date().toISOString() })
+        .select()
+        .single();
+
+      if (error) throw new Error(error.message);
+      return result;
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při ukládání dat");
+    }
+  },
+
+  // Master - Učedníci
+  async getApprentices(masterId: string) {
+    try {
+      const { data, error } = await supabase
+        .from("master_apprentices")
+        .select("*")
+        .eq("master_id", masterId);
+
+      if (error) throw new Error(error.message);
+      return data || [];
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při stažení učedníků");
+    }
+  },
+
+  // Master - Přidat učedníka
+  async addApprentice(masterId: string, apprenticeId: string, apprenticeName: string) {
+    try {
+      const { data, error } = await supabase
+        .from("master_apprentices")
+        .insert([{
+          master_id: masterId,
+          apprentice_id: apprenticeId,
+          apprentice_name: apprenticeName,
+          created_at: new Date().toISOString()
+        }])
+        .select()
+        .single();
+
+      if (error) {
+        console.error("❌ Supabase error:", error);
+        throw new Error(error.message);
+      }
+      console.log("✅ Učedník přidán:", data);
+      return data;
+    } catch (err: any) {
+      console.error("❌ addApprentice error:", err);
+      throw new Error(err.message || "Chyba při přidávání učedníka");
+    }
+  },
+
+  // Master - Odebrat učedníka
+  async removeApprentice(masterId: string, apprenticeId: string) {
+    try {
+      const { error } = await supabase
+        .from("master_apprentices")
+        .delete()
+        .eq("master_id", masterId)
+        .eq("apprentice_id", apprenticeId);
+
+      if (error) throw new Error(error.message);
+      return { success: true };
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při odebírání učedníka");
+    }
+  },
+
+  // Host - Hledání mistrů učedníka
+  async getMastersForApprentice(apprenticeId: string) {
+    try {
+      const { data, error } = await supabase
+        .from("master_apprentices")
+        .select("master_id")
+        .eq("apprentice_id", apprenticeId);
+
+      if (error) throw new Error(error.message);
+      return data || [];
+    } catch (err: any) {
+      console.error("Chyba při hledání mistra učedníka:", err);
+      return [];
+    }
+  },
+
+  // Host - Všechna propojení
+  async getAllMasterApprenticeConnections() {
+    try {
+      const { data, error } = await supabase
+        .from("master_apprentices")
+        .select("*");
+
+      if (error) throw new Error(error.message);
+      return data || [];
+    } catch (err: any) {
+      console.error("Chyba při stahování propojení:", err);
+      return [];
+    }
+  },
+
+  // Admin - Smazat uživatele
+  async deleteUser(userId: string) {
+    try {
+      const { error } = await supabase
+        .from("users")
+        .delete()
+        .eq("id", userId);
+
+      if (error) throw new Error(error.message);
+      return { success: true };
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při mazání uživatele");
+    }
+  },
+
+  // ============ GOALS ============
+  async getApprenticeGoals(userId: string) {
+    try {
+      const { data, error } = await supabase
+        .from("apprentice_goals")
+        .select("*")
+        .eq("user_id", userId)
+        .single();
+
+      if (error && error.code !== "PGRST116") throw error; // PGRST116 is 'not found'
+      return data || null;
+    } catch (err: any) {
+      console.warn("Chyba při stahování cílů:", err.message);
+      return null;
+    }
+  },
+
+  async saveApprenticeGoals(userId: string, goals: any) {
+    try {
+      const { data, error } = await supabase
+        .from("apprentice_goals")
+        .upsert({
+          user_id: userId,
+          ...goals,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'user_id' })
+        .select()
+        .single();
+
+      if (error) throw new Error(error.message);
+      return data;
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při ukládání cílů");
+    }
+  },
+
+  // Admin - Reset dat (vymaž hodiny, projekty, cíle a resetuj limity na admin defaults)
+  async resetUserData(userId: string) {
+    try {
+      // Zjisti počet hodin před smazáním
+      const { data: hoursData, error: hoursCountError } = await supabase
+        .from("work_hours")
+        .select("id")
+        .eq("user_id", userId);
+
+      const hoursCount = hoursData?.length || 0;
+
+      // Zjisti počet projektů před smazáním
+      const { data: projectsData, error: projectsCountError } = await supabase
+        .from("projects")
+        .select("id")
+        .eq("user_id", userId);
+
+      const projectsCount = projectsData?.length || 0;
+
+      // Vymaž pracovní hodiny
+      const { error: hoursError } = await supabase
+        .from("work_hours")
+        .delete()
+        .eq("user_id", userId);
+
+      if (hoursError) throw new Error(hoursError.message);
+
+      // Vymaž projekty
+      const { error: projectsError } = await supabase
+        .from("projects")
+        .delete()
+        .eq("user_id", userId);
+
+      if (projectsError) throw new Error(projectsError.message);
+
+      // Vymaž cíle učedníka
+      try {
+        await supabase
+          .from("apprentice_goals")
+          .delete()
+          .eq("user_id", userId);
+      } catch (goalErr) {
+        console.log("Nepodařilo se smazat cíle učedníka (tabulka možná neexistuje)");
+      }
+
+      // Resetuj limity hodin na admin defaults
+      try {
+        const adminDefaults = await this.getAdminSettings();
+
+        // Smaž existující limity
+        await supabase
+          .from("user_hour_limits")
+          .delete()
+          .eq("user_id", userId);
+
+        // Vytvoř nové limity z admin defaults
+        await supabase
+          .from("user_hour_limits")
+          .insert({
+            user_id: userId,
+            max_work_hours_day: adminDefaults.max_work_hours_day,
+            max_study_hours_day: adminDefaults.max_study_hours_day,
+            max_work_hours_week: adminDefaults.max_work_hours_week,
+            max_study_hours_week: adminDefaults.max_study_hours_week,
+            max_work_hours_month: adminDefaults.max_work_hours_month,
+            max_study_hours_month: adminDefaults.max_study_hours_month,
+            max_work_hours_year: adminDefaults.max_work_hours_year,
+            max_study_hours_year: adminDefaults.max_study_hours_year
+          });
+      } catch (limitsErr) {
+        console.log("Nepodařilo se resetovat limity hodin");
+      }
+
+      return { success: true, hoursCount, projectsCount };
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při resetování dat");
+    }
+  },
+
+  // Test - Uložit test hodnotu
+  async saveTestValue(userId: string, testValue: string) {
+    try {
+      const { data, error } = await supabase
+        .from("test_data")
+        .upsert({
+          user_id: userId,
+          test_value: testValue,
+          updated_at: new Date().toISOString()
+        })
+        .select()
+        .single();
+
+      if (error) throw new Error(error.message);
+      return data;
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při ukládání test dat");
+    }
+  },
+
+  // Test - Stažení test hodnoty
+  async getTestValue(userId: string) {
+    try {
+      const { data, error } = await supabase
+        .from("test_data")
+        .select("*")
+        .eq("user_id", userId)
+        .single();
+
+      if (error && error.code !== "PGRST116") throw error;
+      return data || { test_value: null };
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při stažení test dat");
+    }
+  },
+
+  // ============ PROJECTS ============
+  async getProjects(userId: string) {
+    try {
+      const { data, error } = await supabase
+        .from("projects")
+        .select("*")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false });
+
+      if (error) throw new Error(error.message);
+      return data || [];
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při stažení projektů");
+    }
+  },
+
+  // Host - Stažení všech projektů
+  async getAllProjects() {
+    try {
+      const { data, error } = await supabase
+        .from("projects")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) throw new Error(error.message);
+      return data || [];
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při stažení všech projektů");
+    }
+  },
+
+  // Projekty - Vytvoření
+  async createProject(userId: string, title: string, description: string, category: string, image: string, masterId?: string | null) {
+    try {
+      const { data, error } = await supabase
+        .from("projects")
+        .insert([{ user_id: userId, title, description, category, image, master_id: masterId || null }])
+        .select()
+        .single();
+
+      if (error) throw new Error(error.message);
+      return data;
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při vytváření projektu");
+    }
+  },
+
+  // Projekty - Aktualizace
+  async updateProject(projectId: number, updates: any) {
+    try {
+      const { data, error } = await supabase
+        .from("projects")
+        .update({ ...updates, updated_at: new Date().toISOString() })
+        .eq("id", projectId)
+        .select()
+        .single();
+
+      if (error) throw new Error(error.message);
+      return data;
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při aktualizaci projektu");
+    }
+  },
+
+  // Projekty - Smazání
+  async deleteProject(projectId: number) {
+    try {
+      const { error } = await supabase
+        .from("projects")
+        .delete()
+        .eq("id", projectId);
+
+      if (error) throw new Error(error.message);
+      return { success: true };
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při mazání projektu");
+    }
+  },
+
+  // Projekty - Toggle Like
+  async toggleProjectLike(projectId: number, isLiked: boolean) {
+    try {
+      const { data, error } = await supabase
+        .from("projects")
+        .update({ is_liked: isLiked, updated_at: new Date().toISOString() })
+        .eq("id", projectId)
+        .select()
+        .single();
+
+      if (error) throw new Error(error.message);
+      return data;
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při aktualizaci lajku");
+    }
+  },
+
+  // ============ WORK HOURS ============
+  // Pracovní hodiny - Stažení
+  async getWorkHours(userId: string) {
+    try {
+      const { data, error } = await supabase
+        .from("work_hours")
+        .select("*")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false });
+
+      if (error) throw new Error(error.message);
+      return (data || []).map((hour: any) => ({
+        ...hour,
+        timestamp: hour.created_at ? new Date(hour.created_at).getTime() : Date.now()
+      }));
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při stažení pracovních hodin");
+    }
+  },
+
+  // Pracovní hodiny - Přidání
+  async addWorkHours(userId: string, projectId: number | null, hours: number, description: string, timestamp?: number, masterId?: string | null) {
+    try {
+      const createdAt = timestamp ? new Date(timestamp).toISOString() : new Date().toISOString();
+      const { data, error } = await supabase
+        .from("work_hours")
+        .insert([{ user_id: userId, project_id: projectId, hours, description, created_at: createdAt, master_id: masterId || null }])
+        .select()
+        .single();
+
+      if (error) throw new Error(error.message);
+      return {
+        ...data,
+        timestamp: data.created_at ? new Date(data.created_at).getTime() : Date.now()
+      };
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při přidávání hodin");
+    }
+  },
+
+  // Pracovní hodiny - Aktualizace
+  async updateWorkHours(hoursId: number, updates: any) {
+    try {
+      // Převeď timestamp na created_at pokud je v updates
+      const updateData: any = {};
+      if (updates.hours !== undefined) updateData.hours = updates.hours;
+      if (updates.description !== undefined) updateData.description = updates.description;
+      if (updates.timestamp !== undefined) {
+        updateData.created_at = new Date(updates.timestamp).toISOString();
+      }
+      if (updates.master_comment !== undefined) updateData.master_comment = updates.master_comment;
+
+      const { data, error } = await supabase
+        .from("work_hours")
+        .update(updateData)
+        .eq("id", hoursId)
+        .select()
+        .single();
+
+      if (error) throw new Error(error.message);
+      return {
+        ...data,
+        timestamp: data.created_at ? new Date(data.created_at).getTime() : Date.now()
+      };
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při aktualizaci hodin");
+    }
+  },
+
+  // Pracovní hodiny - Aktualizace komentáře mistra
+  async updateWorkHourComment(id: number, masterComment: string) {
+    try {
+      const { data, error } = await supabase
+        .from("work_hours")
+        .update({ master_comment: masterComment })
+        .eq("id", id)
+        .select()
+        .single();
+
+      if (error) throw new Error(error.message);
+      return data;
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při aktualizaci komentáře");
+    }
+  },
+
+  // Pracovní hodiny - Smazání
+  async deleteWorkHours(hoursId: number) {
+    try {
+      const { error } = await supabase
+        .from("work_hours")
+        .delete()
+        .eq("id", hoursId);
+
+      if (error) throw new Error(error.message);
+      return { success: true };
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při mazání hodin");
+    }
+  },
+
+  // ============ CERTIFICATES ============
+  // Certifikáty - Stažení (vrácení SKUTEČNÝCH certifikátů z tabulky certificates)
+  async getCertificates(userId: string) {
+    try {
+      // Stáhni SKUTEČNÉ certifikáty pro daného uživatele z tabulky certificates
+      const { data: certificates, error: certErr } = await supabase
+        .from("certificates")
+        .select("*")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false });
+
+      if (certErr) {
+        console.error("❌ Chyba při stažení certifikátů:", certErr?.message);
+        return [];
+      }
+
+      // Pokud uživatel nemá certifikáty, inicializuj je
+      if (!certificates || certificates.length === 0) {
+        console.log("📋 Žádné certifikáty pro", userId, "inicializuji je...");
+        await this.initializeCertificatesForUser(userId);
+
+        // Stáhni znovu po inicializaci
+        const { data: newCerts } = await supabase
+          .from("certificates")
+          .select("*")
+          .eq("user_id", userId);
+        return newCerts || [];
+      }
+
+      return certificates || [];
+    } catch (err: any) {
+      console.error("❌ Chyba v getCertificates:", err?.message || err);
+      return [];
+    }
+  },
+
+  // Certifikáty - Přidání
+  async addCertificate(userId: string, title: string, category: string, points: number, requirement: string, locked: boolean) {
+    try {
+      const { data, error } = await supabase
+        .from("certificates")
+        .insert([{ user_id: userId, title, category, points, requirement, locked, earned_at: null }])
+        .select()
+        .single();
+
+      if (error) throw new Error(error.message);
+      return data;
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při přidávání certifikátu");
+    }
+  },
+
+  // Certifikáty - Odemčení
+  async unlockCertificate(certificateId: number) {
+    try {
+      const { data, error } = await supabase
+        .from("certificates")
+        .update({ locked: false, earned_at: new Date().toISOString() })
+        .eq("id", certificateId)
+        .select()
+        .single();
+
+      if (error) throw new Error(error.message);
+      return data;
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při odemčení certifikátu");
+    }
+  },
+
+  // Certifikáty - Zamčení (zrušení aktivace)
+  async lockCertificate(certificateId: number) {
+    try {
+      const { data, error } = await supabase
+        .from("certificates")
+        .update({ locked: true, earned_at: null })
+        .eq("id", certificateId)
+        .select()
+        .single();
+
+      if (error) throw new Error(error.message);
+      return data;
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při zamčení certifikátu");
+    }
+  },
+
+  // Certifikáty - Najdi certificate podle user_id a title (certifikáty se hledají podle titulu šablony)
+  async getCertificateByTitle(userId: string, title: string) {
+    try {
+      console.log("🔍 Hledám certificate - userId:", userId, "title:", title);
+
+      const { data, error } = await supabase
+        .from("certificates")
+        .select("*")
+        .eq("user_id", userId)
+        .eq("title", title)
+        .maybeSingle();  // Vrátí null pokud nic nenajde, chyba jen pokud 2+ řádky
+
+      if (error) {
+        console.error("❌ Supabase error:", error?.message, error?.code);
+        return null;
+      }
+
+      if (!data) {
+        console.warn("⚠️ Certifikát nenalezen pro userId:", userId, "title:", title);
+        return null;
+      }
+
+      console.log("✅ Certifikát nalezen:", data);
+      return data;
+    } catch (err: any) {
+      console.error("❌ Chyba při hledání certifikátu:", err?.message);
+      return null;
+    }
+  },
+
+  // ============ TASKS ============
+  // Úkoly - Stažení pro uživatele (jako apprentice nebo master)
+  async getTasks(userId: string) {
+    try {
+      const { data, error } = await supabase
+        .from("tasks")
+        .select("*")
+        .or(`apprentice_id.eq.${userId},master_id.eq.${userId}`)
+        .order("created_at", { ascending: false });
+
+      if (error) throw new Error(error.message);
+      return data || [];
+    } catch (err: any) {
+      console.error("Chyba při stažení úkolů:", err);
+      return [];
+    }
+  },
+
+  // Úkoly - Stažení pro učedníka
+  async getTasksForApprentice(apprenticeId: string) {
+    try {
+      const { data, error } = await supabase
+        .from("tasks")
+        .select("*")
+        .eq("apprentice_id", apprenticeId)
+        .order("created_at", { ascending: false });
+
+      if (error) throw new Error(error.message);
+      return data || [];
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při stažení úkolů");
+    }
+  },
+
+  // Úkoly - Stažení pro mistra (jeho učedníci)
+  async getTasksForMaster(masterId: string) {
+    try {
+      const { data, error } = await supabase
+        .from("tasks")
+        .select("*")
+        .eq("master_id", masterId)
+        .order("created_at", { ascending: false });
+
+      if (error) throw new Error(error.message);
+      return data || [];
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při stažení úkolů");
+    }
+  },
+
+  // Úkoly - Vytvoření (Mistr přiřazuje)
+  async createTask(apprenticeId: string, masterId: string, projectId: number | null, title: string, description: string, dueDate: string | null) {
+    try {
+      const { data, error } = await supabase
+        .from("tasks")
+        .insert([{ apprentice_id: apprenticeId, master_id: masterId, project_id: projectId, title, description, due_date: dueDate, completed: false }])
+        .select()
+        .single();
+
+      if (error) throw new Error(error.message);
+      return data;
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při vytváření úkolu");
+    }
+  },
+
+  // Úkoly - Označení jako hotové
+  async completeTask(taskId: number) {
+    try {
+      const { data, error } = await supabase
+        .from("tasks")
+        .update({ completed: true, updated_at: new Date().toISOString() })
+        .eq("id", taskId)
+        .select()
+        .single();
+
+      if (error) throw new Error(error.message);
+      return data;
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při aktualizaci úkolu");
+    }
+  },
+
+  // Úkoly - Smazání
+  async deleteTask(taskId: number) {
+    try {
+      const { error } = await supabase
+        .from("tasks")
+        .delete()
+        .eq("id", taskId);
+
+      if (error) throw new Error(error.message);
+      return { success: true };
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při mazání úkolu");
+    }
+  },
+
+  // ============ COMMENTS ============
+  // Komentáře - Stažení pro uživatele (všechny jeho komentáře)
+  async getComments(userId: string) {
+    try {
+      const { data, error } = await supabase
+        .from("comments")
+        .select("*")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false });
+
+      if (error) throw new Error(error.message);
+      return data || [];
+    } catch (err: any) {
+      console.error("Chyba při stažení komentářů:", err);
+      return [];
+    }
+  },
+
+  // Komentáře - Stažení pro projekt
+  async getCommentsForProject(projectId: number) {
+    try {
+      const { data, error } = await supabase
+        .from("comments")
+        .select("*")
+        .eq("project_id", projectId)
+        .order("created_at", { ascending: true });
+
+      if (error) throw new Error(error.message);
+      return data || [];
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při stažení komentářů");
+    }
+  },
+
+  // Komentáře - Přidání
+  async addComment(projectId: number, userId: string, text: string) {
+    try {
+      const { data, error } = await supabase
+        .from("comments")
+        .insert([{ project_id: projectId, user_id: userId, text }])
+        .select()
+        .single();
+
+      if (error) throw new Error(error.message);
+      return data;
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při přidávání komentáře");
+    }
+  },
+
+  // Komentáře - Smazání
+  async deleteComment(commentId: number) {
+    try {
+      const { error } = await supabase
+        .from("comments")
+        .delete()
+        .eq("id", commentId);
+
+      if (error) throw new Error(error.message);
+      return { success: true };
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při mazání komentáře");
+    }
+  },
+
+  // ============ CERTIFICATE MANAGEMENT ============
+  // Certifikáty - Stažení šablon
+  async getCertificateTemplates() {
+    try {
+      const { data, error } = await supabase
+        .from("certificate_templates")
+        .select("*")
+        .eq("visible_to_all", true);
+
+      if (error) throw new Error(error.message);
+      return data || [];
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při stažení certifikátů");
+    }
+  },
+
+  // Certifikáty - Přidání šablony
+  async addCertificateTemplate(title: string, category: string, points: number, description: string) {
+    try {
+      const { data, error } = await supabase
+        .from("certificate_templates")
+        .insert([{ title, category, points, description, visible_to_all: true }])
+        .select()
+        .single();
+
+      if (error) throw new Error(error.message);
+      return data;
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při přidávání certifikátu");
+    }
+  },
+
+  // Certifikáty - Aktualizace šablony
+  async updateCertificateTemplate(templateId: number, title: string, points: number) {
+    try {
+      const { data, error } = await supabase
+        .from("certificate_templates")
+        .update({ title, points })
+        .eq("id", templateId)
+        .select()
+        .single();
+
+      if (error) throw new Error(error.message);
+      return data;
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při aktualizaci certifikátu");
+    }
+  },
+
+  // Certifikáty - Smazání šablony
+  async deleteCertificateTemplate(templateId: number) {
+    try {
+      const { error } = await supabase
+        .from("certificate_templates")
+        .delete()
+        .eq("id", templateId);
+
+      if (error) throw new Error(error.message);
+      return { success: true };
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při mazání certifikátu");
+    }
+  },
+
+  // Pravidla - Stažení
+  async getCertificateUnlockRules(templateId: number) {
+    try {
+      const { data, error } = await supabase
+        .from("certificate_unlock_rules")
+        .select("*")
+        .eq("template_id", templateId);
+
+      if (error) throw new Error(error.message);
+      return data || [];
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při stažení pravidel");
+    }
+  },
+
+  // Pravidla - Přidání
+  async addCertificateUnlockRule(templateId: number, ruleType: string, conditionType: string | null, conditionValue: number | null, description: string) {
+    try {
+      const { data, error } = await supabase
+        .from("certificate_unlock_rules")
+        .insert([{ template_id: templateId, rule_type: ruleType, condition_type: conditionType, condition_value: conditionValue, description }])
+        .select()
+        .single();
+
+      if (error) throw new Error(error.message);
+      return data;
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při přidávání pravidla");
+    }
+  },
+
+  // Pravidla - Aktualizace
+  async updateCertificateUnlockRule(ruleId: number, updates: any) {
+    try {
+      const { data, error } = await supabase
+        .from("certificate_unlock_rules")
+        .update(updates)
+        .eq("id", ruleId)
+        .select()
+        .single();
+
+      if (error) throw new Error(error.message);
+      return data;
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při aktualizaci pravidla");
+    }
+  },
+
+  // Pravidla - Smazání
+  async deleteCertificateUnlockRule(ruleId: number) {
+    try {
+      const { error } = await supabase
+        .from("certificate_unlock_rules")
+        .delete()
+        .eq("id", ruleId);
+
+      if (error) throw new Error(error.message);
+      return { success: true };
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při mazání pravidla");
+    }
+  },
+
+  // Kontrola odemknutí certifikátu
+  async checkCertificateUnlock(userId: string, templateId: number, workHours: number, studyHours: number, projectCount: number, points: number) {
+    try {
+      const rules = await this.getCertificateUnlockRules(templateId);
+      console.log(`🔍 Checking cert ${templateId} - rules:`, rules);
+
+      // Pokud žádná pravidla, certifikát zůstane ZAMČENÝ
+      if (!rules || rules.length === 0) {
+        console.log(`🔒 Cert ${templateId}: Žádná pravidla -> ZAMČENÝ!`);
+        return false;
+      }
+
+      // Pro MANUAL pravidla - zkontroluj jestli je v user_certificates s earned_at
+      const unlockedCount = await supabase
+        .from("user_certificates")
+        .select("*", { count: "exact" })
+        .eq("user_id", userId)
+        .eq("template_id", templateId)
+        .not("earned_at", "is", null);
+
+      if ((unlockedCount.count || 0) > 0) {
+        console.log(`✅ Cert ${templateId}: MANUAL mistr odemknul`);
+        return true;
+      }
+
+      // Zkontroluj AUTO pravidla
+      for (const rule of rules) {
+        if (rule.rule_type === "MANUAL") continue;
+
+        let conditionMet = false;
+        if (rule.condition_type === "WORK_HOURS" && workHours >= (rule.condition_value || 0)) conditionMet = true;
+        if (rule.condition_type === "STUDY_HOURS" && studyHours >= (rule.condition_value || 0)) conditionMet = true;
+        if (rule.condition_type === "PROJECTS" && projectCount >= (rule.condition_value || 0)) conditionMet = true;
+        if (rule.condition_type === "POINTS" && points >= (rule.condition_value || 0)) conditionMet = true;
+
+        if (conditionMet) {
+          console.log(`✅ Cert ${templateId}: AUTO pravidlo ${rule.condition_type}=${rule.condition_value} splněno!`);
+          return true;
+        }
+      }
+
+      console.log(`🔒 Cert ${templateId}: Pravidla nesplněna`);
+      return false;
+    } catch (err: any) {
+      console.error(`❌ Chyba v checkCertificateUnlock pro ${templateId}:`, err);
+      return false;
+    }
+  },
+
+  // Certifikáty - Odemknutí mistrem (MANUAL)
+  async unlockCertificateForUser(userId: string, templateId: number, masterUserId: string) {
+    try {
+      // Najdi pravidlo MANUAL pro tento certifikát
+      const { data: rules, error: rulesError } = await supabase
+        .from("certificate_unlock_rules")
+        .select("id")
+        .eq("template_id", templateId)
+        .eq("rule_type", "MANUAL")
+        .single();
+
+      if (rulesError && rulesError.code !== "PGRST116") throw rulesError;
+
+      // Aktualizuj user_certificates na locked = false
+      const { error: updateError } = await supabase
+        .from("user_certificates")
+        .update({ locked: false, earned_at: new Date().toISOString() })
+        .eq("user_id", userId)
+        .eq("template_id", templateId);
+
+      if (updateError) throw new Error(updateError.message);
+
+      // Zaznamenej do historie
+      await supabase
+        .from("certificate_unlock_history")
+        .insert([{
+          user_id: userId,
+          template_id: templateId,
+          unlocked_by: masterUserId,
+          rule_id: rules?.id || null
+        }]);
+
+      return { success: true };
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při odemykání certifikátu");
+    }
+  },
+
+  // Update user credentials
+  async updateUser(userId: string, updates: { email?: string; password?: string }) {
+    try {
+      const { error } = await supabase
+        .from("users")
+        .update(updates)
+        .eq("id", userId);
+
+      if (error) throw new Error(error.message);
+      return { success: true };
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při aktualizaci uživatele");
+    }
+  },
+
+  // Admin Settings - Získat nastavení limitů hodin (implicitní hodnoty pro nové učedníky)
+  async getAdminSettings() {
+    try {
+      const { data, error } = await supabase
+        .from("admin_settings")
+        .select("*")
+        .eq("id", 1)
+        .single();
+
+      if (error && error.code !== "PGRST116") throw error;
+      return data || {
+        max_work_hours_day: 8,
+        max_study_hours_day: 4,
+        max_work_hours_week: 40,
+        max_study_hours_week: 20,
+        max_work_hours_month: 160,
+        max_study_hours_month: 80,
+        max_work_hours_year: 1920,
+        max_study_hours_year: 960
+      };
+    } catch (err: any) {
+      console.error("Error fetching admin settings:", err);
+      return {
+        max_work_hours_day: 8,
+        max_study_hours_day: 4,
+        max_work_hours_week: 40,
+        max_study_hours_week: 20,
+        max_work_hours_month: 160,
+        max_study_hours_month: 80,
+        max_work_hours_year: 1920,
+        max_study_hours_year: 960
+      };
+    }
+  },
+
+  // Admin Settings - Uložit nastavení limitů hodin
+  async saveAdminSettings(settings: {
+    max_work_hours_day: number;
+    max_study_hours_day: number;
+    max_work_hours_week: number;
+    max_study_hours_week: number;
+    max_work_hours_month: number;
+    max_study_hours_month: number;
+    max_work_hours_year: number;
+    max_study_hours_year: number;
+  }, updatedBy: string) {
+    try {
+      const { error } = await supabase
+        .from("admin_settings")
+        .upsert({
+          id: 1,
+          ...settings,
+          updated_at: new Date().toISOString(),
+          updated_by: updatedBy
+        });
+
+      if (error) throw new Error(error.message);
+      return { success: true };
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při ukládání nastavení");
+    }
+  },
+
+  // User Hour Limits - Získat limity pro konkrétního učedníka
+  async getUserHourLimits(userId: string) {
+    try {
+      const { data, error } = await supabase
+        .from("user_hour_limits")
+        .select("*")
+        .eq("user_id", userId)
+        .single();
+
+      if (error && error.code !== "PGRST116") throw error;
+      return data;
+    } catch (err: any) {
+      console.error("Error fetching user hour limits:", err);
+      return null;
+    }
+  },
+
+  // User Hour Limits - Vytvořit limity pro nového učedníka (z admin_settings)
+  async createUserHourLimits(userId: string, limits?: {
+    max_work_hours_day: number;
+    max_study_hours_day: number;
+    max_work_hours_week: number;
+    max_study_hours_week: number;
+    max_work_hours_month: number;
+    max_study_hours_month: number;
+    max_work_hours_year: number;
+    max_study_hours_year: number;
+  }) {
+    try {
+      const defaultLimits = limits || await this.getAdminSettings();
+
+      const { error } = await supabase
+        .from("user_hour_limits")
+        .insert({
+          user_id: userId,
+          max_work_hours_day: defaultLimits.max_work_hours_day,
+          max_study_hours_day: defaultLimits.max_study_hours_day,
+          max_work_hours_week: defaultLimits.max_work_hours_week,
+          max_study_hours_week: defaultLimits.max_study_hours_week,
+          max_work_hours_month: defaultLimits.max_work_hours_month,
+          max_study_hours_month: defaultLimits.max_study_hours_month,
+          max_work_hours_year: defaultLimits.max_work_hours_year,
+          max_study_hours_year: defaultLimits.max_study_hours_year
+        });
+
+      if (error) throw new Error(error.message);
+      return { success: true };
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při vytváření limitů učedníka");
+    }
+  },
+
+  // User Hour Limits - Aktualizovat limity učedníka
+  async updateUserHourLimits(userId: string, limits: {
+    max_work_hours_day: number;
+    max_study_hours_day: number;
+    max_work_hours_week: number;
+    max_study_hours_week: number;
+    max_work_hours_month: number;
+    max_study_hours_month: number;
+    max_work_hours_year: number;
+    max_study_hours_year: number;
+  }) {
+    try {
+      const { error } = await supabase
+        .from("user_hour_limits")
+        .upsert({
+          user_id: userId,
+          ...limits,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'user_id' });
+
+      if (error) throw new Error(error.message);
+      return { success: true };
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při ukládání limitů učedníka");
+    }
+  }
+};

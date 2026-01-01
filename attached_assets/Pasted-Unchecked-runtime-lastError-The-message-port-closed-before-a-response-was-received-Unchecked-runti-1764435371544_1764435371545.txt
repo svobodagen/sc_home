@@ -1,0 +1,1762 @@
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: The message port closed before a response was received.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+Unchecked runtime.lastError: The page keeping the extension port is moved into back/forward cache, so the message channel is closed.
+Unchecked runtime.lastError: The page keeping the extension port is moved into back/forward cache, so the message channel is closed.
+background.js:1 Uncaught (in promise) 
+background.js:1 Uncaught (in promise) 
+background.js:1 Uncaught (in promise) 
+background.js:1 Uncaught (in promise) 
+background.js:1 Uncaught (in promise) 
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+CraftAccountant#BACKEND_SETUP_PLAN.md:1 The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+CraftAccountant#BACKEND_SETUP_PLAN.md:1 The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+CraftAccountant#BACKEND_SETUP_PLAN.md:1 The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+429728933c50c450.js:2 
+      /////////////////////
+   ///////////////////////////
+  ////////@@@@@@@//////////////
+  ////////@@@@@@@//////////////
+  ////////@@@@@@@//////////////        Curious and driven?
+  ///////////////@@@@@@@///////        Work with us!
+  ///////////////@@@@@@@///////
+  ///////////////@@@@@@@///////        https://join.replit.com/hack.with.us
+  ////////@@@@@@@//////////////
+  ////////@@@@@@@//////////////
+  ////////@@@@@@#//////////////
+   ///////////////////////////
+      /////////////////////
+      
+429728933c50c450.js:2 Download the Apollo DevTools for a better development experience: https://chrome.google.com/webstore/detail/apollo-client-developer-t/jdkknkkbebbapilgoeccciglkfbmbnfm
+429728933c50c450.js:2 [LaunchDarkly] LaunchDarkly client initialized
+429728933c50c450.js:2 [Coframe] Replit Enterprise watcher loaded
+CraftAccountant:1 Banner not shown: beforeinstallpromptevent.preventDefault() called. The page must call beforeinstallpromptevent.prompt() to show the banner.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+ Unrecognized feature: 'ambient-light-sensor'.
+z @ ed1e693c96a75807.js:2
+ Unrecognized feature: 'battery'.
+z @ ed1e693c96a75807.js:2
+ Unrecognized feature: 'execution-while-not-rendered'.
+z @ ed1e693c96a75807.js:2
+ Unrecognized feature: 'execution-while-out-of-viewport'.
+z @ ed1e693c96a75807.js:2
+ Unrecognized feature: 'layout-animations'.
+z @ ed1e693c96a75807.js:2
+ Unrecognized feature: 'legacy-image-formats'.
+z @ ed1e693c96a75807.js:2
+ Unrecognized feature: 'navigation-override'.
+z @ ed1e693c96a75807.js:2
+ Unrecognized feature: 'oversized-images'.
+z @ ed1e693c96a75807.js:2
+ Unrecognized feature: 'publickey-credentials'.
+z @ ed1e693c96a75807.js:2
+ Unrecognized feature: 'speaker-selection'.
+z @ ed1e693c96a75807.js:2
+ Unrecognized feature: 'unoptimized-images'.
+z @ ed1e693c96a75807.js:2
+ Unrecognized feature: 'unsized-media'.
+z @ ed1e693c96a75807.js:2
+ Unrecognized feature: 'pointer-lock'.
+z @ ed1e693c96a75807.js:2
+ Allow attribute will take precedence over 'allowfullscreen'.
+z @ ed1e693c96a75807.js:2
+ Allow attribute will take precedence over 'allowpaymentrequest'.
+z @ ed1e693c96a75807.js:2
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+content_script.js:1 Uncaught TypeError: Cannot read properties of undefined (reading 'control')
+    at content_script.js:1:422999
+    at Array.some (<anonymous>)
+    at shouldOfferCompletionListForField (content_script.js:1:422984)
+    at elementWasFocused (content_script.js:1:423712)
+    at HTMLDocument.focusInEventHandler (content_script.js:1:423069)
+content_script.js:1 Uncaught (in promise) TypeError: Cannot read properties of undefined (reading 'control')
+    at content_script.js:1:422999
+    at Array.some (<anonymous>)
+    at shouldOfferCompletionListForField (content_script.js:1:422984)
+    at processInputEvent (content_script.js:1:426332)
+content_script.js:1 Uncaught (in promise) TypeError: Cannot read properties of undefined (reading 'control')
+    at content_script.js:1:422999
+    at Array.some (<anonymous>)
+    at shouldOfferCompletionListForField (content_script.js:1:422984)
+    at processInputEvent (content_script.js:1:426332)
+content_script.js:1 Uncaught (in promise) TypeError: Cannot read properties of undefined (reading 'control')
+    at content_script.js:1:422999
+    at Array.some (<anonymous>)
+    at shouldOfferCompletionListForField (content_script.js:1:422984)
+    at processInputEvent (content_script.js:1:426332)
+content_script.js:1 Uncaught (in promise) TypeError: Cannot read properties of undefined (reading 'control')
+    at content_script.js:1:422999
+    at Array.some (<anonymous>)
+    at shouldOfferCompletionListForField (content_script.js:1:422984)
+    at processInputEvent (content_script.js:1:426332)
+content_script.js:1 Uncaught TypeError: Cannot read properties of undefined (reading 'control')
+    at content_script.js:1:422999
+    at Array.some (<anonymous>)
+    at shouldOfferCompletionListForField (content_script.js:1:422984)
+    at elementWasFocused (content_script.js:1:423712)
+    at HTMLDocument.focusInEventHandler (content_script.js:1:423069)
+content_script.js:1 Uncaught (in promise) TypeError: Cannot read properties of undefined (reading 'control')
+    at content_script.js:1:422999
+    at Array.some (<anonymous>)
+    at shouldOfferCompletionListForField (content_script.js:1:422984)
+    at processInputEvent (content_script.js:1:426332)
+content_script.js:1 Uncaught TypeError: Cannot read properties of undefined (reading 'control')
+    at content_script.js:1:422999
+    at Array.some (<anonymous>)
+    at shouldOfferCompletionListForField (content_script.js:1:422984)
+    at elementWasFocused (content_script.js:1:423712)
+    at HTMLDocument.focusInEventHandler (content_script.js:1:423069)
+content_script.js:1 Uncaught (in promise) TypeError: Cannot read properties of undefined (reading 'control')
+    at content_script.js:1:422999
+    at Array.some (<anonymous>)
+    at shouldOfferCompletionListForField (content_script.js:1:422984)
+    at processInputEvent (content_script.js:1:426332)
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+429728933c50c450.js:2 [Coframe] Mutation callback infinite loop protection triggered, disconnecting mutation observer Object
+(anonymous) @ 429728933c50c450.js:2
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+content_script.js:1 Uncaught (in promise) TypeError: Cannot read properties of null (reading 'ControlLooksLikePasswordCredentialField')
+    at shouldOfferCompletionListForField (content_script.js:1:422251)
+    at HTMLDocument.keyDownEventHandler (content_script.js:1:425526)
+content_script.js:1 Uncaught TypeError: Cannot read properties of undefined (reading 'control')
+    at content_script.js:1:422999
+    at Array.some (<anonymous>)
+    at shouldOfferCompletionListForField (content_script.js:1:422984)
+    at elementWasFocused (content_script.js:1:423712)
+    at HTMLDocument.focusInEventHandler (content_script.js:1:423069)
+content_script.js:1 Uncaught TypeError: Cannot read properties of undefined (reading 'control')
+    at content_script.js:1:422999
+    at Array.some (<anonymous>)
+    at shouldOfferCompletionListForField (content_script.js:1:422984)
+    at elementWasFocused (content_script.js:1:423712)
+    at HTMLDocument.focusInEventHandler (content_script.js:1:423069)
+content_script.js:1 Uncaught TypeError: Cannot read properties of undefined (reading 'control')
+    at content_script.js:1:422999
+    at Array.some (<anonymous>)
+    at shouldOfferCompletionListForField (content_script.js:1:422984)
+    at elementWasFocused (content_script.js:1:423712)
+    at HTMLDocument.focusInEventHandler (content_script.js:1:423069)
+content_script.js:1 Uncaught TypeError: Cannot read properties of undefined (reading 'control')
+    at content_script.js:1:422999
+    at Array.some (<anonymous>)
+    at shouldOfferCompletionListForField (content_script.js:1:422984)
+    at elementWasFocused (content_script.js:1:423712)
+    at HTMLDocument.focusInEventHandler (content_script.js:1:423069)
+content_script.js:1 Uncaught TypeError: Cannot read properties of undefined (reading 'control')
+    at content_script.js:1:422999
+    at Array.some (<anonymous>)
+    at shouldOfferCompletionListForField (content_script.js:1:422984)
+    at elementWasFocused (content_script.js:1:423712)
+    at HTMLDocument.focusInEventHandler (content_script.js:1:423069)
+content_script.js:1 Uncaught TypeError: Cannot read properties of undefined (reading 'control')
+    at content_script.js:1:422999
+    at Array.some (<anonymous>)
+    at shouldOfferCompletionListForField (content_script.js:1:422984)
+    at elementWasFocused (content_script.js:1:423712)
+    at HTMLDocument.focusInEventHandler (content_script.js:1:423069)
+content_script.js:1 Uncaught TypeError: Cannot read properties of undefined (reading 'control')
+    at content_script.js:1:422999
+    at Array.some (<anonymous>)
+    at shouldOfferCompletionListForField (content_script.js:1:422984)
+    at elementWasFocused (content_script.js:1:423712)
+    at HTMLDocument.focusInEventHandler (content_script.js:1:423069)
+CraftAccountant:1 Access to XMLHttpRequest at 'https://events.launchdarkly.com/events/bulk/62b35a865152ab14c5942820' from origin 'https://replit.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+events.launchdarkly.com/events/bulk/62b35a865152ab14c5942820:1  Failed to load resource: net::ERR_FAILED
+content_script.js:1 Uncaught 
+content_script.js:1 Uncaught 
+Error in event handler: TypeError: Cannot read properties of null (reading 'postMessage')
+    at #Q (chrome-extension://pejdijmoenmkgeppbflobdenhhabjlaj/background.js:1:58545)
+    at #k (chrome-extension://pejdijmoenmkgeppbflobdenhhabjlaj/background.js:1:58018)
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+extensionState.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+utils.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+heuristicsRedefinitions.js:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+background.js:1 Uncaught (in promise) FrameDoesNotExistError: Frame 0 does not exist in tab 1421692386
+    at DelayedMessageSender.<anonymous> (background.js:1:49079)
+ stallwart: failed ping 1
+workspace_iframe.html?initialPath=%2F&id=%3Ar3up%3A:32 Unrecognized feature: 'ambient-light-sensor'.
+workspace_iframe.html?initialPath=%2F&id=%3Ar3up%3A:32 Unrecognized feature: 'battery'.
+workspace_iframe.html?initialPath=%2F&id=%3Ar3up%3A:32 Unrecognized feature: 'execution-while-not-rendered'.
+workspace_iframe.html?initialPath=%2F&id=%3Ar3up%3A:32 Unrecognized feature: 'execution-while-out-of-viewport'.
+workspace_iframe.html?initialPath=%2F&id=%3Ar3up%3A:32 Unrecognized feature: 'layout-animations'.
+workspace_iframe.html?initialPath=%2F&id=%3Ar3up%3A:32 Unrecognized feature: 'legacy-image-formats'.
+workspace_iframe.html?initialPath=%2F&id=%3Ar3up%3A:32 Unrecognized feature: 'navigation-override'.
+workspace_iframe.html?initialPath=%2F&id=%3Ar3up%3A:32 Unrecognized feature: 'oversized-images'.
+workspace_iframe.html?initialPath=%2F&id=%3Ar3up%3A:32 Unrecognized feature: 'publickey-credentials'.
+workspace_iframe.html?initialPath=%2F&id=%3Ar3up%3A:32 Unrecognized feature: 'speaker-selection'.
+workspace_iframe.html?initialPath=%2F&id=%3Ar3up%3A:32 Unrecognized feature: 'unoptimized-images'.
+workspace_iframe.html?initialPath=%2F&id=%3Ar3up%3A:32 Unrecognized feature: 'unsized-media'.
+workspace_iframe.html?initialPath=%2F&id=%3Ar3up%3A:32 Allow attribute will take precedence over 'allowfullscreen'.
+workspace_iframe.html?initialPath=%2F&id=%3Ar3up%3A:32 Allow attribute will take precedence over 'allowpaymentrequest'.
+imivlsfkgmqkhqhhiilf.supabase.co/rest/v1/master_apprentices?columns=%22id%22%2C%22master_id%22%2C%22apprentice_id%22%2C%22apprentice_name%22%2C%22timestamp%22&select=*:1  Failed to load resource: the server responded with a status of 400 ()
+imivlsfkgmqkhqhhiilf.supabase.co/rest/v1/master_apprentices?columns=%22id%22%2C%22master_id%22%2C%22apprentice_id%22%2C%22apprentice_name%22%2C%22timestamp%22&select=*:1  Failed to load resource: the server responded with a status of 400 ()
+imivlsfkgmqkhqhhiilf.supabase.co/rest/v1/master_apprentices?columns=%22id%22%2C%22master_id%22%2C%22apprentice_id%22%2C%22apprentice_name%22%2C%22timestamp%22&select=*:1  Failed to load resource: the server responded with a status of 400 ()
+imivlsfkgmqkhqhhiilf.supabase.co/rest/v1/master_apprentices?columns=%22id%22%2C%22master_id%22%2C%22apprentice_id%22%2C%22apprentice_name%22%2C%22timestamp%22&select=*:1  Failed to load resource: the server responded with a status of 400 ()
+imivlsfkgmqkhqhhiilf.supabase.co/rest/v1/master_apprentices?columns=%22id%22%2C%22master_id%22%2C%22apprentice_id%22%2C%22apprentice_name%22%2C%22timestamp%22&select=*:1  Failed to load resource: the server responded with a status of 400 ()
+imivlsfkgmqkhqhhiilf.supabase.co/rest/v1/master_apprentices?columns=%22id%22%2C%22master_id%22%2C%22apprentice_id%22%2C%22apprentice_name%22%2C%22timestamp%22&select=*:1  Failed to load resource: the server responded with a status of 400 ()
+imivlsfkgmqkhqhhiilf.supabase.co/rest/v1/master_apprentices?columns=%22id%22%2C%22master_id%22%2C%22apprentice_id%22%2C%22apprentice_name%22%2C%22timestamp%22&select=*:1  Failed to load resource: the server responded with a status of 400 ()
+imivlsfkgmqkhqhhiilf.supabase.co/rest/v1/master_apprentices?columns=%22id%22%2C%22master_id%22%2C%22apprentice_id%22%2C%22apprentice_name%22%2C%22timestamp%22&select=*:1  Failed to load resource: the server responded with a status of 400 ()
+injected.js:37 "shadow*" style props are deprecated. Use "boxShadow".
+(anonymous) @ injected.js:37
+injected.js:37 Running application "main" with appParams:
+ Object 
+Development-level warnings: ON.
+Performance optimizations: OFF.
+injected.js:37 props.pointerEvents is deprecated. Use style.pointerEvents
+(anonymous) @ injected.js:37
+injected.js:37 🎓 Certtifikáty načteny: Array(3)
+injected.js:37 📊 totalWorkHours: 0 totalProjectCount: 0 totalPoints: 0
+injected.js:37 🔍 Checking cert 4 - rules: Array(1)
+injected.js:37 🔒 Cert 4: Pravidla nesplněna
+injected.js:37 ✅/🔒 Cert 4 (starter): unlocked=false
+injected.js:37 🔍 Checking cert 5 - rules: Array(1)
+injected.js:37 🔍 Checking cert 6 - rules: Array(1)
+injected.js:37 🔒 Cert 5: Pravidla nesplněna
+injected.js:37 ✅/🔒 Cert 5 (Tovaryš): unlocked=false
+injected.js:37 🔒 Cert 6: Pravidla nesplněna
+injected.js:37 ✅/🔒 Cert 6 (week): unlocked=false
+injected.js:37 🎉 Certifikáty se statusem: Array(3)
+injected.js:37 📥 loadAvailableApprentices start, selectedMaster: user_1764423855472_y8kbt9cqw mastersData length: 1
+injected.js:37 📚 Všichni učedníci: 1
+injected.js:37 🎯 currentMaster found: true name: Mistr 1
+injected.js:37 ✓ Přiřazená ID: Array(0)
+injected.js:37 ✅ Dostupní učedníci: 1 Array(1)
+injected.js:37 🔗 Přidávám učedníka: Object
+imivlsfkgmqkhqhhiilf.supabase.co/rest/v1/master_apprentices?columns=%22id%22%2C%22master_id%22%2C%22apprentice_id%22%2C%22apprentice_name%22%2C%22timestamp%22&select=*:1  Failed to load resource: the server responded with a status of 400 ()
+injected.js:37 Chyba při přidávání učedníka: Error: Could not find the 'timestamp' column of 'master_apprentices' in the schema cache
+    at Object.addApprentice (api.ts:135:13)
+    at async addApprenticeToMaster (MasterContext.tsx:115:7)
+    at async handleAddApprenticeToMaster (AdminScreen.tsx:206:7)
+(anonymous) @ injected.js:37
+injected.js:37 ❌ Chyba při přidávání učedníka: Error: Could not find the 'timestamp' column of 'master_apprentices' in the schema cache
+    at Object.addApprentice (api.ts:135:13)
+    at async addApprenticeToMaster (MasterContext.tsx:115:7)
+    at async handleAddApprenticeToMaster (AdminScreen.tsx:206:7)
+(anonymous) @ injected.js:37
+injected.js:37 🔗 Přidávám učedníka: Object
+imivlsfkgmqkhqhhiilf.supabase.co/rest/v1/master_apprentices?columns=%22id%22%2C%22master_id%22%2C%22apprentice_id%22%2C%22apprentice_name%22%2C%22timestamp%22&select=*:1  Failed to load resource: the server responded with a status of 400 ()
+injected.js:37 Chyba při přidávání učedníka: Error: Could not find the 'timestamp' column of 'master_apprentices' in the schema cache
+    at Object.addApprentice (api.ts:135:13)
+    at async addApprenticeToMaster (MasterContext.tsx:115:7)
+    at async handleAddApprenticeToMaster (AdminScreen.tsx:206:7)
+(anonymous) @ injected.js:37
+injected.js:37 ❌ Chyba při přidávání učedníka: Error: Could not find the 'timestamp' column of 'master_apprentices' in the schema cache
+    at Object.addApprentice (api.ts:135:13)
+    at async addApprenticeToMaster (MasterContext.tsx:115:7)
+    at async handleAddApprenticeToMaster (AdminScreen.tsx:206:7)
+(anonymous) @ injected.js:37
+injected.js:37 🔗 Přidávám učedníka: Object
+imivlsfkgmqkhqhhiilf.supabase.co/rest/v1/master_apprentices?columns=%22id%22%2C%22master_id%22%2C%22apprentice_id%22%2C%22apprentice_name%22%2C%22timestamp%22&select=*:1  Failed to load resource: the server responded with a status of 400 ()
+injected.js:37 Chyba při přidávání učedníka: Error: Could not find the 'timestamp' column of 'master_apprentices' in the schema cache
+    at Object.addApprentice (api.ts:135:13)
+    at async addApprenticeToMaster (MasterContext.tsx:115:7)
+    at async handleAddApprenticeToMaster (AdminScreen.tsx:206:7)
+(anonymous) @ injected.js:37
+injected.js:37 ❌ Chyba při přidávání učedníka: Error: Could not find the 'timestamp' column of 'master_apprentices' in the schema cache
+    at Object.addApprentice (api.ts:135:13)
+    at async addApprenticeToMaster (MasterContext.tsx:115:7)
+    at async handleAddApprenticeToMaster (AdminScreen.tsx:206:7)
+(anonymous) @ injected.js:37
+injected.js:37 🔗 Přidávám učedníka: Object
+imivlsfkgmqkhqhhiilf.supabase.co/rest/v1/master_apprentices?columns=%22id%22%2C%22master_id%22%2C%22apprentice_id%22%2C%22apprentice_name%22%2C%22timestamp%22&select=*:1  Failed to load resource: the server responded with a status of 400 ()
+injected.js:37 Chyba při přidávání učedníka: Error: Could not find the 'timestamp' column of 'master_apprentices' in the schema cache
+    at Object.addApprentice (api.ts:135:13)
+    at async addApprenticeToMaster (MasterContext.tsx:115:7)
+    at async handleAddApprenticeToMaster (AdminScreen.tsx:206:7)
+(anonymous) @ injected.js:37
+injected.js:37 ❌ Chyba při přidávání učedníka: Error: Could not find the 'timestamp' column of 'master_apprentices' in the schema cache
+    at Object.addApprentice (api.ts:135:13)
+    at async addApprenticeToMaster (MasterContext.tsx:115:7)
+    at async handleAddApprenticeToMaster (AdminScreen.tsx:206:7)
+(anonymous) @ injected.js:37
+injected.js:37 🔗 Přidávám učedníka: Object
+imivlsfkgmqkhqhhiilf.supabase.co/rest/v1/master_apprentices?columns=%22id%22%2C%22master_id%22%2C%22apprentice_id%22%2C%22apprentice_name%22%2C%22timestamp%22&select=*:1  Failed to load resource: the server responded with a status of 400 ()
+injected.js:37 Chyba při přidávání učedníka: Error: Could not find the 'timestamp' column of 'master_apprentices' in the schema cache
+    at Object.addApprentice (api.ts:135:13)
+    at async addApprenticeToMaster (MasterContext.tsx:115:7)
+    at async handleAddApprenticeToMaster (AdminScreen.tsx:206:7)
+(anonymous) @ injected.js:37
+injected.js:37 ❌ Chyba při přidávání učedníka: Error: Could not find the 'timestamp' column of 'master_apprentices' in the schema cache
+    at Object.addApprentice (api.ts:135:13)
+    at async addApprenticeToMaster (MasterContext.tsx:115:7)
+    at async handleAddApprenticeToMaster (AdminScreen.tsx:206:7)
+(anonymous) @ injected.js:37
+injected.js:37 🔗 Přidávám učedníka: Object
+imivlsfkgmqkhqhhiilf.supabase.co/rest/v1/master_apprentices?columns=%22id%22%2C%22master_id%22%2C%22apprentice_id%22%2C%22apprentice_name%22%2C%22timestamp%22&select=*:1  Failed to load resource: the server responded with a status of 400 ()
+injected.js:37 Chyba při přidávání učedníka: Error: Could not find the 'timestamp' column of 'master_apprentices' in the schema cache
+    at Object.addApprentice (api.ts:135:13)
+    at async addApprenticeToMaster (MasterContext.tsx:115:7)
+    at async handleAddApprenticeToMaster (AdminScreen.tsx:206:7)
+(anonymous) @ injected.js:37
+injected.js:37 ❌ Chyba při přidávání učedníka: Error: Could not find the 'timestamp' column of 'master_apprentices' in the schema cache
+    at Object.addApprentice (api.ts:135:13)
+    at async addApprenticeToMaster (MasterContext.tsx:115:7)
+    at async handleAddApprenticeToMaster (AdminScreen.tsx:206:7)
+(anonymous) @ injected.js:37
+injected.js:37 🔗 Přidávám učedníka: Object
+imivlsfkgmqkhqhhiilf.supabase.co/rest/v1/master_apprentices?columns=%22id%22%2C%22master_id%22%2C%22apprentice_id%22%2C%22apprentice_name%22%2C%22timestamp%22&select=*:1  Failed to load resource: the server responded with a status of 400 ()
+injected.js:37 Chyba při přidávání učedníka: Error: Could not find the 'timestamp' column of 'master_apprentices' in the schema cache
+    at Object.addApprentice (api.ts:135:13)
+    at async addApprenticeToMaster (MasterContext.tsx:115:7)
+    at async handleAddApprenticeToMaster (AdminScreen.tsx:206:7)
+(anonymous) @ injected.js:37
+injected.js:37 ❌ Chyba při přidávání učedníka: Error: Could not find the 'timestamp' column of 'master_apprentices' in the schema cache
+    at Object.addApprentice (api.ts:135:13)
+    at async addApprenticeToMaster (MasterContext.tsx:115:7)
+    at async handleAddApprenticeToMaster (AdminScreen.tsx:206:7)
+(anonymous) @ injected.js:37
+injected.js:37 🔗 Přidávám učedníka: Object
+imivlsfkgmqkhqhhiilf.supabase.co/rest/v1/master_apprentices?columns=%22id%22%2C%22master_id%22%2C%22apprentice_id%22%2C%22apprentice_name%22%2C%22timestamp%22&select=*:1  Failed to load resource: the server responded with a status of 400 ()
+injected.js:37 Chyba při přidávání učedníka: Error: Could not find the 'timestamp' column of 'master_apprentices' in the schema cache
+    at Object.addApprentice (api.ts:135:13)
+    at async addApprenticeToMaster (MasterContext.tsx:115:7)
+    at async handleAddApprenticeToMaster (AdminScreen.tsx:206:7)
+(anonymous) @ injected.js:37
+injected.js:37 ❌ Chyba při přidávání učedníka: Error: Could not find the 'timestamp' column of 'master_apprentices' in the schema cache
+    at Object.addApprentice (api.ts:135:13)
+    at async addApprenticeToMaster (MasterContext.tsx:115:7)
+    at async handleAddApprenticeToMaster (AdminScreen.tsx:206:7)
+(anonymous) @ injected.js:37
+injected.js:37 🔗 Přidávám učedníka: {apprenticeId: 'user_1764414296300_fivokdown', apprenticeName: 'ysdvs', selectedMaster: 'user_1764423855472_y8kbt9cqw'}
+injected.js:214  POST https://imivlsfkgmqkhqhhiilf.supabase.co/rest/v1/master_apprentices?columns=%22id%22%2C%22master_id%22%2C%22apprentice_id%22%2C%22apprentice_name%22%2C%22timestamp%22&select=* 400 (Bad Request)
+apply @ injected.js:214
+(anonymous) @ fetch.js:5
+(anonymous) @ fetch.js:23
+await in (anonymous)
+then @ PostgrestBuilder.js:72
+injected.js:37 Chyba při přidávání učedníka: Error: Could not find the 'timestamp' column of 'master_apprentices' in the schema cache
+    at Object.addApprentice (api.ts:135:13)
+    at async addApprenticeToMaster (MasterContext.tsx:115:7)
+    at async handleAddApprenticeToMaster (AdminScreen.tsx:206:7)
+(anonymous) @ injected.js:37
+addApprenticeToMaster @ MasterContext.tsx:136
+await in addApprenticeToMaster
+handleAddApprenticeToMaster @ AdminScreen.tsx:206
+onPress @ AdminScreen.tsx:726
+onClick @ PressResponder.js:314
+executeDispatch @ react-dom-client.development.js:16368
+runWithFiberInDEV @ react-dom-client.development.js:1519
+processDispatchQueue @ react-dom-client.development.js:16418
+(anonymous) @ react-dom-client.development.js:17016
+batchedUpdates$1 @ react-dom-client.development.js:3262
+dispatchEventForPluginEventSystem @ react-dom-client.development.js:16572
+dispatchEvent @ react-dom-client.development.js:20658
+dispatchDiscreteEvent @ react-dom-client.development.js:20626
+injected.js:37 ❌ Chyba při přidávání učedníka: Error: Could not find the 'timestamp' column of 'master_apprentices' in the schema cache
+    at Object.addApprentice (api.ts:135:13)
+    at async addApprenticeToMaster (MasterContext.tsx:115:7)
+    at async handleAddApprenticeToMaster (AdminScreen.tsx:206:7)
+(anonymous) @ injected.js:37
+handleAddApprenticeToMaster @ AdminScreen.tsx:212
+await in handleAddApprenticeToMaster
+onPress @ AdminScreen.tsx:726
+onClick @ PressResponder.js:314
+executeDispatch @ react-dom-client.development.js:16368
+runWithFiberInDEV @ react-dom-client.development.js:1519
+processDispatchQueue @ react-dom-client.development.js:16418
+(anonymous) @ react-dom-client.development.js:17016
+batchedUpdates$1 @ react-dom-client.development.js:3262
+dispatchEventForPluginEventSystem @ react-dom-client.development.js:16572
+dispatchEvent @ react-dom-client.development.js:20658
+dispatchDiscreteEvent @ react-dom-client.development.js:20626

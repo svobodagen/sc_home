@@ -1,0 +1,104 @@
+-----
+
+Rozumím. Je to velmi častý problém, se kterým se setkávají vývojáři při používání knihoven ikon v React Native/Expo, zejména při přechodu z iOS na Android.
+
+Problém s "nesmyslnými znaky" (obvykle prázdné čtverečky nebo podivné symboly) místo ikon je téměř vždy spojen s **načítáním fontů ikon**.
+
+### 🧐 Analýza problému (Proč to na Androidu nefunguje):
+
+1.  **Chybějící nebo nesprávné načtení fontu:** Ikony z knihoven jako `FontAwesome`, `Ionicons`, nebo `MaterialIcons` nejsou obrázky, ale glyfy (znaky) obsažené ve speciálním fontu.
+2.  **Android a Expo Go:** Na iOS zařízení (kde vám to funguje) je mnoho systémových fontů, včetně některých pro ikony, již předinstalováno v operačním systému nebo je Expo Go automaticky lépe načítá. Na Androidu (nebo na zařízeních, která mají jinou verzi Expo Go) se to nemusí stát. Expo Go **by sice mělo** automaticky načíst nejpoužívanější fonty ikon z balíčku `@expo/vector-icons`, ale často se stává, že je potřeba načtení vynutit.
+3.  **Prostředí Replit:** Programování v Replitu sice neovlivňuje finální spuštění aplikace na zařízení, ale při jakékoliv nečistotě v kódu nebo v konfiguraci se chyba projeví na cílovém zařízení.
+
+### ✅ Navrhované řešení (Neovlivní spouštění aplikace):
+
+Nejspolehlivějším řešením je **explicitní načtení všech potřebných fontů ikon** na začátku aplikace pomocí funkce `useFonts` z balíčku `expo-font`. Tím zajistíte, že fonty budou k dispozici předtím, než se pokusí vykreslit jakákoli komponenta s ikonou.
+
+#### Krok 1: Instalace (pokud již nemáte)
+
+Ujistěte se, že máte v Replitu instalované balíčky `expo-font` a `expo-app-loading` (nebo modernější `expo-splash-screen` pro zpracování načítání):
+
+```bash
+npm install expo-font expo-splash-screen
+```
+
+#### Krok 2: Explicitní načtení fontů v `App.js` (nebo hlavní komponentě)
+
+Zde je vzorový kód, který ukazuje, jak načíst fonty ikon. Použijeme komponentu `SplashScreen` pro zobrazení úvodní obrazovky, dokud se fonty načítají.
+
+```javascript
+import React, { useState, useEffect, useCallback } from 'react';
+import { Text, View, StyleSheet } from 'react-native';
+import * as Font from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
+import Ionicons from '@expo/vector-icons/Ionicons'; // Příklad jedné z ikonových knihoven
+
+// Zabránění automatickému skrytí splash screenu, dokud se nenačte font
+SplashScreen.preventAutoHideAsync();
+
+export default function App() {
+  const [appIsReady, setAppIsReady] = useState(false);
+
+  useEffect(() => {
+    async function prepare() {
+      try {
+        // --- KLÍČOVÁ ČÁST: NAČTENÍ FONTŮ ---
+        await Font.loadAsync({
+          // Načítáme fonty pro ikonové knihovny, které používáte
+          'Ionicons': require('@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Ionicons.ttf'),
+          'FontAwesome': require('@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/FontAwesome.ttf'),
+          // Přidejte další, které používáte (např. 'MaterialIcons', 'Feather', atd.)
+        });
+      } catch (e) {
+        console.warn(e);
+      } finally {
+        // Jakmile se fonty načtou, nastavíme, že je aplikace připravena
+        setAppIsReady(true);
+      }
+    }
+
+    prepare();
+  }, []);
+
+  const onLayoutRootView = useCallback(async () => {
+    if (appIsReady) {
+      // Skryjeme splash screen, jakmile je aplikace připravena
+      await SplashScreen.hideAsync();
+    }
+  }, [appIsReady]);
+
+  if (!appIsReady) {
+    return null; // Zobrazuje se splash screen, dokud se nenačte
+  }
+
+  return (
+    <View style={styles.container} onLayout={onLayoutRootView}>
+      {/* Testovací ikona, která by teď měla fungovat */}
+      <Ionicons name="home" size={40} color="blue" />
+      <Text>Aplikace je spuštěna</Text>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
+```
+
+### 🔑 Proč toto řešení funguje?
+
+Tento přístup **obejde potenciální problém s automatickým načítáním v Expo Go na Androidu** tím, že:
+
+1.  **Vynutí načtení souboru TTF:** Příkaz `require('@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Ionicons.ttf')` zajišťuje, že správný soubor fontu je explicitně načten a registrován v Expo runtime.
+2.  **Použije App State:** Zajišťuje, že vykreslování komponent, které ikony používají, se spustí až **po** dokončení načítání fontů (`if (!appIsReady) return null;`).
+
+**Důležité:** Musíte v bloku `Font.loadAsync` uvést **všechny ikonové fonty**, které ve své aplikaci používáte. (Např. pokud používáte `AntDesign`, musíte přidat i jeho font.)
+
+-----
+
+Chcete, abych vám pomohl zkontrolovat váš kód a ujistit se, že správně identifikujete a načítáte všechny potřebné fonty ikon?

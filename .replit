@@ -1,0 +1,159 @@
+entrypoint = "README.md"
+modules = ["nodejs-22", "postgresql-16"]
+
+[nix]
+channel = "stable-24_05"
+
+[[ports]]
+localPort = 3000
+externalPort = 3003
+
+[[ports]]
+localPort = 5000
+externalPort = 5000
+
+[[ports]]
+localPort = 8000
+externalPort = 8000
+
+[[ports]]
+localPort = 8081
+externalPort = 80
+
+[[ports]]
+localPort = 8082
+externalPort = 3000
+
+[[ports]]
+localPort = 34361
+externalPort = 8080
+
+[[ports]]
+localPort = 36655
+externalPort = 5173
+
+[[ports]]
+localPort = 36657
+externalPort = 6800
+
+[[ports]]
+localPort = 36959
+externalPort = 3001
+
+[[ports]]
+localPort = 37293
+externalPort = 3002
+
+[[ports]]
+localPort = 37491
+externalPort = 4200
+
+[[ports]]
+localPort = 41365
+externalPort = 8008
+
+[[ports]]
+localPort = 42101
+externalPort = 8081
+
+[[ports]]
+localPort = 43313
+externalPort = 6000
+
+[[ports]]
+localPort = 43695
+externalPort = 8099
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "EAS Init"
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx eas init"
+
+[[workflows.workflow]]
+name = "EAS Update"
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx eas update --auto"
+
+[[workflows.workflow]]
+name = "EAS Publish Preview iOS"
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx eas build --platform ios --profile preview"
+
+[[workflows.workflow]]
+name = "EAS Publish Preview Android"
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx eas build --platform android --profile preview"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start application"
+
+[[workflows.workflow]]
+name = "Start application"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
+waitForPort = 8081
+ensurePreviewReachable = "/status"
+
+[[workflows.workflow]]
+name = "Start backend"
+mode = "parallel"
+author = 42535968
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "PORT=3000 node /home/runner/workspace/server.js"
+
+[agent]
+stack = "EXPO"
+integrations = ["google-drive:1.0.0"]
+
+[deployment]
+deploymentTarget = "static"
+publicDir = "static-build"
+build = ["node", "scripts/build.js"]
+
+# Expo manifest headers
+[[deployment.responseHeaders]]
+path = "/*"
+name = "expo-protocol-version"
+value = "1"
+
+[[deployment.responseHeaders]]
+path = "/*"
+name = "expo-sfv-version"
+value = "0"
+
+[userenv]
+
+[userenv.shared]
+REACT_APP_API_URL = "https://$REPLIT_DEV_DOMAIN"
+API_PORT = "3000"
+SUPABASE_URL = "https://imivlsfkgmqkhqhhiilf.supabase.co"
+SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImltaXZsc2ZrZ21xa2hxaGhpaWxmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQzNDY3MzEsImV4cCI6MjA3OTkyMjczMX0.KR4RHoQ4UlK2Sg7GB9LxdkaewPbDC86S7gIj8Inf0MA"
+SUPABASE_SERVICE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImltaXZsc2ZrZ21xa2hxaGhpaWxmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NDM0NjczMSwiZXhwIjoyMDc5OTIyNzMxfQ.Mm5KTvP74QMdNqvnLFiEE1dDDCm0GHVSqXrweo1cxV8"
+EXPO_PUBLIC_SUPABASE_URL = "https://imivlsfkgmqkhqhhiilf.supabase.co"
+EXPO_PUBLIC_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImltaXZsc2ZrZ21xa2hxaGhpaWxmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQzNDY3MzEsImV4cCI6MjA3OTkyMjczMX0.KR4RHoQ4UlK2Sg7GB9LxdkaewPbDC86S7gIj8Inf0MA"

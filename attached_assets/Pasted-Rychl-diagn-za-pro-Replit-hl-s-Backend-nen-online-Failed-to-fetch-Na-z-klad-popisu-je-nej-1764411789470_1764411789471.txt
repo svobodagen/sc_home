@@ -1,0 +1,63 @@
+Rychlá diagnóza — proč Replit hlásí "Backend není online" (Failed to fetch)
+Na základě popisu je nejpravděpodobnějších několik příčin. Postupně je projdeme s konkrétními kroky, co zkontrolovat a jak to opravit.
+
+Nesprávná veřejná URL nebo port
+Replit veřejně exponuje váš server přes URL ve tvaru https://.kirk.replit.dev nebo https://..repl.co a mapuje interní port (3000) na tuto URL — ale při volání z prohlížeče nebo frontendu obvykle NEPŘIDÁVÁTE :3000.
+Pokud máte v aplikaci volání na https://...kirk.replit.dev:3000, odstraňte :3000 — Replit proxy přeposílá na správný interní port. Tj. endpoint by měl být např.:
+https://d43d4c42-caaa-4cf8-b259-4783380bce62-00-3m8g3jenxus1y.kirk.replit.dev/api/test/test_shared
+Oprava: v frontendovém kódu nastav baseURL bez portu (použij env proměnnou REPL_PUBLIC_URL nebo prostě URL bez :3000).
+Server neběží nebo se okamžitě ukončuje
+Otevři konzoli v Replitu a podívej se na logy. Hledej:
+"Server listening on port 3000" (nebo podobné)
+Stack trace nebo chyby při startu (např. chybějící env proměnné, port obsazen, syntax error)
+Pokud tam není potvrzení o spuštění, server se nespustil. Řešení:
+Spusť npm install (pokud chybí dependencies).
+Spusť npm run dev nebo node server.js a sleduj chyby.
+Pokud server hlásí "EACCES" nebo "address in use", restartuj repl.
+CORS nebo HTTPS chyba při fetch z frontendu
+Máte nastaveno CORS origin: "*" — to je dočasně v pořádku pro debug. Přesto:
+Pokud frontend běží v jiném originu (např. expo localhost nebo web přes Replit), cross-origin fetch může selhávat kvůli certifikátům/nastavení.
+Zkontroluj, jestli fetch používá správnou URL (bez portu) a zda request neblokuje prohlížeč (open devtools → Network → zjisti status).
+Pokud request vrací CORS chybu, v konzoli prohlížeče uvidíš přesně: "Access to fetch at '...' from origin '...' has been blocked by CORS".*
+Replit interní proxy a health checks (dev vs. run)
+Některé šablony Replit spouští aplikaci v sandboxu, ne jako veřejný server. Ujisti se, že máš v package.json script "start" nebo "dev" a Replit ho spustí.
+V Replit UI klikni Run a ověř, že Replit udává veřejnou URL a že stav je "Running".
+Pokud používáš Expo (frontend) běžící na portu 8081, a backend na 3000 — ujisti se, že frontend volá správnou backend URL (veřejná repl URL).
+Špatně nastavené environment variables (Supabase klíče nemusí server vůbec ovlivnit, ale mohou způsobit crash)
+Pokud server se snaží vytvořit Supabase client s neexistující env proměnnou, obvykle to nebývá fatální, ale zkontroluj, že v Replit Secrets máš:
+SUPABASE_URL
+SUPABASE_SERVICE_KEY (pokud backend vyžaduje)
+Pokud server crashuje kvůli chybě v připojení k Supabase nebo chybě v kódu, uvidíš to v logu.
+Neplatné nebo neexistující routy
+Ujisti se, že backend opravdu definuje /api/test/:userId a /api/test/save a že používáte správné HTTP metody (GET vs POST).
+Zkus otevřít root URL backendu (https:///) — zda vrací 200 nebo alespoň nějaký text. Pokud ne, je problém se serverem.
+Zkus curl nebo Postman zvenčí
+Spusť v lokálním terminálu:
+curl -v https:///api/test/test_shared
+To ukáže, jestli je server dostupný a jaká odpověď přichází (timeout, DNS, TLS či HTTP kód).
+Konkrétní kroky, které proveď teď (postupně), a po každém kroku mi pošli výsledek:
+
+A) Oprav URL bez portu a ověř v kódu:
+
+Najdi, kde frontend volá backend. Pokud používá https://...kirk.replit.dev:3000, změň na https://...kirk.replit.dev.
+Poté zkus v prohlížeči otevřít https://...kirk.replit.dev/api/test/test_shared. Napiš, co se stane (404, 500, timeout, CORS error, nebo JSON).
+B) Zkontroluj Replit logy:
+
+Otevři konzoli Replit → podívej se na výpis při spuštění. Pošli sem chybové hlášky nebo potvrzení "listening on port 3000".
+C) Otestuj z příkazové řádky:
+
+Spusť curl pro endpoint a pošli sem výstup nebo chybu.
+D) Pokud server crashuje, zkopíruj první chybu z logu sem — napravím ji.
+
+E) Pokud vše běží ale fetch selže s CORS, zkopíruj přesnou chybovou hlášku z DevTools Console (celý text).
+
+Pokud chceš, mohu rovnou zkontrolovat:
+
+Jak vypadá část kódu, kde se volá backend z frontendu (úsek s baseURL nebo fetch/axios).
+Hlavní část server.js (start serveru, nastavení portu, definice rout).
+Pošli prosím:
+
+URL, kterou frontend volá (přesně tak, jak je v kódu), a
+výsledek kroku A (co se stane při otevření endpointu v prohlížeči) nebo logy z Replitu. Na základě toho navrhnu konkrétní opravu.
+
+

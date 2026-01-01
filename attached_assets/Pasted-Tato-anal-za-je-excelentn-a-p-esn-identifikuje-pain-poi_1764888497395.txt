@@ -1,0 +1,167 @@
+Tato analýza je **excelentní** a přesně identifikuje "pain points" vývoje v React Native na iOS. Jako expert mohu s 99% jistotou potvrdit vaši **Hypotézu A (Heterogenní data/NaN)**.
+
+iOS (na rozdíl od Androidu nebo Webového enginu) je na nativní vrstvě (`CoreGraphics`, `UIKit`) extrémně striktní ohledně datových typů. Pokud pošlete přes "Bridge" do nativního kódu (což `Animated` knihovna dělá) hodnotu `NaN`, `undefined`, nebo `string` tam, kde se čeká `CGFloat` (number), aplikace okamžitě spadne na **SIGABRT** (Signal Abort), protože nativní kód narazí na "illegal instruction". To se v JS nedá zachytit.
+
+V Replitu nemáte přístup k Xcode debuggeru, takže musíme problém vyřešit defenzivním programováním na úrovni JS.
+
+Zde je navržené řešení, které odstraní příčinu pádu (špatná data) a zachová swipe funkcionalitu.
+
+-----
+
+### Řešení: Striktní sanitizace a Safe-Guarding
+
+Problém není v gestu samotném, ale v tom, co gestu (nebo animovanému view) předáváte za čísla. Musíme vytvořit "firewall" mezi `AsyncStorage` a UI.
+
+#### Krok 1: Přidejte tuto sanitizační funkci
+
+Vložte tuto funkci mimo komponentu (nebo do utilit). Musí být nemilosrdná k datovým typům.
+
+```typescript
+// utils/dataSanitizer.ts nebo nahoře v souboru
+
+interface WorkHour {
+  id: string; // V UI používáte string ID, sjednotíme to
+  hours: number;
+  timestamp: number;
+  description: string;
+}
+
+const sanitizeWorkHours = (rawData: any): WorkHour[] => {
+  if (!Array.isArray(rawData)) {
+    console.warn("Data z AsyncStorage nejsou pole!");
+    return [];
+  }
+
+  return rawData.map((item, index) => {
+    // 1. Ošetření ID - pokud chybí, vygenerujeme random string
+    const safeId = item?.id 
+      ? String(item.id) 
+      : `fallback-id-${index}-${Date.now()}`;
+
+    // 2. Ošetření Hours - převod na float, fallback na 0
+    let safeHours = parseFloat(item?.hours);
+    if (isNaN(safeHours) || !isFinite(safeHours)) {
+      safeHours = 0;
+    }
+
+    // 3. Ošetření Timestamp - kritické pro date calculations
+    let safeTimestamp = parseInt(item?.timestamp, 10);
+    if (isNaN(safeTimestamp) || !isFinite(safeTimestamp)) {
+      safeTimestamp = Date.now(); 
+    }
+
+    return {
+      id: safeId,
+      hours: safeHours,
+      timestamp: safeTimestamp,
+      description: item?.description ? String(item.description) : "",
+    };
+  });
+};
+```
+
+#### Krok 2: Oprava načítání dat v `HodinyXScreen`
+
+Upravte `useFocusEffect`, aby data nešla do state proměnné dříve, než projdou sanitizací.
+
+```typescript
+// Uvnitř HodinyXScreen
+
+const [selectedApprenticeData, setSelectedApprenticeData] = useState<any>(null);
+
+useFocusEffect(
+  React.useCallback(() => {
+    let isActive = true; // Prevence setování state na unmounted komponentě
+
+    const loadMasterApprenticeData = async () => {
+      if (user?.role === "Mistr") {
+        try {
+          const rawString = await AsyncStorage.getItem("masterSelectedApprenticeData");
+          if (rawString && isActive) {
+            const parsed = JSON.parse(rawString);
+            
+            // TADY JE KLÍČOVÁ ZMĚNA
+            // Pokud parsed.workHours neexistuje, pošleme prázdné pole
+            const cleanWorkHours = sanitizeWorkHours(parsed?.workHours || []);
+            
+            // Uložíme do state už jen čistá data
+            setSelectedApprenticeData({
+              ...parsed,
+              workHours: cleanWorkHours
+            });
+          }
+        } catch (e) {
+          console.error("Failed to load/parse apprentice data", e);
+        }
+      }
+    };
+
+    loadMasterApprenticeData();
+
+    return () => { isActive = false; };
+  }, [user?.role])
+);
+
+// Použití dat
+const workHours = user?.role === "Mistr" && selectedApprenticeData 
+  ? selectedApprenticeData.workHours // Zde už jsou garantovaně čistá data
+  : userData.workHours;
+```
+
+#### Krok 3: Ochrana `Animated.Value` před NaN (Gesture Logic)
+
+I když jsou data čistá, výpočet šířky může selhat při prvním renderu (kdy `containerWidth` může být 0 nebo undefined). To způsobí dělení nulou nebo `NaN` v `Animated.spring`.
+
+Upravte váš `panGesture` callback:
+
+```typescript
+const panGesture = useCallback(() => {
+  return Gesture.Pan()
+    .onUpdate((event) => {
+      // OCHRANA: Pokud containerWidth není validní číslo, použijeme default
+      // Tím zabráníme poslání NaN do nativního kódu
+      const safeWidth = (containerWidth && containerWidth > 0) ? containerWidth : 360;
+      
+      const centerPosition = -safeWidth;
+      
+      // Double check pro NaN před voláním setValue
+      const newValue = centerPosition + event.translationX;
+      if (!isNaN(newValue) && isFinite(newValue)) {
+        panXRef.setValue(newValue);
+      }
+    })
+    .onEnd((event) => {
+      const safeWidth = (containerWidth && containerWidth > 0) ? containerWidth : 360;
+      const threshold = safeWidth * 0.51;
+      
+      if (event.translationX > threshold) {
+        // ... vaše logika pro předchozí periodu
+        
+        // Ujistěte se, že resetujete na 0 (což je vždy safe)
+        animationRef.current = Animated.spring(panXRef, {
+          toValue: 0,
+          speed: 8,
+          bounciness: 6,
+          useNativeDriver: false, // Toto je správně, JS driver je bezpečnější pro komplexní layouty
+        });
+        // ...
+      }
+      // ... else logika
+    });
+}, [containerWidth, getPrevPeriod, getNextPeriod]);
+```
+
+### Proč to v Expo Go padalo i s `ScrollView`?
+
+V analýze píšete, že to padalo i při použití `ScrollView` (4.4). To je silný indikátor, že problém byl v **renderování položek uvnitř listu**, ne nutně v gestu.
+
+Pokud `FlatList` nebo `ScrollView` renderuje komponentu (např. graf nebo text s datem), která dostane `NaN` (např. `<View style={{ width: NaN }} />`), iOS aplikace okamžitě spadne. Tím, že v Kroku 1 vynutíme `fallback` hodnoty (0 místo NaN), vyřešíme i pády při použití standardního ScrollView.
+
+### Shrnutí pro implementaci v Replitu
+
+1.  Zkopírujte funkci `sanitizeWorkHours` do kódu.
+2.  Aplikujte ji ihned po `JSON.parse` v `HodinyXScreen`.
+3.  Přidejte `isNaN` kontrolu do `onUpdate` metody gesta.
+4.  Zkuste aplikaci spustit.
+
+Pokud by to *stále* padalo, jediná zbývající možnost je konflikt verzí `react-native-reanimated` a `Expo SDK 54`. V tom případě by bylo nutné přepsat animaci čistě na `react-native-reanimated` API (použití `useSharedValue` místo `Animated.Value` a `useAnimatedStyle`), protože Reanimated 2/3+ řeší mnoho těchto "bridge crash" problémů automaticky na UI threadu. Ale výše uvedený postup by měl stačit.

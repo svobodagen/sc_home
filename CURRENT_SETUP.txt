@@ -1,0 +1,43 @@
+AKTUÁLNÍ NASTAVENÍ - TEXTOVÉ POLE → SUPABASE
+==============================================
+
+FRONTEND (Expo na portu 8081):
+- LoginScreen.tsx - textové pole (state: testSqlValue)
+- Tlačítko "Ulož do cloudu" → handleSaveTestSql()
+- API endpointy: api.saveTestValue(), api.getTestValue()
+
+BACKEND (Express na portu 3000):
+- server.js na 0.0.0.0:3000
+- CORS: origin: "*" (všechny domény povoleny)
+- Express.json() middleware pro JSON parsing
+- Supabase CLIENT: createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
+
+SUPABASE CLOUD:
+- URL: https://imivlsfkgmqkhqhhiilf.supabase.co
+- DB: PostgreSQL (Neon backend)
+- Tabulka: test_data (id, user_id, test_value, updated_at)
+
+DATAFLOW:
+1. Frontend: TextInput.value → testSqlValue state
+2. Frontend: POST /api/test/save {userId, testValue}
+3. Backend: Supabase.from("test_data").upsert({user_id, test_value})
+4. Supabase: INSERT/UPDATE do PostgreSQL
+5. Frontend: GET /api/test/test_shared
+6. Backend: SELECT test_value WHERE user_id='test_shared'
+7. Frontend: Zobrazí loadedValue v UI
+
+ENVIRONMENT:
+- SUPABASE_URL=https://imivlsfkgmqkhqhhiilf.supabase.co
+- SUPABASE_SERVICE_KEY=eyJhbGciOiJIUzI1NiIs... (admin)
+- SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIs... (public)
+- PORT=3000 (backend)
+
+API ENDPOINTY:
+- POST /api/test/save → Uloží { userId, testValue }
+- GET /api/test/{userId} → Vrátí { test_value }
+
+FIELD NAMES:
+- Frontend → Backend: testValue (camelCase)
+- Backend → Supabase: test_value (snake_case)
+- Supabase → Backend: test_value
+- Backend → Frontend: test_value nebo testValue

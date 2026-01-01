@@ -1,0 +1,18 @@
+Something went wrong
+Please reload the app to continue.
+Try Again
+Error Details
+Error: Cannot read properties of undefined (reading 'study')
+
+Stack Trace:
+TypeError: Cannot read properties of undefined (reading 'study')
+    at DashboardScreen (https://d43d4c42-caaa-4cf8-b259-4783380bce62-00-3m8g3jenxus1y.kirk.replit.dev/index.bundle?platform=web&dev=true&hot=false&lazy=true&transform.engine=hermes&transform.routerRoot=app&transform.reactCompiler=true&unstable_transformProfile=hermes-stable:158001:58)
+    at react-stack-bottom-frame (https://d43d4c42-caaa-4cf8-b259-4783380bce62-00-3m8g3jenxus1y.kirk.replit.dev/index.bundle?platform=web&dev=true&hot=false&lazy=true&transform.engine=hermes&transform.routerRoot=app&transform.reactCompiler=true&unstable_transformProfile=hermes-stable:17840:20)
+    at renderWithHooks (https://d43d4c42-caaa-4cf8-b259-4783380bce62-00-3m8g3jenxus1y.kirk.replit.dev/index.bundle?platform=web&dev=true&hot=false&lazy=true&transform.engine=hermes&transform.routerRoot=app&transform.reactCompiler=true&unstable_transformProfile=hermes-stable:8050:22)
+    at updateFunctionComponent (https://d43d4c42-caaa-4cf8-b259-4783380bce62-00-3m8g3jenxus1y.kirk.replit.dev/index.bundle?platform=web&dev=true&hot=false&lazy=true&transform.engine=hermes&transform.routerRoot=app&transform.reactCompiler=true&unstable_transformProfile=hermes-stable:9743:19)
+    at beginWork (https://d43d4c42-caaa-4cf8-b259-4783380bce62-00-3m8g3jenxus1y.kirk.replit.dev/index.bundle?platform=web&dev=true&hot=false&lazy=true&transform.engine=hermes&transform.routerRoot=app&transform.reactCompiler=true&unstable_transformProfile=hermes-stable:10329:18)
+    at runWithFiberInDEV (https://d43d4c42-caaa-4cf8-b259-4783380bce62-00-3m8g3jenxus1y.kirk.replit.dev/index.bundle?platform=web&dev=true&hot=false&lazy=true&transform.engine=hermes&transform.routerRoot=app&transform.reactCompiler=true&unstable_transformProfile=hermes-stable:5822:70)
+    at performUnitOfWork (https://d43d4c42-caaa-4cf8-b259-4783380bce62-00-3m8g3jenxus1y.kirk.replit.dev/index.bundle?platform=web&dev=true&hot=false&lazy=true&transform.engine=hermes&transform.routerRoot=app&transform.reactCompiler=true&unstable_transformProfile=hermes-stable:12402:95)
+    at workLoopSync (https://d43d4c42-caaa-4cf8-b259-4783380bce62-00-3m8g3jenxus1y.kirk.replit.dev/index.bundle?platform=web&dev=true&hot=false&lazy=true&transform.engine=hermes&transform.routerRoot=app&transform.reactCompiler=true&unstable_transformProfile=hermes-stable:12295:40)
+    at renderRootSync (https://d43d4c42-caaa-4cf8-b259-4783380bce62-00-3m8g3jenxus1y.kirk.replit.dev/index.bundle?platform=web&dev=true&hot=false&lazy=true&transform.engine=hermes&transform.routerRoot=app&transform.reactCompiler=true&unstable_transformProfile=hermes-stable:12279:9)
+    at performWorkOnRoot (https://d43d4c42-caaa-4cf8-b259-4783380bce62-00-3m8g3jenxus1y.kirk.replit.dev/index.bundle?platform=web&dev=true&hot=false&lazy=true&transform.engine=hermes&transform.routerRoot=app&transform.reactCompiler=true&unstable_transformProfile=hermes-stable:12043:44)
