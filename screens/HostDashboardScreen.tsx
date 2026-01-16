@@ -1,22 +1,23 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, FlatList, Pressable, ScrollView, Animated } from "react-native";
+import { View, StyleSheet, FlatList, Pressable } from "react-native";
 import { useTheme } from "@/hooks/useTheme";
 import { useAuth } from "@/contexts/AuthContext";
 import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
-import { ScreenKeyboardAwareScrollView } from "@/components/ScreenKeyboardAwareScrollView";
-import { Spacing, BorderRadius, Typography } from "@/constants/theme";
+import { Spacing, BorderRadius } from "@/constants/theme";
 import { Feather } from "@expo/vector-icons";
 import { api } from "@/services/api";
 import { useNavigation } from "@react-navigation/native";
+import { useScreenInsets } from "@/hooks/useScreenInsets";
+import { getInitials } from "@/utils/string";
 
 export default function HostDashboardScreen() {
+    const insets = useScreenInsets();
     const { theme } = useTheme();
-    const { user } = useAuth();
     const navigation = useNavigation<any>();
 
     const [apprentices, setApprentices] = useState<any[]>([]);
     const [masters, setMasters] = useState<any[]>([]);
+    const [connections, setConnections] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState<"apprentices" | "masters">("apprentices");
 
@@ -27,15 +28,19 @@ export default function HostDashboardScreen() {
     const loadData = async () => {
         try {
             setLoading(true);
-            const allUsers = await api.getUsers();
+            const [users, connectionsData] = await Promise.all([
+                api.getUsers(),
+                api.getAllMasterApprenticeConnections()
+            ]);
 
-            const apprs = allUsers.filter((u: any) => u.role === "Učedník")
+            const apprs = users.filter((u: any) => u.role === "Učedník")
                 .sort((a, b) => a.name.localeCompare(b.name));
-            const mstrs = allUsers.filter((u: any) => u.role === "Mistr")
+            const mstrs = users.filter((u: any) => u.role === "Mistr")
                 .sort((a, b) => a.name.localeCompare(b.name));
 
             setApprentices(apprs);
             setMasters(mstrs);
+            setConnections(connectionsData);
         } catch (error) {
             console.error("Chyba při načítání dat pro hosta:", error);
         } finally {
@@ -43,11 +48,41 @@ export default function HostDashboardScreen() {
         }
     };
 
+    const getConnectedInitials = (user: any) => {
+        if (user.role === "Učedník") {
+            const myConnections = connections.filter((c: any) => c.apprentice_id === user.id);
+            if (myConnections.length === 0) return "BEZ MISTRA";
+
+            const initials = myConnections.map((c: any) => {
+                const master = masters.find(m => m.id === c.master_id);
+                return master ? getInitials(master.name) : "?";
+            }).filter((i: string) => i !== "?");
+
+            return initials.length > 0 ? initials.join(", ") : "Neznámý mistr";
+        } else {
+            const myConnections = connections.filter((c: any) => c.master_id === user.id);
+            if (myConnections.length === 0) return "BEZ UČEDNÍKA";
+
+            const initials = myConnections.map((c: any) => {
+                const apprentice = apprentices.find(a => a.id === c.apprentice_id);
+                return apprentice ? getInitials(apprentice.name) : (c.apprentice_name ? getInitials(c.apprentice_name) : "?");
+            });
+            return initials.join(", ");
+        }
+    };
+
     const renderUserItem = ({ item }: { item: any }) => (
         <Pressable
             style={({ pressed }) => [
                 styles.userCard,
-                { backgroundColor: theme.backgroundSecondary, opacity: pressed ? 0.8 : 1 }
+                {
+                    backgroundColor: theme.backgroundSecondary,
+                    opacity: pressed ? 0.8 : 1,
+                    borderWidth: 1,
+                    borderColor: theme.border,
+                    shadowOpacity: pressed ? 0.1 : 0,
+                    elevation: pressed ? 2 : 0
+                }
             ]}
             onPress={() => {
                 if (item.role === "Učedník") {
@@ -68,7 +103,9 @@ export default function HostDashboardScreen() {
             </View>
             <View style={styles.userInfo}>
                 <ThemedText style={styles.userName}>{item.name}</ThemedText>
-                <ThemedText style={[styles.userEmail, { color: theme.textSecondary }]}>{item.email}</ThemedText>
+                <ThemedText style={[styles.userEmail, { color: theme.textSecondary }]}>
+                    {getConnectedInitials(item)}
+                </ThemedText>
             </View>
             <Feather name="chevron-right" size={20} color={theme.textSecondary} />
         </Pressable>
@@ -100,7 +137,10 @@ export default function HostDashboardScreen() {
                 data={activeTab === "apprentices" ? apprentices : masters}
                 renderItem={renderUserItem}
                 keyExtractor={(item) => item.id}
-                contentContainerStyle={styles.listContent}
+                contentContainerStyle={[
+                    styles.listContent,
+                    { paddingBottom: insets.paddingBottom + 20 }
+                ]}
                 initialNumToRender={10}
                 showsVerticalScrollIndicator={false}
                 refreshing={loading}
@@ -140,7 +180,6 @@ const styles = StyleSheet.create({
     listContent: {
         paddingHorizontal: Spacing.md,
         paddingTop: Spacing.md + 8,
-        paddingBottom: 100, // Space for tab bar
     },
     userCard: {
         flexDirection: "row",
@@ -150,15 +189,13 @@ const styles = StyleSheet.create({
         marginBottom: Spacing.md,
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
+        shadowOpacity: 0,
         shadowRadius: 4,
-        elevation: 2,
+        elevation: 0,
     },
     userIcon: {
         width: 48,
         height: 48,
-        borderRadius: 24,
-        backgroundColor: "rgba(220, 38, 38, 0.1)", // Primary with alpha
         alignItems: "center",
         justifyContent: "center",
         marginRight: Spacing.md,

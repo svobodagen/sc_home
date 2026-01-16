@@ -19,114 +19,240 @@ import { api } from "@/services/api";
 
 import { NoApprenticeSelected } from "@/components/NoApprenticeSelected";
 import { getInitials } from "@/utils/string";
-
-// ... existing imports
+import { useMaster } from "@/contexts/MasterContext";
+import { calculateBadgeStatus, BadgeDisplayData } from "@/services/BadgeCalculator";
 
 export default function DashboardScreen() {
   const { theme } = useTheme();
   const insets = useScreenInsets({ hasTransparentHeader: false });
   const navigation = useNavigation();
   const { user } = useAuth();
-  const { userData, adminSettings, getRecentProjects, getTotalHours, getAllBadgesAndCertificates, refreshData, allUsers } = useData();
-  const [selectedBadge, setSelectedBadge] = useState<any>(null);
+  const { selectedApprenticeId } = useMaster();
+  const { userData, adminSettings, getRecentProjects, allUsers } = useData();
+
+  const [selectedBadge, setSelectedBadge] = useState<BadgeDisplayData | null>(null);
   const [selectedApprenticeData, setSelectedApprenticeData] = useState<any>(null);
-  const [allCertificates, setAllCertificates] = useState<any[]>([]);
+  const [apprenticeCount, setApprenticeCount] = useState(0);
+
+  // New State for Calculator Data
+  const [displayBadges, setDisplayBadges] = useState<BadgeDisplayData[]>([]);
+  const [displayCerts, setDisplayCerts] = useState<BadgeDisplayData[]>([]);
+
   const [userLimits, setUserLimits] = useState<AdminSettings | null>(null);
+
+  // Stats display
+  const [statsSummary, setStatsSummary] = useState({
+    totalHours: 0,
+    workHours: 0,
+    studyHours: 0,
+    projectCount: 0
+  });
 
   useFocusEffect(
     React.useCallback(() => {
-      const loadMasterApprenticeData = async () => {
+      const loadDashboardData = async () => {
+        let currentUserId = "";
+        let roleForCalc: "Mistr" | "Učedník" = "Učedník";
+        let masterFilterId: string | undefined = undefined;
+
         if (user?.role === "Mistr") {
-          const data = await AsyncStorage.getItem("masterSelectedApprenticeData");
-          if (data) {
-            const parsed = JSON.parse(data);
-            setSelectedApprenticeData(parsed);
+          currentUserId = selectedApprenticeId || "";
+          roleForCalc = "Mistr";
+          masterFilterId = user.id; // Master views his perspective
+        } else if (user?.role === "Učedník") {
+          currentUserId = user.id;
+          roleForCalc = "Učedník";
+          masterFilterId = userData.selectedMasterId || undefined; // Apprentice filter
+        }
 
-            // Načti všechny šablony certifikátů
-            const templates = await api.getCertificateTemplates().catch(() => []);
-            let allCerts = templates.map((t: any) => ({ ...t, locked: true }));
+        if (!currentUserId) {
+          if (user?.role === "Mistr" && !selectedApprenticeId) {
+            // Aggregate stats for all apprentices
+            try {
+              const apps = await api.getApprenticesForMaster(user.id);
+              setApprenticeCount(apps.length);
 
-            // Kontroluj pravidla pro vybraného učedníka
-            const apprenticeId = parsed.id || parsed.apprenticeId;
-            if (apprenticeId) {
-              const dbCertificates = await api.getCertificates(apprenticeId).catch(() => []);
-              const workHours = await api.getWorkHours(apprenticeId).catch(() => []);
-              const projects = await api.getProjects(apprenticeId).catch(() => []);
+              const projs = await api.getProjectsForMaster(user.id);
 
-              // Count only WORK hours (not study)
-              const totalWorkHours = workHours
-                .filter((h: any) => h.description && h.description.includes("Práce"))
-                .reduce((sum: number, h: any) => sum + (h.hours || h.duration || 0), 0);
-              const totalStudyHours = workHours
-                .filter((h: any) => h.description && h.description.includes("Studium"))
-                .reduce((sum: number, h: any) => sum + (h.hours || h.duration || 0), 0);
-              const totalAllHours = totalWorkHours + totalStudyHours;
+              const projIds = projs.map((p: any) => p.id);
+              const hours = await api.getWorkHoursForProjects(projIds);
 
-              const totalProjects = projects?.length || 0;
+              const wSum = hours.filter((h: any) => h.description && /pr[áa]ce|work/i.test(h.description)).reduce((s: number, h: any) => s + (h.hours || h.duration || 0), 0);
+              const sSum = hours.filter((h: any) => h.description && /studium|study/i.test(h.description)).reduce((s: number, h: any) => s + (h.hours || h.duration || 0), 0);
 
-              allCerts = await Promise.all(
-                allCerts.map(async (certTemplate: any) => {
-                  // 1. Zkus najít existující záznam v DB
-                  const existingCert = dbCertificates.find((c: any) => c.title === certTemplate.title);
+              setStatsSummary({
+                workHours: wSum,
+                studyHours: sSum,
+                totalHours: wSum + sSum,
+                projectCount: projs.length
+              });
 
-                  // Pokud je odemčen v DB, respektuj to
-                  if (existingCert && !existingCert.locked) {
-                    return { ...certTemplate, ...existingCert, locked: false };
-                  }
+              // Load Badges for All
+              const tmpls = await api.getAllCertificateTemplates();
+              const appIds = apps.map((a: any) => a.apprenticeId);
+              const certsPromises = appIds.map((id: string) => api.getCertificates(id));
+              const certsResults = await Promise.all(certsPromises);
+              const allTeamCerts = certsResults.flat();
 
-                  const rules = await api.getCertificateUnlockRules(certTemplate.id).catch(() => []);
-                  let isUnlocked = false;
+              const newBadges: BadgeDisplayData[] = [];
+              const newCerts: BadgeDisplayData[] = [];
 
-                  if (rules.length === 0) {
-                    isUnlocked = false;
-                  } else {
-                    const automaticRules = rules.filter((r: any) => r.rule_type !== "MANUAL");
+              tmpls.forEach((tmpl: any) => {
+                const catLower = (tmpl.category || "").toLowerCase();
+                const isBadge = catLower.includes("badge") || catLower.includes("odznak");
+                const type = isBadge ? "Odznak" : "Certifikát";
 
-                    if (automaticRules.length === 0) {
-                      isUnlocked = false;
-                    } else {
-                      isUnlocked = automaticRules.every((rule: any) => {
-                        if (rule.condition_type === "NONE") return true;
+                const earners = allTeamCerts.filter((c: any) =>
+                  String(c.template_id) === String(tmpl.id) && !c.locked
+                );
 
-                        if (rule.condition_type === "WORK_HOURS") {
-                          return totalWorkHours >= rule.condition_value;
-                        } else if (rule.condition_type === "STUDY_HOURS") {
-                          return totalStudyHours >= rule.condition_value;
-                        } else if (rule.condition_type === "TOTAL_HOURS") {
-                          return totalAllHours >= rule.condition_value;
-                        } else if (rule.condition_type === "PROJECTS") {
-                          return totalProjects >= rule.condition_value;
-                        }
-                        return false;
-                      });
-                    }
-                  }
-                  return { ...certTemplate, ...existingCert, locked: !isUnlocked };
-                })
-              );
+                if (earners.length > 0) {
+                  const earnerIds = [...new Set(earners.map((c: any) => c.user_id))];
+                  const earnerObjs = earnerIds.map(uid => apps.find((a: any) => a.apprenticeId === uid)).filter(Boolean);
+                  const initials = earnerObjs.map((a: any) => getInitials(a.apprenticeName));
+                  const names = earnerObjs.map((a: any) => a.apprenticeName);
+
+                  const item: BadgeDisplayData = {
+                    templateId: String(tmpl.id),
+                    title: `${tmpl.title} ${type}`,
+                    category: type as any,
+                    points: tmpl.points,
+                    isLocked: false,
+                    iconColor: "colored",
+                    initials: initials,
+                    earnedByNames: names,
+                    headerTitle: tmpl.title,
+                    infoText: `Získalo: ${names.length} učedníků`,
+                    ruleText: type === 'Odznak' ? "Dle pravidel" : "Uděluje mistr",
+                    actionType: "NONE",
+                    shouldUpdateDB: false
+                  };
+
+                  if (type === "Odznak") newBadges.push(item);
+                  else newCerts.push(item);
+                }
+              });
+
+              setDisplayBadges(newBadges);
+              setDisplayCerts(newCerts);
+
+            } catch (e) {
+              console.error("Aggregation error:", e);
+              setDisplayBadges([]);
+              setDisplayCerts([]);
             }
-
-            setAllCertificates(allCerts);
           } else {
-            // Master has NO data selected
+            setStatsSummary({ totalHours: 0, workHours: 0, studyHours: 0, projectCount: 0 });
+            setDisplayBadges([]);
+            setDisplayCerts([]);
+          }
+          return;
+        }
+
+        try {
+          // 1. Load Data
+          const [workHours, projects, templates, dbCerts, allRules, history] = await Promise.all([
+            api.getWorkHours(currentUserId).catch(() => []),
+            api.getProjects(currentUserId).catch(() => []),
+            api.getCertificateTemplates().catch(() => []),
+            api.getCertificates(currentUserId).catch(() => []),
+            api.getAllCertificateUnlockRules().catch(() => []),
+            api.getCertificateUnlockHistory(currentUserId).catch(() => [])
+          ]);
+
+          // 2. Prepare Stats & Context
+          // If Master -> Filter stats by ME. If Apprentice with Filter -> Filter by Master.
+          let relevantWorkHours = workHours;
+          let relevantProjects = projects;
+
+          if (masterFilterId) {
+            relevantWorkHours = workHours.filter((h: any) => String(h.master_id) === String(masterFilterId));
+            relevantProjects = projects.filter((p: any) => String(p.master_id) === String(masterFilterId));
+          }
+
+          const wSum = relevantWorkHours.filter((h: any) => h.description && /pr[áa]ce|work/i.test(h.description)).reduce((s: number, h: any) => s + (h.hours || h.duration || 0), 0);
+          const sSum = relevantWorkHours.filter((h: any) => h.description && /studium|study/i.test(h.description)).reduce((s: number, h: any) => s + (h.hours || h.duration || 0), 0);
+
+          const stats = {
+            workHours: wSum,
+            studyHours: sSum,
+            totalHours: wSum + sSum,
+            projectCount: relevantProjects?.length || 0
+          };
+
+          setStatsSummary(stats);
+
+          // Set Apprentice Data for Master View Context (Graphs etc need it)
+          if (user?.role === "Mistr") {
+            const appName = allUsers.find((u: any) => u.id === currentUserId)?.name;
+            setSelectedApprenticeData({
+              id: currentUserId,
+              name: appName,
+              workHours: relevantWorkHours, // For GoalBox
+              projects: relevantProjects,
+              projectCount: relevantProjects.length
+            });
+          } else {
             setSelectedApprenticeData(null);
           }
-        } else {
-          // Pro učedníka - obnov data při focusu
-          refreshData?.();
+
+          // 3. Process Badges via Calculator
+          const processed: BadgeDisplayData[] = await Promise.all(templates.map(async (tmpl: any) => {
+            const relevantRecords = dbCerts.filter((c: any) => String(c.template_id) === String(tmpl.id));
+            const tmplRules = allRules.filter((r: any) => r.template_id === tmpl.id);
+
+            const result = calculateBadgeStatus(tmpl, {
+              role: roleForCalc,
+              userStats: stats,
+              dbRecords: relevantRecords,
+              rules: tmplRules,
+              allUsers: allUsers,
+              unlockHistory: history,
+              currentMasterId: masterFilterId
+            });
+
+            // DB Sync (Auto-Lock/Unlock handling)
+            // Dashboard is the primary place for this sync
+            if (result.shouldUpdateDB) {
+              console.log(`⚠️ DB Sync needed for ${tmpl.title} (User: ${currentUserId}): ${result.newLockedStatus ? "LOCK" : "UNLOCK"}`);
+              if (result.newLockedStatus) {
+                await api.lockCertificateForUser(currentUserId, tmpl.id).catch(e => console.error(e));
+              } else {
+                // Unlock needs context? 
+                // If we are auto-unlocking, we usually attribute to System or Current Master logic?
+                // api.unlockCertificateForUser(userId, tmplId, masterId)
+                // If no masterId provided, it might default.
+                // For auto badges, master_id is often irrelevant or set to 'system' logic.
+                await api.unlockCertificateForUser(currentUserId, tmpl.id).catch(e => console.error(e));
+              }
+            }
+
+            return result;
+          }));
+
+          // 4. Split & Filter (Show only Unlocked/Active in Dashboard Scroller)
+          // But wait, user might want to see progress? Usually Dashboard shows achievements (unlocked).
+          // Let's filter !isLocked.
+
+          const activeItems = processed.filter(i => !i.isLocked);
+          activeItems.sort((a, b) => (parseInt(a.templateId) || 0) - (parseInt(b.templateId) || 0));
+
+          setDisplayBadges(activeItems.filter(i => i.category === "Odznak"));
+          setDisplayCerts(activeItems.filter(i => i.category === "Certifikát"));
+
+        } catch (e) {
+          console.error("Dashboard Load Error:", e);
         }
       };
-      loadMasterApprenticeData();
-    }, [user?.role])
+
+      loadDashboardData();
+    }, [user?.role, user?.id, selectedApprenticeId, userData.selectedMasterId])
   );
 
   useEffect(() => {
     const loadUserLimits = async () => {
-      const userId = user?.role === "Mistr" && selectedApprenticeData
-        ? selectedApprenticeData.id
-        : user?.id;
+      const userId = user?.role === "Mistr" && selectedApprenticeId ? selectedApprenticeId : user?.id;
       if (!userId) return;
-
       try {
         const limits = await api.getUserHourLimits(userId);
         setUserLimits(limits ?? null);
@@ -135,39 +261,113 @@ export default function DashboardScreen() {
       }
     };
     loadUserLimits();
-  }, [user?.id, user?.role, selectedApprenticeData?.id]);
+  }, [user?.id, user?.role, selectedApprenticeId]);
 
-  // Pokud je mistr a nemá vybraného učedníka -> BLOCK
-  if (user?.role === "Mistr" && !selectedApprenticeData) {
-    return <NoApprenticeSelected />;
-  }
 
-  // Pokud je mistr a má vybraného učedníka, zobraz jeho data
-  const displayData = user?.role === "Mistr" && selectedApprenticeData ? selectedApprenticeData : userData;
-  const displayApprenticeData = user?.role === "Mistr" && selectedApprenticeData ? selectedApprenticeData : null;
 
-  const allBadges = displayApprenticeData ? (allCertificates.length > 0 ? allCertificates : displayApprenticeData.certificates) : getAllBadgesAndCertificates();
-
-  const activeBadges = allBadges
-    .filter((item: any) => !item.locked && item.category === "Badge")
-    .sort((a: any, b: any) => (a.id || 0) - (b.id || 0));
-
-  const activeCertificates = allBadges
-    .filter((item: any) => !item.locked && item.category === "Certifikát")
-    .sort((a: any, b: any) => (a.id || 0) - (b.id || 0));
-
-  const recentProjects = displayApprenticeData
-    ? (displayApprenticeData.projects || []).slice(0, 3)
+  // Determine recent projects list source
+  const recentProjects = user?.role === "Mistr" && selectedApprenticeData
+    ? (selectedApprenticeData.projects || []).slice(0, 3)
     : getRecentProjects().filter((p: any) => !userData.selectedMasterId || p.master_id === userData.selectedMasterId);
 
-  // Filter total hours by selected master
-  const totalHours = displayApprenticeData
-    ? displayApprenticeData.totalHours
-    : userData.workHours
-      .filter((h: any) => !userData.selectedMasterId || h.master_id === userData.selectedMasterId)
-      .reduce((sum: number, h: any) => sum + (h.hours || 0), 0);
+  // Helper for Modal
+  const ModalContent = () => {
+    if (!selectedBadge) return null;
+    const item = selectedBadge;
+    const isGray = item.iconColor === "gray"; // Should be colored if unlocked
+    const primaryColor = item.category === "Odznak" ? theme.primary : theme.secondary;
 
-  const badgeColor = selectedBadge?.category === "Badge" ? theme.primary : theme.secondary;
+    return (
+      <Modal
+        visible={!!selectedBadge}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setSelectedBadge(null)}
+      >
+        <Pressable
+          onPress={() => setSelectedBadge(null)}
+          style={[styles.modalOverlay, { backgroundColor: "rgba(0, 0, 0, 0.5)" }]}
+        >
+          <Pressable
+            onPress={(e) => e.stopPropagation()}
+            style={[
+              styles.modalContent,
+              {
+                backgroundColor: theme.backgroundDefault,
+                borderColor: primaryColor,
+              },
+            ]}
+          >
+            <View style={[styles.modalIconContainer, { backgroundColor: primaryColor + "20" }]}>
+              <Feather name={item.category === "Odznak" ? "award" : "file-text"} size={48} color={primaryColor} />
+            </View>
+
+            <ThemedText style={[styles.modalTitle, { color: primaryColor, fontWeight: "700" }]}>
+              {item.headerTitle}
+            </ThemedText>
+
+            <ThemedText style={[styles.modalCategory, { color: theme.textSecondary }]}>
+              {item.category}
+            </ThemedText>
+
+            <View style={[styles.masterNameBox, { width: "100%", alignItems: 'center' }]}>
+              {item.earnedByNames && item.earnedByNames.length > 0 ? (
+                <View>
+                  <ThemedText style={[styles.masterNameLabel, { color: theme.textSecondary, textAlign: 'center' }]}>Získali:</ThemedText>
+                  {item.earnedByNames.map((n, idx) => (
+                    <ThemedText key={idx} style={{ color: theme.text, fontWeight: '700', textAlign: 'center' }}>{n}</ThemedText>
+                  ))}
+                </View>
+              ) : (
+                <ThemedText style={[styles.masterNameLabel, { color: theme.textSecondary }]}>
+                  Učedník: <ThemedText style={{ color: theme.text, fontWeight: '700' }}>
+                    {user?.role === "Mistr" ? (selectedApprenticeData?.name || "Učedník") : "Já"}
+                  </ThemedText>
+                </ThemedText>
+              )}
+            </View>
+
+            <View style={[styles.masterNameBox, { marginTop: Spacing.sm }]}>
+              <ThemedText style={[styles.masterNameLabel, { color: theme.textSecondary, textAlign: 'center' }]}>
+                {item.infoText.split(": ")[0]}:{"\n"}
+                <ThemedText style={{ color: primaryColor, fontWeight: '600' }}>
+                  {item.infoText.split(": ")[1] || ""}
+                </ThemedText>
+              </ThemedText>
+            </View>
+
+            <View style={[styles.requirementBox, { backgroundColor: theme.backgroundRoot, borderColor: primaryColor }]}>
+              <ThemedText style={[styles.requirementLabel, { color: theme.textSecondary }]}>
+                Podmínky pro získání:
+              </ThemedText>
+              <ThemedText style={[styles.requirementText, { color: theme.text }]}>
+                {item.ruleText}
+              </ThemedText>
+            </View>
+
+            <View style={styles.modalFooter}>
+              <View style={styles.pointsRow}>
+                <Feather name="zap" size={16} color={primaryColor} />
+                <ThemedText style={[styles.pointsValue, { color: primaryColor, fontWeight: "700" }]}>
+                  {item.points} bodů
+                </ThemedText>
+              </View>
+              <ThemedText style={[styles.unlockedLabel, { color: primaryColor }]}>
+                ✓ Odemčeno
+              </ThemedText>
+            </View>
+
+            <Pressable
+              onPress={() => setSelectedBadge(null)}
+              style={[styles.closeButton, { backgroundColor: primaryColor }]}
+            >
+              <ThemedText style={styles.closeButtonText}>Zavřít</ThemedText>
+            </Pressable>
+          </Pressable>
+        </Pressable>
+      </Modal>
+    );
+  };
 
   return (
     <ScrollView
@@ -175,25 +375,59 @@ export default function DashboardScreen() {
       contentContainerStyle={{ paddingTop: 38, paddingBottom: insets.bottom }}
       showsVerticalScrollIndicator={false}
     >
+      {user?.role === "Mistr" && !selectedApprenticeId && (
+        <View style={{ paddingHorizontal: Spacing.lg, marginBottom: Spacing.md }}>
+          <View style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            backgroundColor: theme.backgroundDefault,
+            borderRadius: BorderRadius.md,
+            padding: Spacing.md,
+            borderWidth: 1,
+            borderColor: theme.border,
+            shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2
+          }}>
+            <View style={{
+              width: 40, height: 40, borderRadius: BorderRadius.sm,
+              backgroundColor: "#A855F7" + '15',
+              alignItems: 'center', justifyContent: 'center',
+              marginRight: Spacing.md
+            }}>
+              <Feather name="users" size={20} color="#A855F7" />
+            </View>
+            <ThemedText style={{ fontSize: 13, fontWeight: '600', color: theme.textSecondary }}>Počet učedníků</ThemedText>
 
+            <View style={{ flex: 1 }} />
 
-      <View style={styles.statsContainer}>
-        <StatCard icon="clock" label="Celkem hodin" value={`${totalHours}h`} color={theme.primary} />
+            <ThemedText style={{ fontSize: 24, fontWeight: '700', lineHeight: 28, color: "#A855F7" }}>{apprenticeCount}</ThemedText>
+          </View>
+        </View>
+      )}
+
+      <View style={[styles.statsContainer, { marginBottom: Spacing.md }]}>
+        <StatCard icon="clock" label="Celkem hodin" value={`${Math.round(statsSummary.totalHours * 10) / 10}h`} color={theme.text} />
         <View style={{ width: Spacing.md }} />
-        <StatCard icon="folder" label="Projekty" value={String(displayApprenticeData ? displayApprenticeData.projectCount : userData.projects.length)} color={theme.secondary} />
+        <StatCard icon="folder" label="Projekty" value={String(statsSummary.projectCount)} color={theme.text} />
       </View>
+      <View style={styles.statsContainer}>
+        <StatCard icon="briefcase" label="Práce" value={`${Math.round(statsSummary.workHours * 10) / 10}h`} color={theme.primary} />
+        <View style={{ width: Spacing.md }} />
+        <StatCard icon="book" label="Studium" value={`${Math.round(statsSummary.studyHours * 10) / 10}h`} color={theme.secondary} />
+      </View>
+
+
 
       <View style={{ paddingHorizontal: Spacing.lg, marginTop: Spacing.md }}>
         <GoalProgressBox
-          userId={displayApprenticeData?.id}
+          userId={user?.role === "Mistr" ? (selectedApprenticeId || undefined) : user?.id}
           userLimits={userLimits}
-          workHours={displayApprenticeData?.workHours}
+          workHours={user?.role === "Mistr" ? selectedApprenticeData?.workHours : undefined}
         />
       </View>
 
       <View style={styles.sectionHeader}>
         <ThemedText style={[styles.sectionTitle, { color: theme.text }]}>Poslední projekty</ThemedText>
-        <Pressable onPress={() => navigation.navigate("Projects" as never)}>
+        <Pressable onPress={() => navigation.navigate("ProjectsTab" as never)}>
           <ThemedText style={[styles.seeAll, { color: theme.primary }]}>Zobrazit vše</ThemedText>
         </Pressable>
       </View>
@@ -205,165 +439,81 @@ export default function DashboardScreen() {
             date={project.created_at ? new Date(project.created_at).toLocaleDateString("cs-CZ", { day: "numeric", month: "long", year: "numeric" }) : ""}
             imageUrl={project.image ? { uri: project.image } : undefined}
             category={project.category}
-            onPress={() => (navigation.navigate as any)("ProjectDetail", { project, projectIndex: userData.projects.indexOf(project) })}
+            onPress={() => (navigation.navigate as any)("ProjectDetail", {
+              project,
+              projectIndex: recentProjects.indexOf(project),
+              apprenticeId: user?.role === "Mistr" ? (selectedApprenticeId || undefined) : undefined,
+              projectList: recentProjects
+            })}
             masterComment={project.master_comment}
             isLiked={project.is_liked}
-            masterInitials={project.master_id ? getInitials(allUsers.find(u => u.id === project.master_id)?.name || "") : undefined}
+            authorName={user?.role === "Mistr" ? allUsers.find(u => u.id === project.user_id)?.name : undefined}
+            masterName={project.master_id ? allUsers.find(u => u.id === project.master_id)?.name : undefined}
           />
         ))}
       </View>
 
       <View style={styles.sectionHeader}>
-        <ThemedText style={[styles.sectionTitle, { color: theme.text }]}>Odznaky</ThemedText>
+        <ThemedText style={[styles.sectionTitle, { color: theme.text }]}>ODZNAKY</ThemedText>
       </View>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.achievementsScroll}
-      >
-        {activeBadges.length > 0 ? (
-          activeBadges.map((badge: any) => (
-            <Pressable
-              key={badge.id}
-              onPress={() => setSelectedBadge(badge)}
-              style={styles.badgeWrapper}
-            >
-              <View
-                style={[
-                  styles.badgeCard,
-                  {
-                    backgroundColor: theme.primary + "20",
-                    borderColor: theme.primary,
-                  },
-                ]}
-              >
-                <Feather
-                  name="award"
-                  size={32}
-                  color={theme.primary}
-                />
-                <ThemedText style={[styles.badgeTitle, { color: theme.text, marginTop: Spacing.sm }]}>
-                  {badge.title}
-                </ThemedText>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.achievementsScroll}>
+        {displayBadges.length > 0 ? (
+          displayBadges.map((badge: BadgeDisplayData) => (
+            <Pressable key={badge.templateId} onPress={() => setSelectedBadge(badge)} style={styles.badgeWrapper}>
+              <View style={[styles.badgeCard, { backgroundColor: theme.primary + "20", borderColor: theme.primary }]}>
+                {badge.initials.length > 0 && (
+                  <View style={{ width: '100%', flexDirection: 'row', flexWrap: 'wrap', gap: 2, marginBottom: 4 }}>
+                    {badge.initials.map((init, idx) => (
+                      <View key={idx} style={[styles.miniBadge, { backgroundColor: theme.backgroundDefault, borderColor: theme.primary }]}>
+                        <ThemedText style={[styles.miniBadgeText, { color: theme.primary }]}>{init}</ThemedText>
+                      </View>
+                    ))}
+                  </View>
+                )}
+
+                <Feather name="award" size={32} color={theme.primary} />
+                <ThemedText style={[styles.badgeTitle, { color: theme.text, marginTop: Spacing.sm }]}>{badge.headerTitle}</ThemedText>
               </View>
             </Pressable>
           ))
         ) : (
           <View style={{ paddingLeft: Spacing.lg }}>
-            <ThemedText style={[styles.emptyText, { color: theme.textSecondary }]}>
-              Zatím žádné odznaky
-            </ThemedText>
+            <ThemedText style={[styles.emptyText, { color: theme.textSecondary }]}>Zatím žádné odznaky</ThemedText>
           </View>
         )}
       </ScrollView>
 
       <View style={styles.sectionHeader}>
-        <ThemedText style={[styles.sectionTitle, { color: theme.text }]}>Certifikáty</ThemedText>
+        <ThemedText style={[styles.sectionTitle, { color: theme.text }]}>CERTIFIKÁTY</ThemedText>
       </View>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.achievementsScroll}
-      >
-        {activeCertificates.length > 0 ? (
-          activeCertificates.map((cert: any) => (
-            <Pressable
-              key={cert.id}
-              onPress={() => setSelectedBadge(cert)}
-              style={styles.badgeWrapper}
-            >
-              <View
-                style={[
-                  styles.badgeCard,
-                  {
-                    backgroundColor: theme.secondary + "20",
-                    borderColor: theme.secondary,
-                  },
-                ]}
-              >
-                <Feather
-                  name="award"
-                  size={32}
-                  color={theme.secondary}
-                />
-                <ThemedText style={[styles.badgeTitle, { color: theme.text, marginTop: Spacing.sm }]}>
-                  {cert.title}
-                </ThemedText>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.achievementsScroll}>
+        {displayCerts.length > 0 ? (
+          displayCerts.map((cert: BadgeDisplayData) => (
+            <Pressable key={cert.templateId} onPress={() => setSelectedBadge(cert)} style={styles.badgeWrapper}>
+              <View style={[styles.badgeCard, { backgroundColor: theme.secondary + "20", borderColor: theme.secondary }]}>
+                {cert.initials.length > 0 && (
+                  <View style={{ width: '100%', flexDirection: 'row', flexWrap: 'wrap', gap: 2, marginBottom: 4 }}>
+                    {cert.initials.map((init, idx) => (
+                      <View key={idx} style={[styles.miniBadge, { backgroundColor: theme.backgroundDefault, borderColor: theme.secondary }]}>
+                        <ThemedText style={[styles.miniBadgeText, { color: theme.secondary }]}>{init}</ThemedText>
+                      </View>
+                    ))}
+                  </View>
+                )}
+
+                <Feather name="file-text" size={32} color={theme.secondary} />
+                <ThemedText style={[styles.badgeTitle, { color: theme.text, marginTop: Spacing.sm }]}>{cert.headerTitle}</ThemedText>
               </View>
             </Pressable>
           ))
         ) : (
           <View style={{ paddingLeft: Spacing.lg }}>
-            <ThemedText style={[styles.emptyText, { color: theme.textSecondary }]}>
-              Zatím žádné certifikáty
-            </ThemedText>
+            <ThemedText style={[styles.emptyText, { color: theme.textSecondary }]}>Zatím žádné certifikáty</ThemedText>
           </View>
         )}
       </ScrollView>
 
-      {selectedBadge && (
-        <Modal
-          visible={!!selectedBadge}
-          transparent
-          animationType="fade"
-          onRequestClose={() => setSelectedBadge(null)}
-        >
-          <Pressable
-            onPress={() => setSelectedBadge(null)}
-            style={[styles.modalOverlay, { backgroundColor: "rgba(0, 0, 0, 0.5)" }]}
-          >
-            <Pressable
-              onPress={(e) => e.stopPropagation()}
-              style={[
-                styles.modalContent,
-                {
-                  backgroundColor: theme.backgroundDefault,
-                  borderColor: badgeColor,
-                },
-              ]}
-            >
-              <View
-                style={[
-                  styles.modalIconContainer,
-                  {
-                    backgroundColor: badgeColor + "20",
-                  },
-                ]}
-              >
-                <Feather name="award" size={48} color={badgeColor} />
-              </View>
-
-              <ThemedText style={[styles.modalTitle, { color: badgeColor, fontWeight: "700" }]}>
-                {selectedBadge.title}
-              </ThemedText>
-
-              <ThemedText style={[styles.modalCategory, { color: theme.textSecondary }]}>
-                {selectedBadge.category}
-              </ThemedText>
-
-              <View style={styles.modalFooter}>
-                <View style={styles.pointsRow}>
-                  <Feather name="zap" size={16} color={badgeColor} />
-                  <ThemedText style={[styles.pointsValue, { color: badgeColor, fontWeight: "700" }]}>
-                    {selectedBadge.points} bodů
-                  </ThemedText>
-                </View>
-                <ThemedText style={[styles.unlockedLabel, { color: badgeColor }]}>
-                  ✓ Odemčeno
-                </ThemedText>
-              </View>
-
-              <Pressable
-                onPress={() => setSelectedBadge(null)}
-                style={[styles.closeButton, { backgroundColor: badgeColor }]}
-              >
-                <ThemedText style={[styles.closeButtonText]}>Zavřít</ThemedText>
-              </Pressable>
-            </Pressable>
-          </Pressable>
-        </Modal>
-      )}
-
+      <ModalContent />
       <View style={{ height: Spacing["3xl"] }} />
     </ScrollView>
   );
@@ -373,18 +523,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-
   statsContainer: {
     flexDirection: "row",
     paddingHorizontal: Spacing.lg,
     marginBottom: Spacing.lg,
-  },
-  section: {
-    marginHorizontal: Spacing.lg,
-    marginBottom: Spacing.lg,
-    padding: Spacing.lg,
-    borderRadius: BorderRadius.sm,
-    borderWidth: 1,
   },
   sectionHeader: {
     flexDirection: "row",
@@ -402,37 +544,6 @@ const styles = StyleSheet.create({
     ...Typography.body,
     fontWeight: "600",
   },
-  goalItem: {
-    marginBottom: Spacing.lg,
-  },
-  goalHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: Spacing.sm,
-  },
-  goalLabel: {
-    ...Typography.body,
-    fontWeight: "600",
-  },
-  goalPercentage: {
-    ...Typography.body,
-    fontWeight: "700",
-    fontSize: 14,
-  },
-  progressBar: {
-    height: 8,
-    borderRadius: 4,
-    overflow: "hidden",
-    marginBottom: Spacing.sm,
-  },
-  progressFill: {
-    height: "100%",
-    borderRadius: 4,
-  },
-  goalCounter: {
-    ...Typography.small,
-  },
   achievementsScroll: {
     paddingLeft: Spacing.lg,
     marginBottom: Spacing.lg,
@@ -442,7 +553,7 @@ const styles = StyleSheet.create({
   },
   badgeCard: {
     width: 100,
-    height: 120,
+    minHeight: 120,
     borderRadius: BorderRadius.sm,
     borderWidth: 1,
     padding: Spacing.md,
@@ -481,12 +592,35 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     ...Typography.title,
-    marginBottom: Spacing.sm,
     textAlign: "center",
+    marginBottom: Spacing.xs,
   },
   modalCategory: {
+    ...Typography.body,
+    marginBottom: Spacing.md,
+  },
+  miniBadge: {
+    minWidth: 20,
+    height: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    paddingHorizontal: 2,
+  },
+  miniBadgeText: {
+    fontSize: 10,
+    fontWeight: '800',
+    textAlign: 'center',
+    textAlignVertical: 'center',
+    includeFontPadding: false,
+    lineHeight: 12,
+  },
+  masterNameBox: {
+    marginBottom: Spacing.md,
+  },
+  masterNameLabel: {
     ...Typography.small,
-    marginBottom: Spacing.lg,
   },
   requirementBox: {
     borderRadius: BorderRadius.sm,

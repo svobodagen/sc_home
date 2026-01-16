@@ -8,7 +8,9 @@ import { Spacing, Typography } from "@/constants/theme";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/hooks/useTheme";
 import { useData } from "@/contexts/DataContext";
+
 import { api } from "@/services/api";
+import { useMaster } from "@/contexts/MasterContext";
 
 interface ApprenticeHeaderTitleProps {
   showApprenticeNameOnly?: boolean;
@@ -18,8 +20,12 @@ export function ApprenticeHeaderTitle({ showApprenticeNameOnly = false }: Appren
   const { user } = useAuth();
   const { theme } = useTheme();
   const { userData, setSelectedMaster } = useData();
+  const { apprentices: myApprentices, selectedApprenticeId, setSelectedApprenticeId } = useMaster();
   const [selectedApprenticeName, setSelectedApprenticeName] = useState<string | null>(null);
   const [apprenticeMasters, setApprenticeMasters] = useState<{ id: string; name: string }[]>([]);
+
+  // Track if we've already initialized to prevent infinite loop
+  const hasInitialized = React.useRef(false);
 
   // Find selected master for display
   const selectedMaster = apprenticeMasters.find(m => m.id === userData.selectedMasterId);
@@ -47,6 +53,13 @@ export function ApprenticeHeaderTitle({ showApprenticeNameOnly = false }: Appren
             };
           });
           setApprenticeMasters(masters);
+
+          // Initialize selectedMasterId ONLY ONCE
+          if (!hasInitialized.current && !userData.selectedMasterId && masters.length > 0) {
+            console.log('[ApprenticeHeaderTitle] Initializing selectedMaster:', masters[0].name, masters[0].id);
+            hasInitialized.current = true;
+            setSelectedMaster(masters[0].name, masters[0].id);
+          }
         } else {
           setApprenticeMasters([]);
         }
@@ -76,7 +89,23 @@ export function ApprenticeHeaderTitle({ showApprenticeNameOnly = false }: Appren
   }
 
   const handleMasterSwitch = () => {
-    if (user?.role === "Mistr") return;
+    if (user?.role === "Mistr") {
+      if (myApprentices.length === 0) return;
+
+      if (selectedApprenticeId === null) {
+        setSelectedApprenticeId(myApprentices[0].apprenticeId);
+      } else {
+        const currentIndex = myApprentices.findIndex(a => a.apprenticeId === selectedApprenticeId);
+        if (currentIndex === -1 || currentIndex === myApprentices.length - 1) {
+          // Wrap to Všichni
+          setSelectedApprenticeId(null);
+        } else {
+          setSelectedApprenticeId(myApprentices[currentIndex + 1].apprenticeId);
+        }
+      }
+      return;
+    }
+
     if (apprenticeMasters.length === 0) return;
 
     const currentIndex = apprenticeMasters.findIndex(m => m.id === userData.selectedMasterId);
@@ -109,75 +138,79 @@ export function ApprenticeHeaderTitle({ showApprenticeNameOnly = false }: Appren
 
       {/* Row 2: Context Info */}
       {user?.role === "Host" ? (
-        <View style={[styles.infoRow, { borderColor: theme.border, backgroundColor: theme.backgroundSecondary }]}>
-          <Feather name="eye" size={14} color={theme.textSecondary} style={{ marginRight: 6 }} />
-          <ThemedText style={[styles.infoLabel, { color: theme.textSecondary }]}>Návštěvník:</ThemedText>
-          <ThemedText style={[styles.infoValue, { color: theme.text }]}>{user.name}</ThemedText>
-          <View style={[styles.divider, { backgroundColor: theme.border }]} />
-          <ThemedText style={[styles.infoLabel, { color: theme.primary, fontWeight: "700" }]}>Prohlížení Cechu</ThemedText>
+        <View style={styles.infoRow}>
+          <View style={[styles.infoRowInner, { borderColor: theme.border, backgroundColor: theme.backgroundSecondary }]}>
+            <ThemedText style={[styles.infoLabel, { color: theme.error }]}>HOST:</ThemedText>
+            <ThemedText style={[styles.infoValue, { color: theme.text }]}>{user.name}</ThemedText>
+          </View>
         </View>
       ) : (
-        <Pressable
-          onPress={handleMasterSwitch}
-          style={({ pressed }) => [
-            styles.infoRow,
-            {
-              borderColor: theme.border,
-              backgroundColor: theme.backgroundSecondary,
-              opacity: (pressed && user?.role !== "Mistr") ? 0.7 : 1
-            }
-          ]}
-        >
-          {user?.role === "Mistr" ? (
-            <>
-              <ThemedText style={[styles.infoLabel, { color: theme.textSecondary }]}>Mistr:</ThemedText>
-              <ThemedText style={[styles.infoValue, { color: theme.text }]}>{user.name}</ThemedText>
+        <View style={styles.infoRow}>
+          <Pressable
+            onPress={handleMasterSwitch}
+            style={({ pressed }) => [
+              styles.infoRowInner,
+              {
+                borderColor: theme.border,
+                backgroundColor: theme.backgroundSecondary,
+                opacity: pressed ? 0.7 : 1
+              }
+            ]}
+          >
+            {user?.role === "Mistr" ? (
+              <>
+                <ThemedText style={[styles.infoLabel, { color: theme.error }]}>Mistr:</ThemedText>
+                <ThemedText style={[styles.infoValue, { color: theme.text }]}>{user.name}</ThemedText>
 
-              <View style={[styles.divider, { backgroundColor: theme.border }]} />
+                <View style={[styles.divider, { backgroundColor: theme.border }]} />
 
-              <ThemedText style={[styles.infoLabel, { color: theme.textSecondary }]}>Učedník:</ThemedText>
-              <ThemedText style={[styles.infoValue, { color: theme.primary, fontWeight: "700" }]}>
-                {selectedApprenticeName || "Nevybrán"}
-              </ThemedText>
-            </>
-          ) : (
-            <>
-              <ThemedText style={[styles.infoLabel, { color: theme.textSecondary }]}>Učedník:</ThemedText>
-              <ThemedText style={[styles.infoValue, { color: theme.text }]}>{user?.name}</ThemedText>
+                <ThemedText style={[styles.infoLabel, { color: theme.textSecondary }]}>Učedník:</ThemedText>
+                <ThemedText style={[styles.infoValue, { color: theme.primary, fontWeight: "700" }]}>
+                  {selectedApprenticeId
+                    ? (myApprentices.find(a => a.apprenticeId === selectedApprenticeId)?.apprenticeName || "Neznámý")
+                    : "Všichni"
+                  }
+                </ThemedText>
+              </>
+            ) : (
+              <>
+                <ThemedText style={[styles.infoLabel, { color: theme.error }]}>Učedník:</ThemedText>
+                <ThemedText style={[styles.infoValue, { color: theme.text }]}>{user?.name}</ThemedText>
 
-              <View style={[styles.divider, { backgroundColor: theme.border }]} />
+                <View style={[styles.divider, { backgroundColor: theme.border }]} />
 
-              <ThemedText style={[styles.infoLabel, { color: theme.textSecondary }]}>Mistr:</ThemedText>
-              <View style={styles.masterSelector}>
-                {apprenticeMasters.length > 0 ? (
-                  (() => {
+                <ThemedText style={[styles.infoLabel, { color: theme.textSecondary }]}>Mistr:</ThemedText>
+                <View style={styles.masterSelector}>
+                  {apprenticeMasters.length > 0 ? (
+                    (() => {
 
 
-                    if (userData.selectedMasterId === null) {
-                      // Show "Všichni"
-                      return (
-                        <Text style={{ color: "#A855F7", fontSize: 12, fontWeight: "700" }}>
-                          Všichni
-                        </Text>
-                      );
-                    } else {
-                      // Show selected master
-                      return (
-                        <Text style={{ color: "#A855F7", fontSize: 12, fontWeight: "700" }}>
-                          {selectedMaster?.name || "Nevybrán"}
-                        </Text>
-                      );
-                    }
-                  })()
-                ) : (
-                  <Text style={{ color: theme.textSecondary, fontSize: 12 }}>
-                    Nevybrán
-                  </Text>
-                )}
-              </View>
-            </>
-          )}
-        </Pressable>
+                      if (userData.selectedMasterId === null) {
+                        // Show "Všichni"
+                        return (
+                          <Text style={{ color: "#A855F7", fontSize: 12, fontWeight: "700" }}>
+                            Všichni
+                          </Text>
+                        );
+                      } else {
+                        // Show selected master
+                        return (
+                          <Text style={{ color: "#A855F7", fontSize: 12, fontWeight: "700" }}>
+                            {selectedMaster?.name || "Nevybrán"}
+                          </Text>
+                        );
+                      }
+                    })()
+                  ) : (
+                    <Text style={{ color: theme.textSecondary, fontSize: 12 }}>
+                      Nevybrán
+                    </Text>
+                  )}
+                </View>
+              </>
+            )}
+          </Pressable>
+        </View>
       )}
     </View>
   );
@@ -193,8 +226,7 @@ const styles = StyleSheet.create({
   brandRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 8,
-    marginTop: -30, // Independently move brand text/logo higher
+    marginBottom: 25, // Push logo up to be visually centered in the header space
   },
   logo: {
     width: 38,
@@ -208,10 +240,16 @@ const styles = StyleSheet.create({
   },
   infoRow: {
     position: "absolute",
-    bottom: -40,
+    bottom: -36, // (20px nav padding + ~16px half badge height)
+    alignSelf: "center",
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 16, // Zvýšeno pro vzdušnost
+    justifyContent: "center",
+  },
+  infoRowInner: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
     paddingVertical: 4,
     borderRadius: 20,
     borderWidth: 1,
@@ -220,7 +258,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
-    overflow: "hidden", // Ensure opacity layer stays within bounds
+    overflow: "hidden",
   },
   infoLabel: {
     fontSize: 12,

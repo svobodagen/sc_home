@@ -18,6 +18,8 @@ interface MasterContextType {
   addApprenticeToMaster: (masterId: string, apprenticeId: string, name: string, email: string) => Promise<void>;
   removeApprenticeFromMaster: (masterId: string, apprenticeId: string) => Promise<void>;
   getMasterApprentices: (masterId: string) => Promise<MasterApprentice[]>;
+  selectedApprenticeId: string | null;
+  setSelectedApprenticeId: (id: string | null) => void;
 }
 
 const MasterContext = createContext<MasterContextType | undefined>(undefined);
@@ -26,6 +28,7 @@ export function MasterProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const [apprentices, setApprentices] = useState<MasterApprentice[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedApprenticeId, setSelectedApprenticeId] = useState<string | null>(null);
 
   useEffect(() => {
     if (user?.id && user.role === "Mistr") {
@@ -69,7 +72,7 @@ export function MasterProvider({ children }: { children: ReactNode }) {
 
   const addApprentice = async (id: string, name: string, email: string) => {
     if (!user?.id) return;
-    
+
     try {
       const newApprentice: MasterApprentice = {
         apprenticeId: id,
@@ -77,16 +80,16 @@ export function MasterProvider({ children }: { children: ReactNode }) {
         apprenticeEmail: email,
         addedDate: Date.now(),
       };
-      
+
       try {
         await api.addApprentice(user.id, id, name);
       } catch (apiError) {
         console.log("API unavailable, using local storage");
       }
-      
+
       const updated = [...apprentices, newApprentice];
       setApprentices(updated);
-      
+
       const storageKey = `masterApprentices_${user.id}`;
       await AsyncStorage.setItem(storageKey, JSON.stringify(updated));
     } catch (error) {
@@ -97,17 +100,17 @@ export function MasterProvider({ children }: { children: ReactNode }) {
 
   const removeApprentice = async (id: string) => {
     if (!user?.id) return;
-    
+
     try {
       try {
         await api.removeApprentice(user.id, id);
       } catch (apiError) {
         console.log("API unavailable, using local storage");
       }
-      
+
       const updated = apprentices.filter(a => a.apprenticeId !== id);
       setApprentices(updated);
-      
+
       const storageKey = `masterApprentices_${user.id}`;
       await AsyncStorage.setItem(storageKey, JSON.stringify(updated));
     } catch (error) {
@@ -120,7 +123,7 @@ export function MasterProvider({ children }: { children: ReactNode }) {
     try {
       // VŽDY NEJDŘÍV ULOŽ DO SUPABASE!
       await api.addApprentice(masterId, apprenticeId, name);
-      
+
       // POTOM ulož do local storage
       const storageKey = `masterApprentices_${masterId}`;
       const saved = await AsyncStorage.getItem(storageKey);
@@ -149,7 +152,7 @@ export function MasterProvider({ children }: { children: ReactNode }) {
     try {
       // VŽDY NEJDŘÍV SMAŽ ZE SUPABASE!
       await api.removeApprentice(masterId, apprenticeId);
-      
+
       // POTOM ze storage
       const storageKey = `masterApprentices_${masterId}`;
       const saved = await AsyncStorage.getItem(storageKey);
@@ -171,7 +174,7 @@ export function MasterProvider({ children }: { children: ReactNode }) {
     try {
       // NEJDŘÍV API! To je cloud, to je truth!
       let data = await api.getApprentices(masterId);
-      
+
       // Transformuj do MasterApprentice formátu
       const apprentices: MasterApprentice[] = data.map((a: any) => ({
         apprenticeId: a.apprentice_id,
@@ -179,11 +182,11 @@ export function MasterProvider({ children }: { children: ReactNode }) {
         apprenticeEmail: a.apprentice_email || "",
         addedDate: a.created_at ? new Date(a.created_at).getTime() : Date.now(),
       }));
-      
+
       // Ulož do local storage
       const storageKey = `masterApprentices_${masterId}`;
       await AsyncStorage.setItem(storageKey, JSON.stringify(apprentices));
-      
+
       return apprentices;
     } catch (error) {
       console.error("Chyba při načítání učedníků:", error);
@@ -199,14 +202,16 @@ export function MasterProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <MasterContext.Provider value={{ 
-      apprentices, 
-      addApprentice, 
-      removeApprentice, 
+    <MasterContext.Provider value={{
+      apprentices,
+      addApprentice,
+      removeApprentice,
       isLoading,
       addApprenticeToMaster,
       removeApprenticeFromMaster,
-      getMasterApprentices
+      getMasterApprentices,
+      selectedApprenticeId,
+      setSelectedApprenticeId
     }}>
       {children}
     </MasterContext.Provider>

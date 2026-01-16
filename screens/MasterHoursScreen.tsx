@@ -11,7 +11,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useFocusEffect } from "@react-navigation/native";
 import { api } from "@/services/api";
 import { SlotWheelPicker } from "@/components/SlotWheelPicker";
-import { NoApprenticeSelected } from "@/components/NoApprenticeSelected";
+import { useMaster } from "@/contexts/MasterContext";
+import { getInitials } from "@/utils/string";
 
 type TimeFrame = "week" | "month" | "year";
 
@@ -21,6 +22,7 @@ interface WorkHour {
   hours: number;
   description: string;
   master_comment?: string;
+  apprenticeName?: string;
 }
 
 const getWeekNumber = (date: Date): number => {
@@ -41,13 +43,25 @@ const getDateFromWeekNumber = (year: number, week: number): Date => {
   return targetMonday;
 };
 
+const isSameDay = (d1: Date, d2: Date) => {
+  return d1.getFullYear() === d2.getFullYear() &&
+    d1.getMonth() === d2.getMonth() &&
+    d1.getDate() === d2.getDate();
+};
+
 export default function MasterHoursScreen() {
   const { theme } = useTheme();
   const { user } = useAuth(); // Add useAuth
   const insets = useScreenInsets();
 
-  const [selectedApprenticeData, setSelectedApprenticeData] = useState<any>(null);
-  const [showAllHistory, setShowAllHistory] = useState(false); // New state
+  const { selectedApprenticeId, apprentices } = useMaster();
+  const [rawWorkHours, setRawWorkHours] = useState<any[]>([]);
+
+  const selectedApprenticeName = selectedApprenticeId
+    ? apprentices.find(a => a.apprenticeId === selectedApprenticeId)?.apprenticeName
+    : "Všichni";
+
+
 
   const today = new Date();
   const currentWeekNum = getWeekNumber(today);
@@ -57,7 +71,7 @@ export default function MasterHoursScreen() {
   const [selectedWeek, setSelectedWeek] = useState(currentWeekNum);
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
   const [selectedYear, setSelectedYear] = useState(currentYear);
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   const [totalsPeriod, setTotalsPeriod] = useState<TimeFrame>('week');
 
@@ -83,37 +97,42 @@ export default function MasterHoursScreen() {
 
   useFocusEffect(
     React.useCallback(() => {
-      const loadMasterApprenticeData = async () => {
-        const data = await AsyncStorage.getItem("masterSelectedApprenticeData");
-        if (data) {
-          const parsed = JSON.parse(data);
-          // Refresh work hours from API to get latest comments
-          if (parsed.id) {
-            try {
-              const refreshedHours = await api.getWorkHours(parsed.id);
-              parsed.workHours = refreshedHours;
-            } catch (e) {
-              console.error("Failed to refresh work hours", e);
-            }
+      const loadData = async () => {
+        if (selectedApprenticeId) {
+          try {
+            const hours = await api.getWorkHours(selectedApprenticeId);
+            const name = apprentices.find(a => a.apprenticeId === selectedApprenticeId)?.apprenticeName;
+            setRawWorkHours(hours.map(h => ({ ...h, apprenticeName: name })));
+          } catch (e) {
+            console.error("Failed to load hours", e);
+            setRawWorkHours([]);
           }
-          setSelectedApprenticeData(parsed);
         } else {
-          // Explicitly set to null if no data
-          setSelectedApprenticeData(null);
+          // Load all
+          try {
+            const promises = apprentices.map(async (a) => {
+              const h = await api.getWorkHours(a.apprenticeId).catch(() => []);
+              return h.map((hh: any) => ({ ...hh, apprenticeName: a.apprenticeName }));
+            });
+            const results = await Promise.all(promises);
+            setRawWorkHours(results.flat());
+          } catch (e) {
+            console.error("Failed to load all hours", e);
+            setRawWorkHours([]);
+          }
         }
       };
-      loadMasterApprenticeData();
-    }, [])
+      loadData();
+    }, [selectedApprenticeId, apprentices])
   );
 
   /* REMOVED EARLY RETURN */
 
   // Filter Logic:
-  const allRawWorkHours = selectedApprenticeData?.workHours || [];
+  // Master sees ONLY hours assigned to him
   const filteredRawWorkHours = useMemo(() => {
-    if (showAllHistory) return allRawWorkHours;
-    return allRawWorkHours.filter((h: any) => !h.master_id || h.master_id === user?.id);
-  }, [allRawWorkHours, showAllHistory, user?.id]);
+    return rawWorkHours.filter((h: any) => h.master_id === user?.id);
+  }, [rawWorkHours, user?.id]);
 
   const workHours: WorkHour[] = useMemo(() => {
     if (!Array.isArray(filteredRawWorkHours)) return [];
@@ -122,7 +141,8 @@ export default function MasterHoursScreen() {
       hours: parseFloat(item?.hours || 0),
       timestamp: typeof item?.timestamp === 'number' ? item.timestamp : parseInt(item?.timestamp || 0, 10),
       description: item?.description ? String(item.description) : "",
-      master_comment: item?.master_comment || ""
+      master_comment: item?.master_comment || "",
+      apprenticeName: item?.apprenticeName
     }));
   }, [filteredRawWorkHours]);
 
@@ -215,9 +235,15 @@ export default function MasterHoursScreen() {
   }, [selectedYear, selectedWeek, selectedMonth, totalsPeriod]);
 
   const groupedHours = useMemo(() => {
-    const filteredWorkHours = workHours
-      .filter((h: WorkHour) => isDateInRange(h.timestamp, startDate, endDate))
-      .sort((a: WorkHour, b: WorkHour) => a.timestamp - b.timestamp);
+    let filteredWorkHours = workHours
+      .filter((h: WorkHour) => isDateInRange(h.timestamp, startDate, endDate));
+
+    // Filter by specific day if in week mode and a date is selected
+    if (totalsPeriod === 'week' && selectedDate) {
+      filteredWorkHours = filteredWorkHours.filter((h: WorkHour) => isSameDay(new Date(h.timestamp), selectedDate));
+    }
+
+    filteredWorkHours.sort((a: WorkHour, b: WorkHour) => a.timestamp - b.timestamp);
 
     const groupedByDate = filteredWorkHours.reduce((acc: Record<string, { date: Date; hours: WorkHour[] }>, hour: WorkHour) => {
       const date = new Date(hour.timestamp);
@@ -231,6 +257,13 @@ export default function MasterHoursScreen() {
 
     Object.values(groupedByDate).forEach(group => {
       group.hours.sort((a: WorkHour, b: WorkHour) => {
+        // Sort by apprentice name first
+        const nameA = a.apprenticeName || "";
+        const nameB = b.apprenticeName || "";
+        const nameDiff = nameA.localeCompare(nameB);
+        if (nameDiff !== 0) return nameDiff;
+
+        // Then by type (Práce/Studium)
         const aIsWork = a.description.includes("Práce");
         const bIsWork = b.description.includes("Práce");
         if (aIsWork && !bIsWork) return -1;
@@ -240,7 +273,7 @@ export default function MasterHoursScreen() {
     });
 
     return Object.values(groupedByDate);
-  }, [workHours, startDate, endDate]);
+  }, [workHours, startDate, endDate, totalsPeriod, selectedDate]);
 
   const calculateTotalsForRange = (startDate: Date, endDate: Date) => {
     const work = workHours
@@ -323,6 +356,34 @@ export default function MasterHoursScreen() {
     }
   };
 
+  const dayNames = ["Po", "Út", "St", "Čt", "Pá", "So", "Ne"];
+
+  const getWeekDays = () => {
+    const current = getDateFromWeekNumber(selectedYear, selectedWeek);
+    const days = [];
+    for (let i = 0; i < 7; i++) {
+      days.push(new Date(current));
+      current.setDate(current.getDate() + 1);
+    }
+    return days;
+  };
+
+
+
+
+
+  const getHoursForDay = (date: Date) => {
+    const dayStart = new Date(date);
+    dayStart.setHours(0, 0, 0, 0);
+    const dayEnd = new Date(date);
+    dayEnd.setHours(23, 59, 59, 999);
+
+    const dayHours = filteredRawWorkHours.filter((h: any) => isDateInRange(h.timestamp, dayStart, dayEnd));
+    const work = dayHours.filter((h: any) => h.description.includes("Práce")).reduce((sum: number, h: any) => sum + (h.hours || 0), 0);
+    const study = dayHours.filter((h: any) => h.description.includes("Studium")).reduce((sum: number, h: any) => sum + (h.hours || 0), 0);
+    return { work, study };
+  };
+
   // Comment functionality
   const startCommenting = (hour: WorkHour) => {
     setCommentingId(hour.id);
@@ -335,13 +396,10 @@ export default function MasterHoursScreen() {
       try {
         await api.updateWorkHourComment(commentingId, commentText);
 
-        // Update local state
-        const updatedWorkHours = selectedApprenticeData.workHours.map((h: any) =>
+        // Update local state is complex with mixed data, just reload or optimistically update rawWorkHours
+        setRawWorkHours(prev => prev.map(h =>
           h.id === commentingId ? { ...h, master_comment: commentText } : h
-        );
-        const updatedData = { ...selectedApprenticeData, workHours: updatedWorkHours };
-        setSelectedApprenticeData(updatedData);
-        await AsyncStorage.setItem("masterSelectedApprenticeData", JSON.stringify(updatedData));
+        ));
 
         setCommentingId(null);
       } catch (error) {
@@ -364,16 +422,16 @@ export default function MasterHoursScreen() {
 
     return (
       <View style={[styles.dayGroupCard, {
-        backgroundColor: isToday ? theme.primary + "10" : theme.backgroundDefault,
-        borderColor: isToday ? theme.primary : theme.border,
+        backgroundColor: isToday ? theme.error + "10" : theme.backgroundDefault,
+        borderColor: isToday ? theme.error : theme.border,
         borderWidth: isToday ? 2 : 1,
       }]}>
-        <View style={[styles.dayGroupTitleRow, { borderBottomColor: isToday ? theme.primary : theme.border }]}>
-          <ThemedText style={[styles.dayGroupTitle, { color: isToday ? theme.primary : theme.text, fontWeight: isToday ? "700" : "600" }]}>
+        <View style={[styles.dayGroupTitleRow, { borderBottomColor: isToday ? theme.error : theme.border }]}>
+          <ThemedText style={[styles.dayGroupTitle, { color: isToday ? theme.error : theme.text, fontWeight: isToday ? "700" : "600" }]}>
             {itemDate} • {totalDayHours}h
           </ThemedText>
           {isToday && (
-            <View style={[styles.todayBadge, { backgroundColor: theme.primary }]}>
+            <View style={[styles.todayBadge, { backgroundColor: theme.error }]}>
               <ThemedText style={[styles.todayBadgeText, { color: "#FFFFFF" }]}>Dnes</ThemedText>
             </View>
           )}
@@ -391,6 +449,22 @@ export default function MasterHoursScreen() {
                   <View style={[styles.hourBadge, { backgroundColor: badgeColor + "20" }]}>
                     <Feather name={icon} size={16} color={badgeColor} />
                     <ThemedText style={[styles.hourValue, { color: badgeColor }]}>{hour.hours}h</ThemedText>
+
+                  </View>
+                  <View style={{
+                    width: 26,
+                    height: 26,
+                    borderRadius: 13,
+                    backgroundColor: theme.backgroundRoot,
+                    borderWidth: 1,
+                    borderColor: badgeColor,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginLeft: 4
+                  }}>
+                    <ThemedText style={{ fontSize: 10, fontWeight: "700", color: badgeColor }}>
+                      {getInitials(hour.apprenticeName || "??")}
+                    </ThemedText>
                   </View>
                   <View style={{ flex: 1, gap: 4 }}>
                     <ThemedText style={[styles.hourDescription, { color: theme.textSecondary }]}>
@@ -398,8 +472,8 @@ export default function MasterHoursScreen() {
                     </ThemedText>
                     {hasComment && (
                       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                        <Feather name="message-circle" size={12} color={theme.primary} />
-                        <ThemedText style={{ fontSize: 12, color: theme.primary, fontStyle: 'italic' }}>
+                        <Feather name="message-circle" size={12} color={theme.error} />
+                        <ThemedText style={{ fontSize: 12, color: theme.error, fontStyle: 'italic' }}>
                           {hour.master_comment}
                         </ThemedText>
                       </View>
@@ -410,7 +484,7 @@ export default function MasterHoursScreen() {
                   onPress={() => startCommenting(hour)}
                   style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1, padding: 8 })}
                 >
-                  <Feather name="message-square" size={18} color={theme.textSecondary} />
+                  <Feather name="message-square" size={18} color={theme.error} />
                 </Pressable>
               </View>
             );
@@ -420,9 +494,7 @@ export default function MasterHoursScreen() {
     );
   };
 
-  if (!selectedApprenticeData) {
-    return <NoApprenticeSelected />;
-  }
+
 
   return (
     <>
@@ -439,28 +511,11 @@ export default function MasterHoursScreen() {
         showsVerticalScrollIndicator={false}
         ListHeaderComponent={
           <View style={{ marginBottom: Spacing.lg }}>
-            <View style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              alignItems: "center",
-              paddingVertical: Spacing.md,
-              marginBottom: Spacing.md,
-              borderBottomWidth: 1,
-              borderBottomColor: theme.border
-            }}>
-              <ThemedText style={{ ...Typography.label }}>Zobrazit celou historii</ThemedText>
-              <Switch
-                value={showAllHistory}
-                onValueChange={setShowAllHistory}
-                trackColor={{ false: theme.border, true: theme.primary }}
-              />
-            </View>
+
 
             <View style={styles.header}>
               <ThemedText style={styles.title}>Přehled hodin</ThemedText>
-              {selectedApprenticeData && (
-                <ThemedText style={{ color: theme.textSecondary }}>{selectedApprenticeData.name}</ThemedText>
-              )}
+              <ThemedText style={{ color: theme.textSecondary }}>{selectedApprenticeName}</ThemedText>
             </View>
 
             <View style={[styles.pickerPanel, { backgroundColor: theme.backgroundDefault, borderColor: theme.border }]}>
@@ -526,21 +581,87 @@ export default function MasterHoursScreen() {
               </View>
             </Pressable>
 
+            <View style={{ marginBottom: Spacing.lg, paddingHorizontal: Spacing.lg }}>
+              <View style={[styles.dateSelector, { padding: Spacing.md, backgroundColor: theme.backgroundDefault, borderWidth: 1, borderColor: theme.border, borderRadius: BorderRadius.sm }]}>
+                {getWeekDays().map((day, idx) => {
+                  const isSelected = selectedDate ? isSameDay(day, selectedDate) : false;
+                  const { work, study } = getHoursForDay(day);
+                  const isInSelectedMonth = day.getMonth() + 1 === selectedMonth;
+                  const isFirstOfMonth = day.getDate() === 1;
+                  const dayLabel = isFirstOfMonth ? `${day.getDate()}.${day.getMonth() + 1}` : `${day.getDate()}`;
+                  const today = new Date();
+                  const isToday = isSameDay(day, today);
+
+                  return (
+                    <View key={idx} style={[styles.dayWrapper, { opacity: isInSelectedMonth ? 1 : 0.4 }]}>
+                      <Pressable
+                        onPress={() => {
+                          if (isSelected) {
+                            setSelectedDate(null);
+                          } else {
+                            setSelectedDate(day);
+                          }
+                        }}
+                        style={({ pressed }) => [
+                          styles.dayButton,
+                          {
+                            backgroundColor: isSelected ? theme.primary : "transparent",
+                            opacity: pressed ? 0.7 : 1,
+                            borderColor: isToday ? theme.error : theme.border,
+                            borderWidth: isToday ? 2 : 1,
+                          },
+                        ]}
+                      >
+                        <ThemedText style={[styles.dayButtonText, { color: isSelected ? "#FFFFFF" : theme.text }]}>
+                          {dayNames[idx]}
+                        </ThemedText>
+                        <ThemedText style={[styles.dayNumber, { color: isSelected ? "#FFFFFF" : theme.textSecondary }]}>
+                          {dayLabel}
+                        </ThemedText>
+                      </Pressable>
+                      {(work > 0 || study > 0) ? (
+                        <View style={styles.dayHoursContainer}>
+                          {work > 0 ? <ThemedText style={[styles.dayHours, { color: theme.primary }]}>{work}h</ThemedText> : null}
+                          {study > 0 ? <ThemedText style={[styles.dayHours, { color: theme.secondary }]}>{study}h</ThemedText> : null}
+                          <View style={{ height: 1, width: 16, backgroundColor: theme.border, marginVertical: 2 }} />
+                          <ThemedText style={[styles.dayHours, { color: theme.text, fontWeight: '700' }]}>{work + study}h</ThemedText>
+                        </View>
+                      ) : (
+                        <View style={{ height: 40 }} />
+                      )}
+                    </View>
+                  );
+                })}
+              </View>
+            </View>
+
             <View style={{ paddingHorizontal: Spacing.lg }}>
               <Pressable
                 onPress={() => {
                   const today = new Date();
-                  setSelectedYear(today.getFullYear());
-                  setSelectedMonth(today.getMonth() + 1);
-                  setSelectedWeek(getWeekNumber(today));
-                  setSelectedDate(today);
+                  const currentWeek = getWeekNumber(today);
+
+                  if (selectedYear !== today.getFullYear() || selectedWeek !== currentWeek) {
+                    setSelectedYear(today.getFullYear());
+                    setSelectedMonth(today.getMonth() + 1);
+                    setSelectedWeek(currentWeek);
+                    setSelectedDate(today);
+                  } else {
+                    if (selectedDate && isSameDay(selectedDate, today)) {
+                      setSelectedDate(null);
+                    } else {
+                      setSelectedDate(today);
+                    }
+                  }
                 }}
                 style={({ pressed }) => [
                   styles.todayButtonMain,
                   { backgroundColor: theme.primary, opacity: pressed ? 0.8 : 1 },
                 ]}
               >
-                <ThemedText style={[styles.todayButtonMainText, { color: "#FFFFFF" }]}>Dnes</ThemedText>
+                <ThemedText style={[styles.todayButtonMainText, { color: "#FFFFFF" }]}>
+                  {selectedDate && isSameDay(selectedDate, new Date()) ? "Celý týden" : "Dnes"}
+                </ThemedText>
               </Pressable>
             </View>
           </View>
@@ -570,7 +691,9 @@ export default function MasterHoursScreen() {
             <ThemedText style={{ fontSize: 18, fontWeight: 'bold', marginBottom: Spacing.md }}>Komentář mistra</ThemedText>
             <TextInput
               style={{
-                backgroundColor: theme.backgroundRoot,
+                backgroundColor: theme.error + "10",
+                borderColor: theme.error,
+                borderWidth: 1,
                 color: theme.text,
                 padding: Spacing.md,
                 borderRadius: BorderRadius.sm,
@@ -586,7 +709,7 @@ export default function MasterHoursScreen() {
             />
             <View style={{ flexDirection: 'row', gap: Spacing.md }}>
               <Pressable
-                style={{ flex: 1, backgroundColor: theme.primary, padding: Spacing.md, borderRadius: BorderRadius.sm, alignItems: 'center' }}
+                style={{ flex: 1, backgroundColor: theme.error, padding: Spacing.md, borderRadius: BorderRadius.sm, alignItems: 'center' }}
                 onPress={saveComment}
                 disabled={isSavingComment}
               >
@@ -800,5 +923,37 @@ const styles = StyleSheet.create({
   todayButtonMainText: {
     ...Typography.body,
     fontWeight: "600",
+  },
+  dateSelector: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  dayWrapper: {
+    alignItems: "center",
+  },
+  dayButton: {
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: BorderRadius.sm,
+    borderWidth: 1,
+    width: 40,
+    height: 56,
+    marginBottom: Spacing.xs,
+  },
+  dayButtonText: {
+    ...Typography.small,
+    fontWeight: "600",
+  },
+  dayNumber: {
+    ...Typography.small,
+  },
+  dayHoursContainer: {
+    flexDirection: "column",
+    alignItems: "center",
+  },
+  dayHours: {
+    fontSize: 10,
+    fontWeight: "600",
+    lineHeight: 12,
   },
 });

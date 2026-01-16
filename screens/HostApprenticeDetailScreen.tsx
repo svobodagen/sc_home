@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, FlatList, Pressable, ScrollView, Image } from "react-native";
+import { View, StyleSheet, FlatList, Pressable, ScrollView, Image, Modal } from "react-native";
 import { useTheme } from "@/hooks/useTheme";
 import { useAuth } from "@/contexts/AuthContext";
+import { useData } from "@/contexts/DataContext";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { ScreenKeyboardAwareScrollView } from "@/components/ScreenKeyboardAwareScrollView";
@@ -9,18 +10,23 @@ import { Spacing, BorderRadius, Typography, Colors } from "@/constants/theme";
 import { Feather } from "@expo/vector-icons";
 import { api } from "@/services/api";
 import { useNavigation } from "@react-navigation/native";
+import { calculateBadgeStatus, BadgeDisplayData } from "@/services/BadgeCalculator";
 
 export default function HostApprenticeDetailScreen({ route }: any) {
     const { theme } = useTheme();
     const navigation = useNavigation<any>();
     const { apprenticeId, apprenticeName } = route.params;
+    const { allUsers } = useData();
 
     const [loading, setLoading] = useState(true);
     const [projects, setProjects] = useState<any[]>([]);
-    const [certificates, setCertificates] = useState<any[]>([]);
-    const [workHours, setWorkHours] = useState<any[]>([]);
+    const [displayBadges, setDisplayBadges] = useState<BadgeDisplayData[]>([]);
+    const [displayCerts, setDisplayCerts] = useState<BadgeDisplayData[]>([]);
     const [masters, setMasters] = useState<any[]>([]);
     const [apprenticeInfo, setApprenticeInfo] = useState<any>(null);
+    const [workHours, setWorkHours] = useState<any[]>([]);
+
+    const [selectedBadge, setSelectedBadge] = useState<BadgeDisplayData | null>(null);
 
     useEffect(() => {
         loadData();
@@ -30,20 +36,66 @@ export default function HostApprenticeDetailScreen({ route }: any) {
         try {
             setLoading(true);
 
-            const [allUsers, projs, certs, hours, mstrConns] = await Promise.all([
-                api.getUsers(),
-                api.getProjects(apprenticeId),
-                api.getCertificates(apprenticeId),
-                api.getWorkHours(apprenticeId),
-                api.getMastersForApprentice(apprenticeId)
+            // Fetch data
+            const [dbCerts, hours, projs, templates, mstrConns, allRules, history] = await Promise.all([
+                api.getCertificates(apprenticeId).catch(() => []),
+                api.getWorkHours(apprenticeId).catch(() => []),
+                api.getProjects(apprenticeId).catch(() => []),
+                api.getCertificateTemplates().catch(() => []),
+                api.getMastersForApprentice(apprenticeId).catch(() => []),
+                api.getAllCertificateUnlockRules().catch(() => []),
+                api.getCertificateUnlockHistory(apprenticeId).catch(() => [])
             ]);
 
             const info = allUsers.find((u: any) => u.id === apprenticeId);
             setApprenticeInfo(info);
             setProjects(projs);
-            setCertificates(certs);
             setWorkHours(hours);
 
+            // Prepare Stats
+            const wSum = hours.filter((h: any) => h.description && /pr[áa]ce|work/i.test(h.description)).reduce((s: number, h: any) => s + (h.hours || h.duration || 0), 0);
+            const sSum = hours.filter((h: any) => h.description && /studium|study/i.test(h.description)).reduce((s: number, h: any) => s + (h.hours || h.duration || 0), 0);
+
+            const stats = {
+                workHours: wSum,
+                studyHours: sSum,
+                totalHours: wSum + sSum,
+                projectCount: projs.length
+            };
+
+            // Calculate Badges
+            // Role: "Host" -> Calculator will allow showing initials of whoever unlocked it.
+            const processed: BadgeDisplayData[] = templates.map((tmpl: any) => {
+                const relevantRecords = dbCerts.filter((c: any) => String(c.template_id) === String(tmpl.id));
+                const tmplRules = allRules.filter((r: any) => r.template_id === tmpl.id);
+
+                return calculateBadgeStatus(tmpl, {
+                    role: "Host",
+                    userStats: stats,
+                    dbRecords: relevantRecords,
+                    rules: tmplRules,
+                    allUsers: allUsers,
+                    unlockHistory: history,
+                    // No specific master filter, host sees all unlocked items
+                });
+            });
+
+            processed.sort((a, b) => (parseInt(a.templateId) || 0) - (parseInt(b.templateId) || 0));
+
+            // Host only sees unlocked items? Or all? Usually detail screens show what was achieved.
+            // Let's emulate previous behavior: show what is unlocked, maybe gray locked?
+            // Previous code showed locked as well (if found in DB?).
+            // For now, let's show only unlocked in the horizontal scroll to avoid clutter, 
+            // BUT if the design requires showing empty slots, valid.
+            // The previous code had a condition: `.filter(c => !c.locked ...)`
+            // So we also filter only unlocked.
+
+            const unlockedItems = processed.filter(i => !i.isLocked);
+
+            setDisplayBadges(unlockedItems.filter(i => i.category === "Odznak"));
+            setDisplayCerts(unlockedItems.filter(i => i.category === "Certifikát"));
+
+            // Masters
             if (mstrConns && mstrConns.length > 0) {
                 const results = mstrConns.map((conn: any) => {
                     const masterUser = allUsers.find((u: any) => u.id === conn.master_id);
@@ -58,18 +110,18 @@ export default function HostApprenticeDetailScreen({ route }: any) {
             }
 
         } catch (error) {
-            console.error("Chyba při načítání detailu učedníka:", error);
+            console.error("Error loading Host detail:", error);
         } finally {
             setLoading(false);
         }
     };
 
     const totalWorkHours = workHours
-        .filter(h => h.description?.includes("Práce"))
+        .filter(h => (h.description || "").match(/pr[áa]ce|work/i))
         .reduce((sum, h) => sum + (h.hours || 0), 0);
 
     const totalStudyHours = workHours
-        .filter(h => h.description?.includes("Studium"))
+        .filter(h => (h.description || "").match(/studium|study/i))
         .reduce((sum, h) => sum + (h.hours || 0), 0);
 
     const startDate = apprenticeInfo?.timestamp ? new Date(apprenticeInfo.timestamp).toLocaleDateString("cs-CZ") : "Neznámé";
@@ -78,7 +130,8 @@ export default function HostApprenticeDetailScreen({ route }: any) {
         <Pressable
             onPress={() => navigation.navigate("ProjectDetail", {
                 project: item,
-                projectIndex: projects.indexOf(item)
+                projectIndex: projects.indexOf(item),
+                apprenticeId: apprenticeId
             })}
         >
             <ThemedView style={styles.projectCard}>
@@ -98,6 +151,79 @@ export default function HostApprenticeDetailScreen({ route }: any) {
             </ThemedView>
         </Pressable>
     );
+
+    // Modal Config
+    const ModalContent = () => {
+        if (!selectedBadge) return null;
+        const item = selectedBadge;
+        const primaryColor = item.category === "Odznak" ? theme.primary : theme.secondary;
+
+        return (
+            <Modal
+                visible={!!selectedBadge}
+                transparent
+                animationType="fade"
+                onRequestClose={() => setSelectedBadge(null)}
+            >
+                <Pressable
+                    onPress={() => setSelectedBadge(null)}
+                    style={[styles.modalOverlay, { backgroundColor: "rgba(0, 0, 0, 0.5)" }]}
+                >
+                    <Pressable
+                        onPress={(e) => e.stopPropagation()}
+                        style={[
+                            styles.modalContent,
+                            {
+                                backgroundColor: theme.backgroundDefault,
+                                borderColor: primaryColor,
+                            },
+                        ]}
+                    >
+                        <View style={[styles.modalIconContainer, { backgroundColor: primaryColor + "20" }]}>
+                            <Feather name={item.category === "Odznak" ? "award" : "file-text"} size={48} color={primaryColor} />
+                        </View>
+
+                        <ThemedText style={[styles.modalTitle, { color: primaryColor, fontWeight: "700" }]}>
+                            {item.headerTitle}
+                        </ThemedText>
+
+                        <ThemedText style={[styles.modalCategory, { color: theme.textSecondary }]}>
+                            {item.category}
+                        </ThemedText>
+
+                        <View style={[styles.masterNameBox, { marginTop: Spacing.sm }]}>
+                            {/* For Host, we show who unlocked it (Master Initials? No, Full Name in Modal) 
+                      BadgeCalculator provides 'infoText' which might say "Master: XY" if we set it up.
+                      Or we can parse 'initials' back to names if needed, but 'infoText' is safer.
+                  */}
+                            <ThemedText style={[styles.masterNameLabel, { color: theme.textSecondary, textAlign: 'center' }]}>
+                                {item.infoText.split(": ")[0]}:{"\n"}
+                                <ThemedText style={{ color: primaryColor, fontWeight: '600' }}>
+                                    {item.infoText.split(": ")[1] || ""}
+                                </ThemedText>
+                            </ThemedText>
+                        </View>
+
+                        <View style={[styles.requirementBox, { backgroundColor: theme.backgroundRoot, borderColor: primaryColor }]}>
+                            <ThemedText style={[styles.requirementLabel, { color: theme.textSecondary }]}>
+                                Podmínky pro získání:
+                            </ThemedText>
+                            <ThemedText style={[styles.requirementText, { color: theme.text }]}>
+                                {item.ruleText}
+                            </ThemedText>
+                        </View>
+
+                        <Pressable
+                            onPress={() => setSelectedBadge(null)}
+                            style={[styles.closeButton, { backgroundColor: primaryColor }]}
+                        >
+                            <ThemedText style={styles.closeButtonText}>Zavřít</ThemedText>
+                        </Pressable>
+                    </Pressable>
+                </Pressable>
+            </Modal>
+        );
+    };
 
     return (
         <View style={[styles.container, { backgroundColor: theme.backgroundRoot }]}>
@@ -119,18 +245,18 @@ export default function HostApprenticeDetailScreen({ route }: any) {
                         <View style={styles.divider} />
                         <View style={styles.metaItem}>
                             <Feather name="tool" size={14} color={theme.textSecondary} />
-                            <ThemedText style={[styles.metaText, { color: theme.textSecondary }]}>{totalWorkHours}h práce</ThemedText>
+                            <ThemedText style={[styles.metaText, { color: theme.textSecondary }]}>{Math.round(totalWorkHours)}h práce</ThemedText>
                         </View>
                         <View style={styles.divider} />
                         <View style={styles.metaItem}>
                             <Feather name="book" size={14} color={theme.textSecondary} />
-                            <ThemedText style={[styles.metaText, { color: theme.textSecondary }]}>{totalStudyHours}h studium</ThemedText>
+                            <ThemedText style={[styles.metaText, { color: theme.textSecondary }]}>{Math.round(totalStudyHours)}h studium</ThemedText>
                         </View>
                     </View>
                 </View>
 
                 {/* Master Connection */}
-                <ThemedView style={styles.masterCard}>
+                <ThemedView style={[styles.masterCard, { borderWidth: 1, borderColor: theme.border }]}>
                     <ThemedText style={styles.sectionTitle}>{masters.length > 1 ? "Jeho Mistři" : "Jeho Mistr"}</ThemedText>
                     {masters.length > 0 ? (
                         masters.map((m, idx) => (
@@ -153,16 +279,60 @@ export default function HostApprenticeDetailScreen({ route }: any) {
 
                 {/* Successes / Badges */}
                 <View style={styles.section}>
-                    <ThemedText style={styles.sectionTitle}>Úspěchy a Certifikáty</ThemedText>
+                    <ThemedText style={styles.sectionTitle}>Odznaky</ThemedText>
                     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.badgeScroll}>
-                        {certificates.filter(c => !c.locked).map((cert, index) => (
-                            <View key={index} style={[styles.badgeItem, { backgroundColor: theme.backgroundSecondary }]}>
-                                <Feather name="award" size={24} color={theme.primary} />
-                                <ThemedText style={styles.badgeTitle}>{cert.title}</ThemedText>
-                            </View>
-                        ))}
-                        {certificates.filter(c => !c.locked).length === 0 && (
+                        {displayBadges.length > 0 ? (
+                            displayBadges.map((badge) => (
+                                <Pressable
+                                    key={badge.templateId}
+                                    onPress={() => setSelectedBadge(badge)}
+                                    style={[styles.badgeItem, { backgroundColor: theme.primary + "15" }]}
+                                >
+                                    {badge.initials.length > 0 && (
+                                        <View style={{ width: '100%', flexDirection: 'row', flexWrap: 'wrap', gap: 2, marginBottom: 4 }}>
+                                            {badge.initials.map((init, idx) => (
+                                                <View key={idx} style={[styles.miniBadge, { backgroundColor: theme.backgroundDefault, borderColor: theme.primary }]}>
+                                                    <ThemedText style={[styles.miniBadgeText, { color: theme.primary }]}>{init}</ThemedText>
+                                                </View>
+                                            ))}
+                                        </View>
+                                    )}
+                                    <Feather name="award" size={24} color={theme.primary} />
+                                    <ThemedText style={styles.badgeTitle}>{badge.headerTitle}</ThemedText>
+                                </Pressable>
+                            ))
+                        ) : (
                             <ThemedText style={[styles.emptyText, { color: theme.textSecondary }]}>Zatím žádné získané odznaky</ThemedText>
+                        )}
+                    </ScrollView>
+                </View>
+
+                {/* Certificates */}
+                <View style={styles.section}>
+                    <ThemedText style={styles.sectionTitle}>Certifikáty</ThemedText>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.badgeScroll}>
+                        {displayCerts.length > 0 ? (
+                            displayCerts.map((cert) => (
+                                <Pressable
+                                    key={cert.templateId}
+                                    onPress={() => setSelectedBadge(cert)}
+                                    style={[styles.badgeItem, { backgroundColor: theme.secondary + "15" }]}
+                                >
+                                    {cert.initials.length > 0 && (
+                                        <View style={{ width: '100%', flexDirection: 'row', flexWrap: 'wrap', gap: 2, marginBottom: 4 }}>
+                                            {cert.initials.map((init, idx) => (
+                                                <View key={idx} style={[styles.miniBadge, { backgroundColor: theme.backgroundDefault, borderColor: theme.secondary }]}>
+                                                    <ThemedText style={[styles.miniBadgeText, { color: theme.secondary }]}>{init}</ThemedText>
+                                                </View>
+                                            ))}
+                                        </View>
+                                    )}
+                                    <Feather name="file-text" size={24} color={theme.secondary} />
+                                    <ThemedText style={styles.badgeTitle}>{cert.headerTitle}</ThemedText>
+                                </Pressable>
+                            ))
+                        ) : (
+                            <ThemedText style={[styles.emptyText, { color: theme.textSecondary }]}>Zatím žádné získané certifikáty</ThemedText>
                         )}
                     </ScrollView>
                 </View>
@@ -185,6 +355,7 @@ export default function HostApprenticeDetailScreen({ route }: any) {
                     )}
                 </View>
 
+                <ModalContent />
             </ScreenKeyboardAwareScrollView>
         </View>
     );
@@ -195,7 +366,6 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     scrollContent: {
-        paddingBottom: 40,
     },
     header: {
         alignItems: "center",
@@ -205,8 +375,6 @@ const styles = StyleSheet.create({
     avatarContainer: {
         width: 100,
         height: 100,
-        borderRadius: 50,
-        backgroundColor: "rgba(220, 38, 38, 0.1)",
         alignItems: "center",
         justifyContent: "center",
         marginBottom: Spacing.md,
@@ -271,8 +439,6 @@ const styles = StyleSheet.create({
     masterIcon: {
         width: 36,
         height: 36,
-        borderRadius: 18,
-        backgroundColor: "rgba(220, 38, 38, 0.1)",
         alignItems: "center",
         justifyContent: "center",
         marginRight: Spacing.md,
@@ -292,7 +458,7 @@ const styles = StyleSheet.create({
     },
     badgeItem: {
         width: 100,
-        height: 110,
+        minHeight: 110,
         borderRadius: BorderRadius.md,
         alignItems: "center",
         justifyContent: "center",
@@ -342,5 +508,83 @@ const styles = StyleSheet.create({
         marginTop: 12,
         fontSize: 14,
         textAlign: "center",
+    },
+    miniBadge: {
+        minWidth: 20,
+        height: 20,
+        borderRadius: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 1,
+        paddingHorizontal: 2,
+    },
+    miniBadgeText: {
+        fontSize: 10,
+        fontWeight: '800',
+        textAlign: 'center',
+        textAlignVertical: 'center',
+        includeFontPadding: false,
+        lineHeight: 12,
+    },
+    masterNameBox: {
+        marginBottom: Spacing.sm,
+    },
+    masterNameLabel: {
+        fontSize: 13,
+    },
+    modalOverlay: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    modalContent: {
+        borderRadius: BorderRadius.md,
+        padding: Spacing.lg,
+        width: "85%",
+        borderWidth: 2,
+        alignItems: "center",
+    },
+    modalIconContainer: {
+        width: 80,
+        height: 80,
+        borderRadius: BorderRadius.sm,
+        alignItems: "center",
+        justifyContent: "center",
+        marginBottom: Spacing.lg,
+    },
+    modalTitle: {
+        fontSize: 20,
+        fontWeight: "700",
+        textAlign: "center",
+        marginBottom: Spacing.xs,
+    },
+    modalCategory: {
+        fontSize: 16,
+        marginBottom: Spacing.md,
+    },
+    requirementBox: {
+        borderRadius: BorderRadius.sm,
+        borderWidth: 1,
+        padding: Spacing.lg,
+        width: "100%",
+        marginBottom: Spacing.lg,
+    },
+    requirementLabel: {
+        fontSize: 13,
+        marginBottom: 4,
+    },
+    requirementText: {
+        fontSize: 15,
+    },
+    closeButton: {
+        paddingVertical: 12,
+        paddingHorizontal: 24,
+        borderRadius: BorderRadius.xs,
+        width: '100%',
+        alignItems: 'center'
+    },
+    closeButtonText: {
+        color: '#fff',
+        fontWeight: '700'
     },
 });

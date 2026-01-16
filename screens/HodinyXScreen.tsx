@@ -1591,6 +1591,8 @@ const styles = StyleSheet.create({
         fontSize: 9,
         fontWeight: "700",
         textAlign: "center",
-        lineHeight: 11, // Helps with vertical centering
+        textAlignVertical: "center",
+        includeFontPadding: false,
+        lineHeight: 12,
     },
 });

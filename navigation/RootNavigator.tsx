@@ -20,7 +20,7 @@ import HostDashboardScreen from "@/screens/HostDashboardScreen";
 export type RootStackParamList = {
   Main: undefined;
   Profile: undefined;
-  ProjectDetail: { project: Project; projectIndex: number; isGlobal?: boolean };
+  ProjectDetail: { project: Project; projectIndex: number; apprenticeId?: string; isGlobal?: boolean };
   ApprenticeDetail: { apprenticeId: string; apprenticeName: string };
   HostApprenticeDetail: { apprenticeId: string; apprenticeName: string };
   HostMasterDetail: { masterId: string; masterName: string };

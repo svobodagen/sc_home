@@ -13,24 +13,27 @@ import { useTheme } from "@/hooks/useTheme";
 import { useScreenInsets } from "@/hooks/useScreenInsets";
 import { Spacing, Typography, BorderRadius } from "@/constants/theme";
 import { api } from "@/services/api";
-import { NoApprenticeSelected } from "@/components/NoApprenticeSelected";
+import { useMaster } from "@/contexts/MasterContext";
+import { getInitials } from "@/utils/string";
 
 type ProjectsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, "Main">;
 
 // ... imports
-import { useAuth } from "@/contexts/AuthContext"; // Add this
+import { useAuth } from "@/contexts/AuthContext";
+import { GlobalProjectGallery } from "@/components/GlobalProjectGallery";
 
 export default function MasterProjectsScreen() {
   const { theme } = useTheme();
   const { user } = useAuth();
   const insets = useScreenInsets();
   const navigation = useNavigation<ProjectsScreenNavigationProp>();
-  const [selectedApprenticeData, setSelectedApprenticeData] = useState<any>(null);
+  const { selectedApprenticeId, apprentices } = useMaster();
+  const [apprenticeProjects, setApprenticeProjects] = useState<any[]>([]);
   const [commentModalVisible, setCommentModalVisible] = useState(false);
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const [commentText, setCommentText] = useState("");
   const [isCardSwiping, setIsCardSwiping] = useState(false);
-  const [showAllHistory, setShowAllHistory] = useState(false);
+
   const [viewMode, setViewMode] = useState<"apprentice" | "global">("apprentice");
   const [allProjects, setAllProjects] = useState<any[]>([]);
   const [allUsers, setAllUsers] = useState<any[]>([]);
@@ -41,22 +44,29 @@ export default function MasterProjectsScreen() {
       const loadData = async () => {
         setLoading(true);
         try {
-          // 1. Get apprentice info from storage to know WHO to load
-          const data = await AsyncStorage.getItem("masterSelectedApprenticeData");
           const users = await api.getUsers();
           setAllUsers(users);
 
-          if (data) {
-            const parsedApprentice = JSON.parse(data);
-            // 2. FETCH FRESH DATA from API for this apprentice
-            const apprenticeProjects = await api.getProjects(parsedApprentice.id);
-
-            setSelectedApprenticeData({
-              ...parsedApprentice,
-              projects: apprenticeProjects
-            });
-          } else {
-            setSelectedApprenticeData(null);
+          if (viewMode === "apprentice") {
+            if (selectedApprenticeId) {
+              const projs = await api.getProjects(selectedApprenticeId);
+              const appName = apprentices.find(a => a.apprenticeId === selectedApprenticeId)?.apprenticeName;
+              setApprenticeProjects(projs.map(p => ({ ...p, apprenticeName: appName })));
+            } else {
+              // All apprentices
+              const promises = apprentices.map(async (a) => {
+                const projs = await api.getProjects(a.apprenticeId).catch(() => []);
+                return projs.map((p: any) => ({ ...p, apprenticeName: a.apprenticeName }));
+              });
+              const results = await Promise.all(promises);
+              // Sort by date desc
+              const sorted = results.flat().sort((a: any, b: any) => {
+                const tA = a.created_at ? new Date(a.created_at).getTime() : 0;
+                const tB = b.created_at ? new Date(b.created_at).getTime() : 0;
+                return tB - tA;
+              });
+              setApprenticeProjects(sorted);
+            }
           }
 
           // 3. Load all projects if in global mode
@@ -71,49 +81,24 @@ export default function MasterProjectsScreen() {
         }
       };
       loadData();
-    }, [viewMode])
+    }, [viewMode, selectedApprenticeId, apprentices])
   );
 
   /* REMOVED EARLY RETURN */
 
-  const projects = viewMode === "global" ? allProjects : (selectedApprenticeData?.projects || []);
+  // const projects = viewMode === "global" ? allProjects : apprenticeProjects;
+  const projects = apprenticeProjects;
 
   const filteredProjects = React.useMemo(() => {
-    if (viewMode === "global") return projects;
-    if (showAllHistory) return projects;
-    return projects.filter((p: any) => !p.master_id || p.master_id === user?.id);
-  }, [projects, showAllHistory, user?.id, viewMode]);
+    return projects;
+  }, [projects]);
 
   const getAuthorName = (userId: string) => {
     const u = allUsers.find((u: any) => u.id === userId);
     return u ? u.name : "Neznámý autor";
   };
 
-  if (!selectedApprenticeData && viewMode === "apprentice") {
-    return (
-      <View style={{ flex: 1, backgroundColor: theme.backgroundRoot }}>
-        <View style={[styles.toggleContainer, { backgroundColor: theme.backgroundDefault, borderBottomColor: theme.border }]}>
-          <Pressable
-            style={[styles.toggleButton, { borderBottomColor: theme.primary, borderBottomWidth: 3 }]}
-            onPress={() => setViewMode("apprentice")}
-          >
-            <ThemedText style={[styles.toggleText, { color: theme.primary, fontWeight: "700" }]}>
-              Učedník
-            </ThemedText>
-          </Pressable>
-          <Pressable
-            style={[styles.toggleButton]}
-            onPress={() => setViewMode("global")}
-          >
-            <ThemedText style={[styles.toggleText, { color: theme.textSecondary }]}>
-              Galerie Cechu
-            </ThemedText>
-          </Pressable>
-        </View>
-        <NoApprenticeSelected />
-      </View>
-    );
-  }
+
 
   const extractTextOnly = (fullComment: string): string => {
     if (!fullComment) return "";
@@ -150,15 +135,9 @@ export default function MasterProjectsScreen() {
       setSelectedProject(null);
       setCommentText("");
 
-      const data = await AsyncStorage.getItem("masterSelectedApprenticeData");
-      if (data) {
-        const parsed = JSON.parse(data);
-        const updatedProjects = parsed.projects.map((p: any) =>
-          p.id === selectedProject.id ? { ...p, master_comment: newComment } : p
-        );
-        await AsyncStorage.setItem("masterSelectedApprenticeData", JSON.stringify({ ...parsed, projects: updatedProjects }));
-        setSelectedApprenticeData({ ...parsed, projects: updatedProjects });
-      }
+      setApprenticeProjects(prev => prev.map(p =>
+        p.id === selectedProject.id ? { ...p, master_comment: newComment } : p
+      ));
     } catch (error) {
       console.error("Error saving comment:", error);
     }
@@ -166,21 +145,15 @@ export default function MasterProjectsScreen() {
 
   const handleAddHeart = async (projectId: string) => {
     try {
-      const data = await AsyncStorage.getItem("masterSelectedApprenticeData");
-      if (data) {
-        const parsed = JSON.parse(data);
-        const currentProject = parsed.projects.find((p: any) => p.id === projectId);
-        if (!currentProject) return;
+      const currentProject = apprenticeProjects.find((p: any) => p.id === projectId);
+      if (!currentProject) return;
 
-        const newIsLiked = !currentProject.is_liked;
-        await api.toggleProjectLike(projectId as any, newIsLiked);
+      const newIsLiked = !currentProject.is_liked;
+      await api.toggleProjectLike(projectId as any, newIsLiked);
 
-        const updatedProjects = parsed.projects.map((p: any) =>
-          p.id === projectId ? { ...p, is_liked: newIsLiked } : p
-        );
-        await AsyncStorage.setItem("masterSelectedApprenticeData", JSON.stringify({ ...parsed, projects: updatedProjects }));
-        setSelectedApprenticeData({ ...parsed, projects: updatedProjects });
-      }
+      setApprenticeProjects(prev => prev.map(p =>
+        p.id === projectId ? { ...p, is_liked: newIsLiked } : p
+      ));
     } catch (error) {
       console.error("Error toggling like:", error);
     }
@@ -207,27 +180,11 @@ export default function MasterProjectsScreen() {
         </Pressable>
       </View>
 
-      {viewMode === "apprentice" && (
-        <View style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-          paddingHorizontal: Spacing.lg,
-          paddingVertical: Spacing.md,
-          backgroundColor: theme.backgroundDefault,
-          borderBottomWidth: 1,
-          borderBottomColor: theme.border
-        }}>
-          <ThemedText style={{ ...Typography.label }}>Zobrazit celou historii</ThemedText>
-          <Switch
-            value={showAllHistory}
-            onValueChange={setShowAllHistory}
-            trackColor={{ false: theme.border, true: theme.primary }}
-          />
-        </View>
-      )}
 
-      {filteredProjects.length === 0 ? (
+
+      {viewMode === "global" ? (
+        <GlobalProjectGallery />
+      ) : filteredProjects.length === 0 ? (
         <View style={styles.emptyContainer}>
           <EmptyState
             image={require("../assets/images/illustrations/empty_state_no_projects.png")}
@@ -240,13 +197,23 @@ export default function MasterProjectsScreen() {
           data={filteredProjects}
           keyExtractor={(item) => item.id.toString()}
           scrollEnabled={!isCardSwiping}
+          ListHeaderComponent={
+            <View style={{ paddingTop: Spacing.md, paddingBottom: Spacing.sm }}>
+              <ThemedText style={{ fontSize: 24, fontWeight: "800", textAlign: "center" }}>Projekty</ThemedText>
+            </View>
+          }
           renderItem={({ item }) => (
             <SwipeableProjectCard
               title={item.title}
               date={item.created_at ? new Date(item.created_at).toLocaleDateString("cs-CZ", { day: "numeric", month: "long", year: "numeric" }) : "Neznámé datum"}
               imageUrl={item.image ? { uri: item.image } : undefined}
               category={item.category}
-              onPress={() => navigation.navigate("ProjectDetail", { project: item, projectIndex: filteredProjects.indexOf(item) })}
+              onPress={() => navigation.navigate("ProjectDetail", {
+                project: item,
+                projectIndex: filteredProjects.indexOf(item),
+                apprenticeId: viewMode === "apprentice" ? item.user_id : undefined,
+                isGlobal: false
+              })}
               onEdit={() => {
                 setSelectedProject(item);
                 setCommentText(extractTextOnly(item.master_comment || ""));
@@ -260,7 +227,8 @@ export default function MasterProjectsScreen() {
               isLiked={item.is_liked}
               isMaster={viewMode === "apprentice"}
               hideDelete={true}
-              authorName={viewMode === "global" ? getAuthorName(item.user_id) : undefined}
+              authorName={undefined}
+              masterInitials={viewMode === "apprentice" ? getInitials(item.apprenticeName || "??") : undefined}
             />
           )}
           contentContainerStyle={[

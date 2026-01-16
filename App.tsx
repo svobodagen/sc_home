@@ -14,6 +14,7 @@ import { DataProvider } from "@/contexts/DataContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { MasterProvider } from "@/contexts/MasterContext";
 import { MasterDataProvider } from "@/contexts/MasterDataContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -56,17 +57,19 @@ export default function App() {
       <SafeAreaProvider onLayout={onLayoutRootView}>
         <GestureHandlerRootView style={styles.root}>
           <KeyboardProvider>
-            <AuthProvider>
-              <MasterProvider>
-                <DataProvider>
-                  <MasterDataProvider>
-                    <NavigationContainer>
-                      <RootNavigator />
-                    </NavigationContainer>
-                  </MasterDataProvider>
-                </DataProvider>
-              </MasterProvider>
-            </AuthProvider>
+            <ThemeProvider>
+              <AuthProvider>
+                <MasterProvider>
+                  <DataProvider>
+                    <MasterDataProvider>
+                      <NavigationContainer>
+                        <RootNavigator />
+                      </NavigationContainer>
+                    </MasterDataProvider>
+                  </DataProvider>
+                </MasterProvider>
+              </AuthProvider>
+            </ThemeProvider>
             <StatusBar style="auto" />
           </KeyboardProvider>
         </GestureHandlerRootView>

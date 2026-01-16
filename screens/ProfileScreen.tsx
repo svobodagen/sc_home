@@ -13,14 +13,15 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { api } from "@/services/api";
 import { useMaster } from "@/contexts/MasterContext";
 import { ApprenticeHeaderTitle } from "@/components/ApprenticeHeaderTitle";
+import { getInitials } from "@/utils/string";
 import { GestureHandlerRootView, Swipeable } from "react-native-gesture-handler";
 
 export default function ProfileScreen() {
-  const { theme } = useTheme();
+  const { theme, themeMode, setThemeMode } = useTheme();
   const insets = useSafeAreaInsets();
   const { user, logout, getAllUsers } = useAuth();
   const navigation = useNavigation<any>();
-  const { userData, setSelectedMaster, setWeeklyGoal, setApprenticeLevel, getTotalHours, deleteAllWorkHours, deleteAllProjects, apprenticeGoals, saveApprenticeGoals, reloadApprenticeGoals, adminSettings } = useData();
+  const { userData, setSelectedMaster, setWeeklyGoal, setApprenticeLevel, getTotalHours, deleteAllWorkHours, deleteAllProjects, apprenticeGoals, saveApprenticeGoals, reloadApprenticeGoals, adminSettings, allUsers } = useData();
   const { apprentices: masterApprentices, removeApprentice } = useMaster();
   const [masterModalVisible, setMasterModalVisible] = useState(false);
   const [goalModalVisible, setGoalModalVisible] = useState(false);
@@ -76,6 +77,24 @@ export default function ProfileScreen() {
       setStudyGoalYear(String(apprenticeGoals.study_goal_year ?? 480));
     }
   }, [apprenticeGoals]);
+
+  // Reload certs when Master Filter changes (for Apprentice role)
+  useEffect(() => {
+    if (user?.role === "Učedník") {
+      if (masters.length > 0 && userData.selectedMaster) {
+        const currentMaster = masters.find(m => m.name === userData.selectedMaster);
+        // If specific master found, filter by ID. Else (e.g. "Všichni" logic if implemented later) show all.
+        // Currently userData.selectedMaster stores name.
+        if (currentMaster) {
+          calculateCertificatesForApprentice(user.id, currentMaster.id);
+        } else {
+          calculateCertificatesForApprentice(user.id);
+        }
+      } else {
+        calculateCertificatesForApprentice(user.id);
+      }
+    }
+  }, [userData.selectedMaster, masters, user?.id, user?.role]);
 
   const handleUpdateCredentials = async () => {
     if (!newEmail.trim() && !newPassword.trim()) {
@@ -147,57 +166,119 @@ export default function ProfileScreen() {
     }
   };
 
-  const calculateCertificatesForApprentice = async (userId: string) => {
+  const calculateCertificatesForApprentice = async (userId: string, filterMasterId?: string) => {
     try {
-      console.log("📊 calculateCertificatesForApprentice spuštěn pro userId:", userId);
-      const certs = await api.getCertificates(userId).catch(() => []);
-      const workHours = await api.getWorkHours(userId).catch(() => []);
-      const projects = await api.getProjects(userId).catch(() => []);
+      console.log("📊 calculateCertificatesForApprentice spuštěn pro userId:", userId, "FilterMaster:", filterMasterId);
+      const [dbCerts, workHours, projects, templates, history, allRules] = await Promise.all([
+        api.getCertificates(userId).catch(() => []),
+        api.getWorkHours(userId).catch(() => []),
+        api.getProjects(userId).catch(() => []),
+        api.getCertificateTemplates().catch(() => []),
+        api.getCertificateUnlockHistory(userId).catch(() => []),
+        api.getAllCertificateUnlockRules().catch(() => [])
+      ]);
 
-      const totalHours = workHours.reduce((sum: number, h: any) => sum + (h.hours || h.duration || 0), 0);
-      const totalProjects = projects?.length || 0;
-      console.log("💾 totalHours:", totalHours, "totalProjects:", totalProjects);
+      let relevantWorkHours = workHours;
+      let relevantProjects = projects;
+
+      // FILTER BY MASTER if applied
+      if (filterMasterId) {
+        relevantWorkHours = workHours.filter((h: any) => String(h.master_id) === String(filterMasterId));
+        relevantProjects = projects.filter((p: any) => String(p.master_id) === String(filterMasterId));
+      }
+
+      const totalWorkHours = relevantWorkHours
+        .filter((h: any) => h.description && /pr[áa]ce|work/i.test(h.description))
+        .reduce((sum: number, h: any) => sum + (Number(h.hours) || 0), 0);
+
+      const totalStudyHours = relevantWorkHours
+        .filter((h: any) => h.description && /studium|study/i.test(h.description))
+        .reduce((sum: number, h: any) => sum + (Number(h.hours) || 0), 0);
+
+      const totalAllHours = totalWorkHours + totalStudyHours;
+      const totalProjectsCount = relevantProjects?.length || 0;
+
+      console.log("💾 totalWorkHours (Filtered):", totalWorkHours, "totalProjects:", totalProjectsCount);
 
       let unlockedCount = 0;
-      const certsWithRules = await Promise.all(
-        certs.map(async (cert: any) => {
-          const templates = await api.getCertificateTemplates().catch(() => []);
-          const template = templates.find((t: any) => t.title === cert.title);
+      const certsWithRules = templates.map((tmpl: any) => {
+        const existing = dbCerts.find((c: any) =>
+          c.title?.trim().toLowerCase() === tmpl.title?.trim().toLowerCase()
+        );
+        const rules = allRules.filter((r: any) => r.template_id === tmpl.id);
 
-          const rules = template ? await api.getCertificateUnlockRules(template.id).catch(() => []) : [];
-          console.log(`🏆 ${cert.title} - rules:`, rules);
+        let requirementText = "Splnění kritérií";
+        let hasManualRule = false;
 
-          let requirementText = "Splnění kritérií";
-          let hasManualRule = false;
-          let shouldBeUnlocked = cert.locked === false;
+        let shouldBeUnlocked = false;
 
-          if (rules.length === 0) {
-            requirementText = "Bez kritérií";
-          } else {
-            const descriptions: string[] = [];
-            for (const rule of rules) {
-              if (rule.rule_type === "MANUAL") {
-                descriptions.push("Odemknutí mistrem");
-                hasManualRule = true;
-              } else if (rule.condition_type === "WORK_HOURS") {
-                descriptions.push(`Odpracuj ${rule.condition_value} hodin`);
-                if (totalHours >= rule.condition_value) shouldBeUnlocked = true;
-              } else if (rule.condition_type === "PROJECTS") {
-                descriptions.push(`Dokončeno ${rule.condition_value} projektů`);
-                if (totalProjects >= rule.condition_value) shouldBeUnlocked = true;
-              }
+        // Determine Base Status from DB
+        if (existing && !existing.locked) {
+          // If filter applied, check ownership
+          if (filterMasterId) {
+            if (String(existing.unlocked_by || existing.master_id) === String(filterMasterId)) {
+              shouldBeUnlocked = true;
             }
-            requirementText = descriptions.join(" • ");
+          } else {
+            shouldBeUnlocked = true;
           }
+        }
 
-          if (shouldBeUnlocked) unlockedCount++;
-          const result = { ...cert, locked: !shouldBeUnlocked, requirement: requirementText, hasManualRule };
-          console.log(`  ✅ ${cert.title}: requirement="${requirementText}"`);
-          return result;
-        })
-      );
+        if (rules.length === 0) {
+          requirementText = "Bez kritérií";
+        } else {
+          const descriptions: string[] = [];
+          const automaticRules = rules.filter((r: any) => r.rule_type !== "MANUAL");
 
-      console.log("📋 certsWithRules:", certsWithRules);
+          for (const rule of rules) {
+            if (rule.rule_type === "MANUAL") {
+              descriptions.push("Odemknutí mistrem");
+              hasManualRule = true;
+            } else if (rule.condition_type === "WORK_HOURS") {
+              descriptions.push(`Odpracuj ${rule.condition_value} hodin`);
+            } else if (rule.condition_type === "STUDY_HOURS") {
+              descriptions.push(`Nastuduj ${rule.condition_value} hodin`);
+            } else if (rule.condition_type === "TOTAL_HOURS") {
+              descriptions.push(`Celkem ${rule.condition_value} hodin (práce + studium)`);
+            } else if (rule.condition_type === "PROJECTS") {
+              descriptions.push(`Dokončeno ${rule.condition_value} projektů`);
+            }
+          }
+          requirementText = descriptions.join(" • ");
+
+          // Check Automatic Criteria (using filtered totals)
+          // Only if NOT already unlocked (or re-verify unlocked status dynamically?)
+          // If existing DB record says unlocked, we respected it above.
+          // Now check dynamic if not yet unlocked.
+          if (!shouldBeUnlocked && automaticRules.length > 0) {
+            const criteriaMet = automaticRules.every((rule: any) => {
+              if (rule.condition_type === "NONE") return true;
+              if (rule.condition_type === "WORK_HOURS") return totalWorkHours >= rule.condition_value;
+              if (rule.condition_type === "STUDY_HOURS") return totalStudyHours >= rule.condition_value;
+              if (rule.condition_type === "TOTAL_HOURS") return totalAllHours >= rule.condition_value;
+              if (rule.condition_type === "PROJECTS") return totalProjectsCount >= rule.condition_value;
+              return false;
+            });
+            if (criteriaMet) shouldBeUnlocked = true;
+          }
+        }
+
+        if (shouldBeUnlocked) unlockedCount++;
+        const historyItem = history.find((h: any) => String(h.template_id) === String(tmpl.id));
+
+        return {
+          ...tmpl,
+          ...existing,
+          id: existing?.id || tmpl.id,
+          template_id: tmpl.id,
+          locked: !shouldBeUnlocked,
+          requirement: requirementText,
+          hasManualRule,
+          unlocked_by: shouldBeUnlocked && filterMasterId ? filterMasterId : (historyItem?.unlocked_by || existing?.unlocked_by)
+        };
+      });
+
+      console.log("📋 certsWithRules:", certsWithRules.length);
       setApprentiecCerts(certsWithRules);
       setUnlockedCertsCount(unlockedCount);
     } catch (error) {
@@ -317,57 +398,92 @@ export default function ProfileScreen() {
         let projects = [];
         let workHours = [];
         let certs = [];
+        let allTemplates = [];
+        let allRules = [];
+
         try {
-          projects = (await api.getProjects(apprenticeId)) || [];
-          workHours = (await api.getWorkHours(apprenticeId)) || [];
-          certs = (await api.getCertificates(apprenticeId)) || [];
+          [projects, workHours, certs, allTemplates, allRules] = await Promise.all([
+            api.getProjects(apprenticeId).catch(() => []) || [],
+            api.getWorkHours(apprenticeId).catch(() => []) || [],
+            api.getCertificates(apprenticeId).catch(() => []) || [],
+            api.getCertificateTemplates().catch(() => []) || [],
+            api.getAllCertificateUnlockRules().catch(() => []) || []
+          ]);
         } catch (e) {
-          console.log("API fallback to local storage");
-          projects = userData.projects || [];
-          workHours = userData.workHours || [];
-          certs = userData.certificates || [];
+          console.log("API fallback by parts failed, partial load/local");
+          // Fallbacks handled above by catch defaults in Promise.all or manual
         }
 
-        const totalHours = workHours.reduce((sum: number, h: any) => sum + (h.hours || h.duration || 0), 0);
-        const totalProjects = projects?.length || 0;
+        // --- FILTER DATA FOR MASTER CONTEXT ---
+        const myHours = workHours.filter((h: any) => String(h.master_id) === String(user.id));
+        const myProjects = projects.filter((p: any) => String(p.master_id) === String(user.id));
 
-        // Přepočítej pravidla pro certifikáty
+        const myWorkH = myHours.filter((h: any) => !(h.description || "").match(/studium|study/i)).reduce((sum: number, h: any) => sum + (Number(h.hours) || 0), 0);
+        const myStudyH = myHours.filter((h: any) => (h.description || "").match(/studium|study/i)).reduce((sum: number, h: any) => sum + (Number(h.hours) || 0), 0);
+        const myTotalH = myWorkH + myStudyH;
+        const myProjCount = myProjects.length;
+
+        const totalHours = workHours.reduce((sum: number, h: any) => sum + (Number(h.hours) || 0), 0);
+
+        // Přepočítej pravidla pro certifikáty (Pouze pro MISTRA)
         let certificatesWithRules = certs;
         try {
-          certificatesWithRules = await Promise.all(
-            certs.map(async (cert: any) => {
-              const template = await api.getCertificateTemplates()
-                .then(templates => templates.find((t: any) => t.title === cert.title))
-                .catch(() => null);
+          certificatesWithRules = certs.map((cert: any) => {
+            const template = allTemplates.find((t: any) => t.title === cert.title);
+            const rules = template ? allRules.filter((r: any) => r.template_id === template.id) : [];
+            const autoRules = rules.filter((r: any) => r.rule_type !== "MANUAL");
 
-              const rules = template ? await api.getCertificateUnlockRules(template.id).catch(() => []) : [];
+            let requirementText = "Splnění kritérií";
+            let hasManualRule = false;
+            let isUnlocked = false;
 
-              let requirementText = "Splnění kritérií";
-              let hasManualRule = false;
-              let shouldBeUnlocked = cert.locked === false;
-
-              if (rules.length === 0) {
-                requirementText = "Bez kritérií";
-              } else {
-                const descriptions: string[] = [];
-                for (const rule of rules) {
-                  if (rule.rule_type === "MANUAL") {
-                    descriptions.push("Odemknutí mistrem");
-                    hasManualRule = true;
-                  } else if (rule.condition_type === "WORK_HOURS") {
-                    descriptions.push(`Odpracuj ${rule.condition_value} hodin`);
-                    if (totalHours >= rule.condition_value) shouldBeUnlocked = true;
-                  } else if (rule.condition_type === "PROJECTS") {
-                    descriptions.push(`Dokončeno ${rule.condition_value} projektů`);
-                    if (totalProjects >= rule.condition_value) shouldBeUnlocked = true;
-                  }
-                }
-                requirementText = descriptions.join(" • ");
+            // Check Rules Description
+            if (rules.length === 0) {
+              requirementText = "Bez kritérií";
+            } else {
+              const descriptions: string[] = [];
+              for (const rule of rules) {
+                if (rule.rule_type === "MANUAL") {
+                  descriptions.push("Odemknutí mistrem");
+                  hasManualRule = true;
+                } else if (rule.condition_type === "WORK_HOURS") descriptions.push(`Odpracuj ${rule.condition_value} hodin`);
+                else if (rule.condition_type === "STUDY_HOURS") descriptions.push(`Nastuduj ${rule.condition_value} hodin`);
+                else if (rule.condition_type === "TOTAL_HOURS") descriptions.push(`Celkem ${rule.condition_value} hodin`);
+                else if (rule.condition_type === "PROJECTS") descriptions.push(`Dokončeno ${rule.condition_value} projektů`);
               }
+              requirementText = descriptions.join(" • ");
+            }
 
-              return { ...cert, locked: !shouldBeUnlocked, requirement: requirementText, hasManualRule };
-            })
-          );
+            // Determine Unlock Status (MASTER SPECIFIC)
+            if (hasManualRule) {
+              // Must be unlocked in DB AND by ME
+              if (!cert.locked && String(cert.unlocked_by || cert.master_id) === String(user.id)) {
+                isUnlocked = true;
+              }
+            } else {
+              // Automatic - Check MY stats
+              // Logic: Assume AND logic for simplicity unless defined otherwise (OR logic is less common for basic badges here, though supported in main calculator)
+              // For robust check, replicate MasterBadgesScreen logic:
+              if (autoRules.length > 0) {
+                isUnlocked = true;
+                for (const rule of autoRules) {
+                  if (rule.condition_type === "WORK_HOURS" && myWorkH < rule.condition_value) isUnlocked = false;
+                  if (rule.condition_type === "STUDY_HOURS" && myStudyH < rule.condition_value) isUnlocked = false;
+                  if (rule.condition_type === "TOTAL_HOURS" && myTotalH < rule.condition_value) isUnlocked = false;
+                  if (rule.condition_type === "PROJECTS" && myProjCount < rule.condition_value) isUnlocked = false;
+                }
+              }
+            }
+
+            return {
+              ...cert,
+              locked: !isUnlocked,
+              requirement: requirementText,
+              hasManualRule,
+              unlocked_by: isUnlocked ? user.id : null, // If unlocked by me, show my ID. If NOT unlocked by me (but by others), it shows LOCKED.
+              id: template ? template.id : cert.id
+            };
+          });
         } catch (e) {
           console.log("Chyba při počítání pravidel:", e);
         }
@@ -389,7 +505,6 @@ export default function ProfileScreen() {
         };
 
         setSelectedApprenticeData(selectedData);
-        // ULOŽ do AsyncStorage aby to ostatní stránky mohly číst!
         await AsyncStorage.setItem("masterSelectedApprenticeData", JSON.stringify(selectedData));
       }
     } catch (error) {
@@ -399,7 +514,11 @@ export default function ProfileScreen() {
 
   const totalHours = getTotalHours();
 
-  const ProfileItem = ({ icon, label, value, onPress }: any) => (
+  const currentWorkHours = user?.role === "Mistr" && selectedApprenticeData ? selectedApprenticeData.workHours : userData.workHours;
+  const workH = (currentWorkHours || []).filter((h: any) => !(h.description || "").match(/studium|study/i)).reduce((sum: number, h: any) => sum + (Number(h.hours) || 0), 0);
+  const studyH = (currentWorkHours || []).filter((h: any) => (h.description || "").match(/studium|study/i)).reduce((sum: number, h: any) => sum + (Number(h.hours) || 0), 0);
+
+  const ProfileItem = ({ icon, label, value, onPress, valueStyle }: any) => (
     <Pressable
       onPress={onPress}
       style={({ pressed }) => [
@@ -412,7 +531,7 @@ export default function ProfileScreen() {
         <ThemedText style={styles.itemLabel}>{label}</ThemedText>
       </View>
       {value ? (
-        <ThemedText style={[styles.itemValue, { color: theme.textSecondary }]}>
+        <ThemedText style={[styles.itemValue, { color: theme.textSecondary }, valueStyle]}>
           {value}
         </ThemedText>
       ) : (
@@ -423,7 +542,12 @@ export default function ProfileScreen() {
 
   const BadgeDetailModal = () => {
     if (!selectedBadge) return null;
-    const badgeColor = selectedBadge.category === "Badge" ? theme.primary : theme.secondary;
+    const badgeColor = (
+      selectedBadge.category?.toLowerCase().includes("badge") ||
+      selectedBadge.category?.toLowerCase().includes("odznak") ||
+      selectedBadge.title?.toLowerCase().includes("badge") ||
+      selectedBadge.title?.toLowerCase().includes("odznak")
+    ) ? theme.primary : theme.secondary;
 
     return (
       <Modal
@@ -468,6 +592,24 @@ export default function ProfileScreen() {
             <ThemedText style={[styles.modalCategory, { color: theme.textSecondary }]}>
               {selectedBadge.category}
             </ThemedText>
+
+            {selectedBadge.unlocked_by && (
+              <View style={[styles.masterNameBox, { marginTop: Spacing.sm }]}>
+                <ThemedText style={[styles.masterNameLabel, { color: theme.textSecondary }]}>
+                  Uděli: <ThemedText style={{ color: badgeColor, fontWeight: '600', textTransform: 'none' }}>
+                    {allUsers.find((u: any) => String(u.id) === String(selectedBadge.unlocked_by))?.name || "Neznámý mistr"}
+                  </ThemedText>
+                </ThemedText>
+              </View>
+            )}
+
+            {selectedApprenticeData && (
+              <View style={[styles.masterNameBox, { marginTop: Spacing.sm }]}>
+                <ThemedText style={[styles.masterNameLabel, { color: theme.textSecondary }]}>
+                  Učedník: <ThemedText style={{ color: theme.text, fontWeight: '600', fontSize: 13 }}>{selectedApprenticeData.name}</ThemedText>
+                </ThemedText>
+              </View>
+            )}
 
             <View
               style={[
@@ -518,7 +660,7 @@ export default function ProfileScreen() {
       style={[styles.container, { backgroundColor: theme.backgroundRoot }]}
       contentContainerStyle={{
         paddingTop: Spacing.xl + 8,
-        paddingBottom: insets.bottom + Spacing.xl,
+        paddingBottom: insets.bottom + Spacing.xl + 80,
         paddingHorizontal: Spacing.xl,
       }}
     >
@@ -531,9 +673,19 @@ export default function ProfileScreen() {
         <ThemedText style={styles.name}>
           {user?.name || "Uživatel"}
         </ThemedText>
-        <ThemedText style={[styles.role, { color: theme.textSecondary }]}>
+
+        <ThemedText style={[
+          styles.roleText,
+          {
+            color: user?.role === 'Mistr' ? theme.primary :
+              user?.role === 'Učedník' ? theme.secondary :
+                user?.role === 'Admin' ? theme.error :
+                  theme.textSecondary
+          }
+        ]}>
           {user?.role}
         </ThemedText>
+
         <ThemedText style={[styles.email, { color: theme.textSecondary }]}>
           {user?.email}
         </ThemedText>
@@ -543,7 +695,19 @@ export default function ProfileScreen() {
         <ThemedText style={[styles.sectionTitle, { color: theme.textSecondary }]}>
           PŘIHLÁŠENÍ S ÚROVNÍ
         </ThemedText>
-        <ProfileItem icon="tag" label="Role" value={user?.role} />
+        <ProfileItem
+          icon="tag"
+          label="Role"
+          value={user?.role}
+          valueStyle={{
+            color: user?.role === 'Mistr' ? theme.primary :
+              user?.role === 'Učedník' ? theme.secondary :
+                user?.role === 'Admin' ? theme.error :
+                  theme.text,
+            fontWeight: '900',
+            fontSize: 18
+          }}
+        />
         {user?.role !== "Host" && (
           <>
             {user?.role === "Učedník" && (
@@ -595,12 +759,16 @@ export default function ProfileScreen() {
             {user?.role === "Mistr" && selectedApprenticeData ? (
               <>
                 <ProfileItem icon="clock" label="Celkem hodin" value={`${selectedApprenticeData.totalHours}h`} />
+                <ProfileItem icon="briefcase" label="Práce" value={`${Math.round(workH * 10) / 10}h`} valueStyle={{ color: theme.primary }} />
+                <ProfileItem icon="book" label="Studium" value={`${Math.round(studyH * 10) / 10}h`} valueStyle={{ color: theme.secondary }} />
                 <ProfileItem icon="folder" label="Projekty" value={String(selectedApprenticeData.projectCount)} />
                 <ProfileItem icon="award" label="Certifikáty" value={String(selectedApprenticeData.unlockedCerts)} />
               </>
             ) : (
               <>
                 <ProfileItem icon="clock" label="Celkem hodin" value={`${totalHours}h`} />
+                <ProfileItem icon="briefcase" label="Práce" value={`${Math.round(workH * 10) / 10}h`} valueStyle={{ color: theme.primary }} />
+                <ProfileItem icon="book" label="Studium" value={`${Math.round(studyH * 10) / 10}h`} valueStyle={{ color: theme.secondary }} />
                 <ProfileItem icon="folder" label="Projekty" value={String(userData.projects.length)} />
                 <Pressable
                   onPress={() => {
@@ -681,42 +849,143 @@ export default function ProfileScreen() {
         </View>
       )}
 
-      {/* Grid s detailem certifikátů */}
+      {/* Grid s detailem úspěchů */}
       {apprenticeCerts && apprenticeCerts.length > 0 && (
-        <View style={styles.section}>
-          <ThemedText style={[styles.sectionTitle, { color: theme.textSecondary }]}>
-            CERTIFIKÁTY DETAIL
-          </ThemedText>
-          <View style={styles.certificatesGrid}>
-            {apprenticeCerts.map((cert: any, idx: number) => (
-              <Pressable
-                key={idx}
-                onPress={() => setSelectedBadge(cert)}
-                style={({ pressed }) => [
-                  styles.certCard,
-                  {
-                    backgroundColor: cert.locked ? theme.backgroundDefault : theme.primary + "20",
-                    opacity: pressed ? 0.7 : 1,
-                    borderColor: cert.locked ? theme.border : theme.primary,
-                  },
-                ]}
-              >
-                <Feather
-                  name={cert.locked ? "lock" : "award"}
-                  size={24}
-                  color={cert.locked ? theme.textSecondary : theme.primary}
-                />
-                <ThemedText style={[styles.certTitle, { color: theme.text }]} numberOfLines={2}>
-                  {cert.title}
-                </ThemedText>
-                {cert.hasManualRule && (
-                  <ThemedText style={{ fontSize: 12, color: theme.primary }}>★</ThemedText>
-                )}
-              </Pressable>
-            ))}
-          </View>
-        </View>
+        <>
+          {apprenticeCerts.some(c => c.category?.toLowerCase().includes("odznak") || c.category?.toLowerCase().includes("badge")) && (
+            <View style={styles.section}>
+              <ThemedText style={[styles.sectionTitle, { color: theme.textSecondary }]}>
+                ODZNAKY
+              </ThemedText>
+              <View style={styles.certificatesGrid}>
+                {apprenticeCerts
+                  .filter(c =>
+                    c.category?.toLowerCase().includes("odznak") ||
+                    c.category?.toLowerCase().includes("badge") ||
+                    c.title?.toLowerCase().includes("odznak") ||
+                    c.title?.toLowerCase().includes("badge")
+                  )
+                  .map((cert: any, idx: number) => {
+                    const badgeColor = theme.primary; // Define badgeColor for this context
+                    return (
+                      <Pressable
+                        key={`badge-${idx}`}
+                        onPress={() => setSelectedBadge(cert)}
+                        style={({ pressed }) => [
+                          styles.certCard,
+                          {
+                            backgroundColor: cert.locked ? theme.backgroundDefault : badgeColor + "20",
+                            opacity: pressed ? 0.7 : 1,
+                            borderColor: cert.locked ? theme.border : badgeColor,
+                          },
+                        ]}
+                      >
+                        <Feather
+                          name={cert.locked ? "lock" : "award"}
+                          size={24}
+                          color={cert.locked ? theme.textSecondary : badgeColor}
+                        />
+                        <ThemedText style={[styles.certTitle, { color: theme.text }]} numberOfLines={2}>
+                          {cert.title}
+                        </ThemedText>
+                        {cert.unlocked_by && (
+                          <View style={[styles.masterBadgeInitials, { backgroundColor: theme.backgroundDefault, borderColor: cert.locked ? theme.border : badgeColor }]}>
+                            <ThemedText style={[styles.masterBadgeInitialsText, { color: cert.locked ? theme.textSecondary : badgeColor }]}>
+                              {getInitials(allUsers.find(u => String(u.id) === String(cert.unlocked_by))?.name || "")}
+                            </ThemedText>
+                          </View>
+                        )}
+                      </Pressable>
+                    );
+                  })}
+              </View>
+            </View>
+          )}
+
+          {apprenticeCerts.some(c => c.category?.toLowerCase().includes("certifikát") || c.category?.toLowerCase().includes("certificate")) && (
+            <View style={styles.section}>
+              <ThemedText style={[styles.sectionTitle, { color: theme.textSecondary }]}>
+                CERTIFIKÁTY
+              </ThemedText>
+              <View style={styles.certificatesGrid}>
+                {apprenticeCerts
+                  .filter(c =>
+                    c.category?.toLowerCase().includes("certifikát") ||
+                    c.category?.toLowerCase().includes("certificate") ||
+                    c.title?.toLowerCase().includes("certifikát") ||
+                    c.title?.toLowerCase().includes("certificate")
+                  )
+                  .map((cert: any, idx: number) => {
+                    const badgeColor = theme.secondary; // Define badgeColor for this context
+                    return (
+                      <Pressable
+                        key={`cert-${idx}`}
+                        onPress={() => setSelectedBadge(cert)}
+                        style={({ pressed }) => [
+                          styles.certCard,
+                          {
+                            backgroundColor: cert.locked ? theme.backgroundDefault : badgeColor + "20",
+                            opacity: pressed ? 0.7 : 1,
+                            borderColor: cert.locked ? theme.border : badgeColor,
+                          },
+                        ]}
+                      >
+                        <Feather
+                          name={cert.locked ? "lock" : "award"}
+                          size={24}
+                          color={cert.locked ? theme.textSecondary : badgeColor}
+                        />
+                        <ThemedText style={[styles.certTitle, { color: theme.text }]} numberOfLines={2}>
+                          {cert.title}
+                        </ThemedText>
+                        {cert.unlocked_by && (
+                          <View style={[styles.masterBadgeInitials, { backgroundColor: theme.backgroundDefault, borderColor: cert.locked ? theme.border : badgeColor }]}>
+                            <ThemedText style={[styles.masterBadgeInitialsText, { color: cert.locked ? theme.textSecondary : badgeColor }]}>
+                              {getInitials(allUsers.find(u => String(u.id) === String(cert.unlocked_by))?.name || "")}
+                            </ThemedText>
+                          </View>
+                        )}
+                      </Pressable>
+                    );
+                  })}
+              </View>
+            </View>
+          )}
+        </>
       )}
+
+      <View style={styles.section}>
+        <ThemedText style={[styles.sectionTitle, { color: theme.textSecondary }]}>VZHLED APLIKACE</ThemedText>
+        <View style={{ flexDirection: 'row', backgroundColor: theme.backgroundTertiary || theme.backgroundSecondary, borderRadius: BorderRadius.sm, padding: 4, gap: 4 }}>
+          {(['system', 'light', 'dark'] as const).map((mode) => (
+            <Pressable
+              key={mode}
+              onPress={() => setThemeMode(mode)}
+              style={{
+                flex: 1,
+                paddingVertical: 8,
+                borderRadius: BorderRadius.xs - 2,
+                backgroundColor: themeMode === mode ? theme.backgroundDefault : 'transparent',
+                alignItems: 'center',
+                justifyContent: 'center',
+                shadowColor: themeMode === mode ? "#000" : "transparent",
+                shadowOffset: { width: 0, height: 1 },
+                shadowOpacity: themeMode === mode ? 0.1 : 0,
+                shadowRadius: 2,
+                elevation: themeMode === mode ? 2 : 0,
+              }}
+            >
+              <ThemedText style={{
+                color: themeMode === mode ? theme.text : theme.textSecondary,
+                fontWeight: themeMode === mode ? '600' : '400',
+                fontSize: 13
+              }}>
+                {mode === 'system' ? 'Automaticky' : mode === 'light' ? 'Světlý' : 'Tmavý'}
+              </ThemedText>
+            </Pressable>
+          ))}
+        </View>
+      </View>
 
       {user?.role !== "Host" && (
         <View style={styles.section}>
@@ -1287,9 +1556,12 @@ const styles = StyleSheet.create({
     ...Typography.title,
     marginBottom: Spacing.xs,
   },
-  role: {
+  roleText: {
     ...Typography.body,
+    fontWeight: '800',
     marginBottom: Spacing.xs,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
   email: {
     ...Typography.small,
@@ -1507,6 +1779,32 @@ const styles = StyleSheet.create({
   modalCategory: {
     ...Typography.small,
     marginBottom: Spacing.lg,
+  },
+  masterBadgeInitials: {
+    position: 'absolute',
+    top: 4,
+    left: 4,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    zIndex: 20,
+  },
+  masterBadgeInitialsText: {
+    fontSize: 10,
+    fontWeight: '700',
+    textAlign: 'center',
+    textAlignVertical: 'center',
+    includeFontPadding: false,
+    lineHeight: 14,
+  },
+  masterNameBox: {
+    marginBottom: Spacing.md,
+  },
+  masterNameLabel: {
+    ...Typography.small,
   },
   requirementBox: {
     borderRadius: BorderRadius.sm,

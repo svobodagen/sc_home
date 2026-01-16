@@ -1,34 +1,54 @@
 import React, { useState } from "react";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import LoginScreen from "@/screens/LoginScreen";
 import RegisterScreen from "@/screens/RegisterScreen";
+import { useTheme } from "@/hooks/useTheme";
+import { ApprenticeHeaderTitle } from "@/components/ApprenticeHeaderTitle";
 
-const Stack = createNativeStackNavigator();
+const Tab = createBottomTabNavigator();
 
 export default function AuthNavigator() {
   const [isLogin, setIsLogin] = useState(true);
+  const { theme } = useTheme();
 
   return (
-    <Stack.Navigator
+    <Tab.Navigator
       screenOptions={{
-        headerShown: false,
+        headerShown: true,
+        headerTransparent: false,
+        headerStyle: {
+          backgroundColor: theme.backgroundDefault,
+          borderBottomWidth: 1,
+          borderBottomColor: theme.border,
+          height: 125,
+        },
+        headerTitleAlign: "center",
+        headerTitleContainerStyle: {
+          height: '100%',
+          justifyContent: 'flex-end',
+          paddingBottom: 20,
+        },
+        headerTitle: () => <ApprenticeHeaderTitle />,
+        headerLeft: () => null,
+        headerTintColor: theme.text,
+        tabBarStyle: { display: 'none' }, // Hide tab bar completely
       }}
     >
       {isLogin ? (
-        <Stack.Screen
+        <Tab.Screen
           name="Login"
-          options={{ animationTypeForReplace: "pop" }}
+          options={{ tabBarButton: () => null }}
         >
           {() => <LoginScreen onSwitchToRegister={() => setIsLogin(false)} />}
-        </Stack.Screen>
+        </Tab.Screen>
       ) : (
-        <Stack.Screen
+        <Tab.Screen
           name="Register"
-          options={{ animationTypeForReplace: "pop" }}
+          options={{ tabBarButton: () => null }}
         >
           {() => <RegisterScreen onSwitchToLogin={() => setIsLogin(true)} />}
-        </Stack.Screen>
+        </Tab.Screen>
       )}
-    </Stack.Navigator>
+    </Tab.Navigator>
   );
 }

@@ -37,7 +37,14 @@ export default function HostMasterDetailScreen({ route }: any) {
         <Pressable
             style={({ pressed }) => [
                 styles.userCard,
-                { backgroundColor: theme.backgroundSecondary, opacity: pressed ? 0.8 : 1 }
+                {
+                    backgroundColor: theme.backgroundSecondary,
+                    opacity: pressed ? 0.8 : 1,
+                    borderWidth: 1,
+                    borderColor: theme.border,
+                    shadowOpacity: pressed ? 0.1 : 0,
+                    elevation: pressed ? 2 : 0
+                }
             ]}
             onPress={() => {
                 navigation.navigate("HostApprenticeDetail", {
@@ -95,7 +102,6 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     scrollContent: {
-        paddingBottom: 40,
     },
     header: {
         alignItems: "center",
@@ -106,8 +112,6 @@ const styles = StyleSheet.create({
     avatarContainer: {
         width: 110,
         height: 110,
-        borderRadius: 55,
-        backgroundColor: "rgba(220, 38, 38, 0.1)",
         alignItems: "center",
         justifyContent: "center",
         marginBottom: Spacing.md,
@@ -134,12 +138,15 @@ const styles = StyleSheet.create({
         padding: Spacing.lg,
         borderRadius: BorderRadius.md,
         marginBottom: Spacing.md,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0,
+        shadowRadius: 4,
+        elevation: 0,
     },
     userIcon: {
         width: 44,
         height: 44,
-        borderRadius: 22,
-        backgroundColor: "rgba(220, 38, 38, 0.1)",
         alignItems: "center",
         justifyContent: "center",
         marginRight: Spacing.md,

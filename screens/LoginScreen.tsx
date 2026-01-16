@@ -33,7 +33,7 @@ export default function LoginScreen({ onSwitchToRegister }: { onSwitchToRegister
         console.error("Chyba při načítání uživatelů:", err);
       }
     };
-    
+
     const loadTestData = async () => {
       try {
         const data = await api.getTestValue("test_shared");
@@ -42,7 +42,7 @@ export default function LoginScreen({ onSwitchToRegister }: { onSwitchToRegister
         setSavedTestValue("⚠️ Backend není online: " + (err?.message || "Network error"));
       }
     };
-    
+
     loadUsers();
     loadTestData();
   }, []);
@@ -105,14 +105,13 @@ export default function LoginScreen({ onSwitchToRegister }: { onSwitchToRegister
     <ScrollView
       style={[styles.container, { backgroundColor: theme.backgroundRoot }]}
       contentContainerStyle={{
-        paddingTop: insets.top,
+        paddingTop: Spacing.xl,
         paddingBottom: insets.bottom + Spacing.xl,
         flexGrow: 1,
       }}
       showsVerticalScrollIndicator={false}
     >
       <View style={styles.header}>
-        <ApprenticeHeaderTitle />
         <ThemedText style={[styles.subtitle, { color: theme.textSecondary }]}>Přihlášení</ThemedText>
       </View>
 
@@ -180,8 +179,8 @@ export default function LoginScreen({ onSwitchToRegister }: { onSwitchToRegister
           <ThemedText style={styles.buttonText}>Nový účet</ThemedText>
         </Pressable>
 
-        <Pressable 
-          style={[styles.button, { backgroundColor: theme.textSecondary }]} 
+        <Pressable
+          style={[styles.button, { backgroundColor: theme.textSecondary }]}
           onPress={() => setShowUsers(!showUsers)}
         >
           <ThemedText style={styles.buttonText}>{showUsers ? "Skrýt účty" : "Zobrazit dostupné účty"}</ThemedText>
@@ -199,7 +198,7 @@ export default function LoginScreen({ onSwitchToRegister }: { onSwitchToRegister
         <View style={[styles.usersList, { borderTopColor: theme.border }]}>
           <ThemedText style={[styles.usersTitle, { color: theme.text }]}>Dostupní uživatelé - klikněte pro přihlášení:</ThemedText>
           {users.map((user, idx) => (
-            <Pressable 
+            <Pressable
               key={idx}
               style={[styles.userItem, { backgroundColor: theme.backgroundDefault, borderColor: theme.border }]}
               onPress={() => {

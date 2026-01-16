@@ -51,7 +51,7 @@ export function GoalProgressBox({ userId, userLimits, workHours }: GoalProgressB
     getYearlyWorkHours,
     getYearlyStudyHours,
   } = useData();
-  
+
   const [period, setPeriod] = useState<Period>("week");
   const [displayGoals, setDisplayGoals] = useState<ApprenticeGoals | null>(null);
   const scale = useSharedValue(1);
@@ -101,7 +101,7 @@ export function GoalProgressBox({ userId, userLimits, workHours }: GoalProgressB
       return workHours
         .filter(h => {
           const hDate = new Date(h.timestamp || h.created_at || 0);
-          return hDate >= startDate && hDate <= endDate && 
+          return hDate >= startDate && hDate <= endDate &&
             (h.description?.includes(typeLabel) || h.description?.includes(type === "work" ? "Práce" : "Studium"));
         })
         .reduce((sum, h) => sum + (h.hours || 0), 0);
@@ -179,7 +179,7 @@ export function GoalProgressBox({ userId, userLimits, workHours }: GoalProgressB
     const current = getHoursForPeriod(type);
     const goal = getGoalForPeriod(type);
     const max = getMaxForPeriod(type);
-    
+
     const effectiveMax = Math.max(max, goal, current);
     const progressPercent = effectiveMax > 0 ? Math.min((current / effectiveMax) * 100, 100) : 0;
     const goalPercent = effectiveMax > 0 ? Math.min((goal / effectiveMax) * 100, 100) : 0;
@@ -194,39 +194,39 @@ export function GoalProgressBox({ userId, userLimits, workHours }: GoalProgressB
           <ThemedText type="small" style={{ color: theme.textSecondary }}>
             {label}
           </ThemedText>
-          <ThemedText type="small" style={{ 
+          <ThemedText type="small" style={{
             color: isOverMax ? theme.error : isOverGoal ? theme.warning : theme.success,
             fontWeight: "600"
           }}>
             {goalVsCurrent}%
           </ThemedText>
         </View>
-        
+
         <View style={[styles.progressBarContainer, { backgroundColor: theme.backgroundTertiary }]}>
-          <View 
+          <View
             style={[
-              styles.progressBarFill, 
-              { 
+              styles.progressBarFill,
+              {
                 width: `${progressPercent}%`,
                 backgroundColor: isOverMax ? theme.error : isOverGoal ? theme.warning : color,
               }
-            ]} 
+            ]}
           />
           {goalPercent > 0 && goalPercent <= 100 && (
-            <View 
+            <View
               style={[
-                styles.goalMarker, 
-                { 
+                styles.goalMarker,
+                {
                   left: `${goalPercent}%`,
                   backgroundColor: theme.text,
                 }
-              ]} 
+              ]}
             />
           )}
         </View>
-        
+
         <View style={styles.hoursRow}>
-          <ThemedText type="small" style={{ color: color, fontWeight: "600" }}>
+          <ThemedText style={{ fontSize: 24, fontWeight: "700", lineHeight: 28, color: color }}>
             {current} h
           </ThemedText>
           <ThemedText type="small" style={{ color: theme.textTertiary }}>
@@ -284,7 +284,7 @@ export function GoalProgressBox({ userId, userLimits, workHours }: GoalProgressB
 const styles = StyleSheet.create({
   container: {
     padding: Spacing.lg,
-    borderRadius: BorderRadius["2xl"],
+    borderRadius: BorderRadius.xl,
   },
   header: {
     flexDirection: "row",

@@ -14,9 +14,7 @@ import { api } from "@/services/api";
 export default function MastersScreen() {
   const { theme } = useTheme();
   const { user } = useAuth();
-  const { apprentices } = useMaster();
-  
-  const [selectedApprenticeId, setSelectedApprenticeId] = useState<string | null>(null);
+  const { apprentices, selectedApprenticeId, setSelectedApprenticeId } = useMaster();
   const [apprenticeData, setApprenticeData] = useState<any>(null);
 
   useEffect(() => {
@@ -28,10 +26,10 @@ export default function MastersScreen() {
   const loadApprenticeData = async (apprenticeId: string) => {
     try {
       console.log("📥 Načítám data pro učedníka:", apprenticeId);
-      
+
       // Najdi učedníka ze seznamu aby měl jméno a email
       const apprentice = apprentices.find((a: any) => a.apprenticeId === apprenticeId);
-      
+
       // Načti všechna data přímo z API
       const [projects, workHours, certificates] = await Promise.all([
         api.getProjects(apprenticeId).catch(() => []),
@@ -40,7 +38,7 @@ export default function MastersScreen() {
       ]);
 
       console.log("📦 Načtena data - Projekty:", projects?.length, "Časy:", workHours?.length, "Certifikáty:", certificates?.length);
-      
+
       // Přidej "Boj o Tovaryšský list" text do Tovaryš certifikátu
       const enrichedCerts = (certificates || []).map((cert: any) => {
         if (cert.title === "Tovaryš") {
@@ -48,7 +46,7 @@ export default function MastersScreen() {
         }
         return cert;
       });
-      
+
       const data = {
         apprenticeId,
         apprenticeName: apprentice?.apprenticeName || "Učedník",
@@ -57,11 +55,11 @@ export default function MastersScreen() {
         workHours: workHours || [],
         certificates: enrichedCerts,
       };
-      
+
       console.log("🎯 MastersScreen - Uklád do AsyncStorage, certificates count:", enrichedCerts.length);
-      
+
       setApprenticeData(data);
-      
+
       // Ulož do AsyncStorage pro MasterBadgesScreen
       await AsyncStorage.setItem("masterSelectedApprenticeData", JSON.stringify(data));
     } catch (error) {
@@ -182,15 +180,15 @@ export default function MastersScreen() {
                   style={[
                     styles.badgeCard,
                     {
-                      backgroundColor: badge.category === "Badge" ? theme.primary + "20" : theme.secondary + "20",
-                      borderColor: badge.category === "Badge" ? theme.primary : theme.secondary,
+                      backgroundColor: (badge.category?.toLowerCase().includes("badge") || badge.category?.toLowerCase().includes("odznak")) ? theme.primary + "20" : theme.secondary + "20",
+                      borderColor: (badge.category?.toLowerCase().includes("badge") || badge.category?.toLowerCase().includes("odznak")) ? theme.primary : theme.secondary,
                     },
                   ]}
                 >
                   <Feather
                     name="award"
                     size={32}
-                    color={badge.category === "Badge" ? theme.primary : theme.secondary}
+                    color={(badge.category?.toLowerCase().includes("badge") || badge.category?.toLowerCase().includes("odznak")) ? theme.primary : theme.secondary}
                   />
                   <ThemedText style={[styles.badgeTitle, { color: theme.text, marginTop: Spacing.sm }]}>
                     {badge.title}

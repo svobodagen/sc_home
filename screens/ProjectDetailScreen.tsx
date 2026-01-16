@@ -22,6 +22,8 @@ interface ProjectDetailScreenProps {
       project: Project;
       projectIndex: number;
       isGlobal?: boolean;
+      apprenticeId?: string;
+      projectList?: Project[];
     };
   };
 }
@@ -167,8 +169,8 @@ export default function ProjectDetailScreen({ route }: ProjectDetailScreenProps)
   const { user } = useAuth();
 
   const [localIndex, setLocalIndex] = useState(route.params.projectIndex);
-  const [selectedApprenticeData, setSelectedApprenticeData] = useState<any>(null);
-  const [allGlobalProjects, setAllGlobalProjects] = useState<any[]>([]);
+  const [selectedApprenticeProjects, setSelectedApprenticeProjects] = useState<Project[]>([]);
+  const [allGlobalProjects, setAllGlobalProjects] = useState<Project[]>([]);
   const [allUsers, setAllUsers] = useState<any[]>([]);
 
   useEffect(() => {
@@ -181,8 +183,11 @@ export default function ProjectDetailScreen({ route }: ProjectDetailScreenProps)
         console.error("Error fetching users", e);
       }
 
-      // If we are in global mode, fetch all projects to enable swiping through the gallery
-      if (route.params.isGlobal || user?.role === "Host") {
+      // If projectList is passed, we don't need to fetch anything
+      if (route.params.projectList) return;
+
+      // If we are in global mode, fetch all projects to enable swiping
+      if (route.params.isGlobal) {
         try {
           const projs = await api.getAllProjects();
           setAllGlobalProjects(projs);
@@ -191,47 +196,43 @@ export default function ProjectDetailScreen({ route }: ProjectDetailScreenProps)
         }
       }
 
-      if (user?.role === "Mistr" && !route.params.isGlobal) {
-        const data = await AsyncStorage.getItem("masterSelectedApprenticeData");
-        if (data) {
-          try {
-            setSelectedApprenticeData(JSON.parse(data));
-          } catch (e) {
-            console.error("Error parsing apprentice data", e);
-          }
+      // If we are viewing a specific apprentice
+      if (route.params.apprenticeId && !route.params.isGlobal) {
+        try {
+          const projs = await api.getProjects(route.params.apprenticeId);
+          setSelectedApprenticeProjects(projs);
+        } catch (e) {
+          console.error("Error fetching apprentice projects", e);
         }
       }
     };
     loadData();
-  }, [user?.role, route.params.isGlobal]);
+  }, [route.params.isGlobal, route.params.apprenticeId, route.params.projectList]);
 
   const projects = useMemo(() => {
-    // If we came from Global Gallery, ONLY show this project to prevent index/pager issues
-    if (route.params.isGlobal) {
-      return [route.params.project];
+    let list: Project[] = [route.params.project];
+
+    if (route.params.projectList) {
+      list = route.params.projectList;
+    } else if (route.params.isGlobal && allGlobalProjects.length > 0) {
+      list = allGlobalProjects;
+    } else if (route.params.apprenticeId && selectedApprenticeProjects.length > 0) {
+      list = selectedApprenticeProjects;
+    } else if (!route.params.isGlobal && !route.params.apprenticeId && user?.role === "Učedník") {
+      list = userData.projects || [route.params.project];
     }
 
-    if (user?.role === "Host") {
-      return allGlobalProjects.length > 0 ? allGlobalProjects : [route.params.project];
-    }
-    if (user?.role === "Mistr" && selectedApprenticeData) {
-      return selectedApprenticeData.projects || [];
-    }
-    return userData.projects || [];
-  }, [user?.role, selectedApprenticeData, userData.projects, allGlobalProjects, route.params.project, route.params.isGlobal]);
+    return list;
+  }, [user?.role, userData.projects, allGlobalProjects, selectedApprenticeProjects, route.params.project, route.params.isGlobal, route.params.apprenticeId, route.params.projectList]);
 
   // Robust check: Ensure the project at localIndex is actually the project we expect
-  // If not, try to find the project by ID in the list, or fall back to route.params.project
   const currentProject = useMemo(() => {
-    // If global, we only have one project in our list [route.params.project]
-    if (route.params.isGlobal) return route.params.project;
-
     const projAtInternalIndex = projects[localIndex];
     if (projAtInternalIndex && projAtInternalIndex.id === route.params.project.id) {
       return projAtInternalIndex;
     }
 
-    // Fallback search by ID if index is wrong
+    // search by ID if index is wrong or list changed
     const foundById = projects.find((p: any) => p.id === route.params.project.id);
     if (foundById) {
       const newIdx = projects.indexOf(foundById);
@@ -242,7 +243,7 @@ export default function ProjectDetailScreen({ route }: ProjectDetailScreenProps)
     }
 
     return route.params.project;
-  }, [projects, localIndex, route.params.project.id, route.params.isGlobal]);
+  }, [projects, localIndex, route.params.project.id]);
 
   // Sync route params with local state silenty for header title consistency
   useEffect(() => {

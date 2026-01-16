@@ -35,6 +35,7 @@ export default function AdminScreen() {
   const [showAddCertForm, setShowAddCertForm] = useState(false);
   const [newCertTitle, setNewCertTitle] = useState("");
   const [newCertCategory, setNewCertCategory] = useState<"Badge" | "Certifikát">("Badge");
+  const [newCertScope, setNewCertScope] = useState<"GLOBAL" | "PER_MASTER">("GLOBAL");
   const [newCertPoints, setNewCertPoints] = useState("0");
   const [showAddRuleForm, setShowAddRuleForm] = useState(false);
   const [ruleType, setRuleType] = useState<"MANUAL" | "AUTO">("MANUAL");
@@ -48,6 +49,29 @@ export default function AdminScreen() {
   const [deleteUserId, setDeleteUserId] = useState<string>("");
   const [deleteUserEmail, setDeleteUserEmail] = useState<string>("");
   const [isDeleting, setIsDeleting] = useState(false);
+  const [reqWorkHours, setReqWorkHours] = useState("");
+  const [reqStudyHours, setReqStudyHours] = useState("");
+  const [reqProjects, setReqProjects] = useState("");
+  const [reqPoints, setReqPoints] = useState("");
+  const [reqTotalHours, setReqTotalHours] = useState("");
+  const [editReqTotalHours, setEditReqTotalHours] = useState("");
+
+  const [useReqWorkHours, setUseReqWorkHours] = useState(false);
+  const [useReqStudyHours, setUseReqStudyHours] = useState(false);
+  const [useReqProjects, setUseReqProjects] = useState(false);
+  const [useReqTotalHours, setUseReqTotalHours] = useState(false);
+
+  const [editUseReqWorkHours, setEditUseReqWorkHours] = useState(false);
+  const [editUseReqStudyHours, setEditUseReqStudyHours] = useState(false);
+  const [editUseReqProjects, setEditUseReqProjects] = useState(false);
+  const [editUseReqTotalHours, setEditUseReqTotalHours] = useState(false);
+  const [newCertRuleLogic, setNewCertRuleLogic] = useState<"AND" | "OR">("AND");
+  const [editCertType, setEditCertType] = useState("BADGE");
+  const [editCertScope, setEditCertScope] = useState("GLOBAL");
+  const [editCertRuleLogic, setEditCertRuleLogic] = useState<"AND" | "OR">("AND");
+  const [editReqWorkHours, setEditReqWorkHours] = useState("");
+  const [editReqStudyHours, setEditReqStudyHours] = useState("");
+  const [editReqProjects, setEditReqProjects] = useState("");
   const [editCredsModal, setEditCredsModal] = useState(false);
   const [editCredsUserId, setEditCredsUserId] = useState<string>("");
   const [editCredsUserEmail, setEditCredsUserEmail] = useState<string>("");
@@ -60,6 +84,8 @@ export default function AdminScreen() {
   const [editCertTitle, setEditCertTitle] = useState("");
   const [editCertPoints, setEditCertPoints] = useState("");
   const [isSavingCert, setIsSavingCert] = useState(false);
+  const [showDeleteCertConfirm, setShowDeleteCertConfirm] = useState(false);
+  const [certToDelete, setCertToDelete] = useState<number | null>(null);
   const [settingsWorkDay, setSettingsWorkDay] = useState("");
   const [settingsStudyDay, setSettingsStudyDay] = useState("");
   const [settingsWorkWeek, setSettingsWorkWeek] = useState("");
@@ -178,6 +204,34 @@ export default function AdminScreen() {
     }
   };
 
+  const formatRuleFormula = (item: any) => {
+    const rules = item.certificate_rules || [];
+    const logic = item.rule_logic || "AND";
+    if (!rules || rules.length === 0) return "";
+
+    // Filtrovat pouze automatická pravidla
+    const autoRules = rules.filter((r: any) => r.rule_type !== 'MANUAL');
+    if (autoRules.length === 0) return "";
+
+    const typeMap: Record<string, string> = {
+      "WORK_HOURS": "P",
+      "STUDY_HOURS": "S",
+      "TOTAL_HOURS": "PS",
+      "PROJECTS": "PJ"
+    };
+
+    const parts = autoRules.map((r: any) => {
+      const sym = typeMap[r.condition_type];
+      if (!sym) return null;
+      return `${r.condition_value}${sym}`;
+    }).filter((p: any) => p !== null);
+
+    if (parts.length === 0) return "";
+
+    const separator = logic === "OR" ? " / " : " + ";
+    return parts.join(separator);
+  };
+
   const loadCertificates = async () => {
     try {
       setCertLoading(true);
@@ -207,13 +261,59 @@ export default function AdminScreen() {
       Alert.alert("Chyba", "Vyplň název certifikátu");
       return;
     }
+
+    // Check for duplicates
+    const exists = certificates.some(c => c.title?.trim().toLowerCase() === newCertTitle.trim().toLowerCase());
+    if (exists) {
+      Alert.alert("Chyba", "Certifikát s tímto názvem již existuje.");
+      return;
+    }
     try {
-      await api.addCertificateTemplate(newCertTitle, newCertCategory, parseInt(newCertPoints) || 0, "");
+      const template = await api.addCertificateTemplate(
+        newCertTitle,
+        newCertCategory === "Badge" ? "BADGE" : "CERTIFICATE",
+        newCertCategory === "Badge" ? newCertScope : "PER_MASTER",
+        parseInt(newCertPoints) || 0,
+        "",
+        newCertRuleLogic
+      );
+
+      if (template && template.id) {
+        if (newCertCategory === "Badge") {
+          if (useReqWorkHours) {
+            await api.addCertificateUnlockRule(template.id, "AUTO", "WORK_HOURS", parseFloat(reqWorkHours) || 0, `Práce: ${reqWorkHours}h`);
+          }
+          if (useReqStudyHours) {
+            await api.addCertificateUnlockRule(template.id, "AUTO", "STUDY_HOURS", parseFloat(reqStudyHours) || 0, `Studium: ${reqStudyHours}h`);
+          }
+          if (useReqProjects) {
+            await api.addCertificateUnlockRule(template.id, "AUTO", "PROJECTS", parseInt(reqProjects) || 0, `Projekty: ${reqProjects}`);
+          }
+          if (useReqTotalHours) {
+            await api.addCertificateUnlockRule(template.id, "AUTO", "TOTAL_HOURS", parseFloat(reqTotalHours) || 0, `Celkem hodin: ${reqTotalHours}h`);
+          }
+        } else {
+          // Add manual rule for Certificates
+          await api.addCertificateUnlockRule(template.id, "MANUAL", null as any, 0, "Aktivace mistrem");
+        }
+      }
+
       setNewCertTitle("");
       setNewCertPoints("0");
+      setReqWorkHours("");
+      setReqStudyHours("");
+      setReqProjects("");
+      setReqTotalHours("");
+      setReqPoints("");
+      setUseReqWorkHours(false);
+      setUseReqStudyHours(false);
+      setUseReqProjects(false);
+      setUseReqTotalHours(false);
+
       setShowAddCertForm(false);
       await loadCertificates();
     } catch (error) {
+      console.error(error);
       Alert.alert("Chyba", "Nepodařilo se přidat certifikát");
     }
   };
@@ -236,10 +336,38 @@ export default function AdminScreen() {
     }
   };
 
-  const handleEditCert = (certId: number, title: string, points: number) => {
+  const handleEditCert = async (certId: number, title: string, points: number) => {
     setEditCertId(certId);
     setEditCertTitle(title);
     setEditCertPoints(String(points));
+
+    const cert = certificates.find((c: any) => c.id === certId);
+    if (cert) {
+      setEditCertType(cert.item_type || (cert.category === 'Badge' ? 'BADGE' : 'CERTIFICATE'));
+      setEditCertScope(cert.scope || 'GLOBAL');
+      setEditCertRuleLogic(cert.rule_logic || "AND");
+    }
+
+    try {
+      const rules = await api.getCertificateUnlockRules(certId);
+      const rWork = rules.find((r: any) => r.condition_type === 'WORK_HOURS');
+      const rStudy = rules.find((r: any) => r.condition_type === 'STUDY_HOURS');
+      const rProj = rules.find((r: any) => r.condition_type === 'PROJECTS');
+      const rTotal = rules.find((r: any) => r.condition_type === 'TOTAL_HOURS');
+
+      setEditReqWorkHours(rWork ? String(rWork.condition_value) : "0");
+      setEditReqStudyHours(rStudy ? String(rStudy.condition_value) : "0");
+      setEditReqProjects(rProj ? String(rProj.condition_value) : "0");
+      setEditReqTotalHours(rTotal ? String(rTotal.condition_value) : "0");
+
+      setEditUseReqWorkHours(!!rWork);
+      setEditUseReqStudyHours(!!rStudy);
+      setEditUseReqProjects(!!rProj);
+      setEditUseReqTotalHours(!!rTotal);
+    } catch (e) {
+      console.error(e);
+    }
+
     setEditCertModal(true);
   };
 
@@ -247,7 +375,30 @@ export default function AdminScreen() {
     if (!editCertId || !editCertTitle.trim()) return;
     setIsSavingCert(true);
     try {
-      await api.updateCertificateTemplate(editCertId, editCertTitle, parseInt(editCertPoints) || 0);
+      await api.updateCertificateTemplate(
+        editCertId,
+        editCertTitle,
+        parseInt(editCertPoints) || 0,
+        editCertType,
+        editCertScope,
+        editCertRuleLogic
+      );
+
+      // Replace Rules
+      const rules = await api.getCertificateUnlockRules(editCertId);
+      for (const r of rules) {
+        await api.deleteCertificateUnlockRule(r.id);
+      }
+
+      if (editCertType === "BADGE") {
+        if (editUseReqWorkHours) await api.addCertificateUnlockRule(editCertId, "AUTO", "WORK_HOURS", parseFloat(editReqWorkHours) || 0, `Práce: ${editReqWorkHours}h`);
+        if (editUseReqStudyHours) await api.addCertificateUnlockRule(editCertId, "AUTO", "STUDY_HOURS", parseFloat(editReqStudyHours) || 0, `Studium: ${editReqStudyHours}h`);
+        if (editUseReqProjects) await api.addCertificateUnlockRule(editCertId, "AUTO", "PROJECTS", parseInt(editReqProjects) || 0, `Projekty: ${editReqProjects}`);
+        if (editUseReqTotalHours) await api.addCertificateUnlockRule(editCertId, "AUTO", "TOTAL_HOURS", parseFloat(editReqTotalHours) || 0, `Celkem hodin: ${editReqTotalHours}h`);
+      } else {
+        await api.addCertificateUnlockRule(editCertId, "MANUAL", null as any, 0, "Aktivace mistrem");
+      }
+
       setEditCertModal(false);
       await loadCertificates();
     } catch (error: any) {
@@ -257,16 +408,25 @@ export default function AdminScreen() {
     }
   };
 
-  const handleDeleteCert = async (certId: number) => {
-    console.log("🗑️ Kliknutí na delete, certId:", certId);
+  const handleDeleteCert = (certId: number) => {
+    setCertToDelete(certId);
+    setShowDeleteCertConfirm(true);
+  };
+
+  const executeDeleteCert = async () => {
+    if (!certToDelete) return;
     try {
-      await api.deleteCertificateTemplate(certId);
+      await api.deleteCertificateTemplate(certToDelete);
       console.log("✅ Certifikát smazán, reloaduji...");
       await loadCertificates();
       setSelectedCertId(null);
       setRules([]);
     } catch (error: any) {
       console.error("❌ Chyba při mazání certifikátu:", error);
+      Alert.alert("Chyba", "Nepodařilo se smazat certifikát");
+    } finally {
+      setShowDeleteCertConfirm(false);
+      setCertToDelete(null);
     }
   };
 
@@ -630,126 +790,43 @@ export default function AdminScreen() {
           <>
             <View style={styles.certHeader}>
               <ThemedText style={styles.subtitle}>Správa certifikátů a pravidel</ThemedText>
-              <Pressable
-                style={({ pressed }) => [
-                  styles.addButton,
-                  { opacity: pressed ? 0.8 : 1 },
-                ]}
-                onPress={() => setShowAddCertForm(!showAddCertForm)}
-              >
-                <Feather name="plus" size={18} color="#fff" />
-              </Pressable>
+
             </View>
 
-            {showAddCertForm && (
-              <ThemedView style={styles.formCard}>
-                <TextInput
-                  style={[styles.input, { color: theme.text, borderColor: theme.border }]}
-                  placeholder="Název certifikátu"
-                  placeholderTextColor={theme.textSecondary}
-                  value={newCertTitle}
-                  onChangeText={setNewCertTitle}
-                />
-                <View style={styles.formRow}>
-                  <Pressable
-                    style={[
-                      styles.categoryBtn,
-                      newCertCategory === "Badge" && { backgroundColor: theme.primary },
-                    ]}
-                    onPress={() => setNewCertCategory("Badge")}
-                  >
-                    <ThemedText style={{ color: newCertCategory === "Badge" ? "#fff" : theme.text }}>
-                      Odznak
-                    </ThemedText>
-                  </Pressable>
-                  <Pressable
-                    style={[
-                      styles.categoryBtn,
-                      newCertCategory === "Certifikát" && { backgroundColor: theme.secondary },
-                    ]}
-                    onPress={() => setNewCertCategory("Certifikát")}
-                  >
-                    <ThemedText style={{ color: newCertCategory === "Certifikát" ? "#fff" : theme.text }}>
-                      Certifikát
-                    </ThemedText>
-                  </Pressable>
-                </View>
-                <TextInput
-                  style={[styles.input, { color: theme.text, borderColor: theme.border }]}
-                  placeholder="Body"
-                  placeholderTextColor={theme.textSecondary}
-                  keyboardType="numeric"
-                  value={newCertPoints}
-                  onChangeText={setNewCertPoints}
-                />
-                <View style={styles.formRow}>
-                  <Pressable
-                    style={[styles.submitBtn, { backgroundColor: theme.primary }]}
-                    onPress={handleAddCertificate}
-                  >
-                    <ThemedText style={{ color: "#fff", fontWeight: "600" }}>Přidat</ThemedText>
-                  </Pressable>
-                  <Pressable
-                    style={[styles.submitBtn, { backgroundColor: theme.border }]}
-                    onPress={() => setShowAddCertForm(false)}
-                  >
-                    <ThemedText style={{ color: theme.text, fontWeight: "600" }}>Zrušit</ThemedText>
-                  </Pressable>
-                </View>
-              </ThemedView>
-            )}
+
 
             {certLoading ? (
               <ThemedText>Načítání...</ThemedText>
-            ) : certificates.length === 0 ? (
-              <ThemedView style={styles.emptyCard}>
-                <Feather name="award" size={40} color={theme.textSecondary} />
-                <ThemedText style={styles.emptyText}>Žádné certifikáty</ThemedText>
-              </ThemedView>
             ) : (
               <>
-                {certificates.filter((c: any) => c.category === "Badge").length > 0 && (
+                {/* --- ODZNAKY SECTION --- */}
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: Spacing.lg, marginBottom: Spacing.sm }}>
+                  <ThemedText style={{ fontSize: 18, fontWeight: 'bold', color: theme.text }}>Odznaky</ThemedText>
+                  <Pressable
+                    style={[styles.addButton, { width: 32, height: 32, borderRadius: 16, justifyContent: 'center', alignItems: 'center' }]}
+                    onPress={() => { setNewCertCategory("Badge"); setShowAddCertForm(true); }}
+                  >
+                    <Feather name="plus" size={18} color="#fff" />
+                  </Pressable>
+                </View>
+
+                {/* 1. GLOBÁLNÍ ODZNAKY */}
+                {certificates.filter((c: any) => (c.item_type === 'BADGE' || (!c.item_type && c.category === 'Badge')) && (c.scope === 'GLOBAL' || !c.scope)).length > 0 && (
                   <>
-                    <ThemedText style={styles.certListLabel}>Odznaky:</ThemedText>
+                    <ThemedText style={[styles.certListLabel, { color: theme.textSecondary, fontSize: 13 }]}>Globální Odznaky (Ze všech aktivit):</ThemedText>
                     <FlatList
-                      data={certificates.filter((c: any) => c.category === "Badge")}
+                      data={certificates.filter((c: any) => (c.item_type === 'BADGE' || (!c.item_type && c.category === 'Badge')) && (c.scope === 'GLOBAL' || !c.scope))}
                       renderItem={({ item }) => (
-                        <View
-                          style={[
-                            styles.certItem,
-                            { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-                            selectedCertId === item.id ? {
-                              borderColor: theme.primary,
-                              borderWidth: 3,
-                              backgroundColor: theme.primary + "15"
-                            } : { borderColor: theme.border },
-                          ]}
-                        >
-                          <Pressable
-                            style={{ flex: 1 }}
-                            onPress={() => {
-                              setSelectedCertId(item.id);
-                              loadRules(item.id);
-                            }}
-                          >
+                        <View style={[styles.certItem, { flexDirection: "row", alignItems: "center", justifyContent: "space-between" }, selectedCertId === item.id ? { borderColor: theme.primary, borderWidth: 3, backgroundColor: theme.primary + "15" } : { borderColor: theme.border }]}>
+                          <Pressable style={{ flex: 1 }} onPress={() => { setSelectedCertId(item.id); loadRules(item.id); }}>
                             <ThemedText style={[styles.certTitle, selectedCertId === item.id && { fontWeight: "bold", color: theme.primary }]}>{item.title}</ThemedText>
-                            <ThemedText style={[styles.certMeta, { color: theme.textSecondary }]}>
-                              {item.points} bodů
-                            </ThemedText>
+                            <ThemedText style={[styles.certMeta, { color: theme.textSecondary }]}>{item.points} bodů</ThemedText>
+                            <ThemedText style={{ fontSize: 12, color: theme.textSecondary, fontStyle: 'italic', marginTop: 2 }}>{formatRuleFormula(item)}</ThemedText>
                           </Pressable>
-                          <Pressable
-                            onPress={() => handleEditCert(item.id, item.title, item.points)}
-                            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                          >
-                            <Feather name="edit-2" size={16} color={theme.primary} />
-                          </Pressable>
-                          <Pressable
-                            onPress={() => handleDeleteCert(item.id)}
-                            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                            style={{ marginLeft: Spacing.md }}
-                          >
-                            <Feather name="trash-2" size={16} color={theme.error} />
-                          </Pressable>
+                          <View style={{ flexDirection: 'row', gap: 10 }}>
+                            <Pressable onPress={() => handleEditCert(item.id, item.title, item.points)}><Feather name="edit-2" size={16} color={theme.primary} /></Pressable>
+                            <Pressable onPress={() => handleDeleteCert(item.id)}><Feather name="trash-2" size={16} color={theme.error} /></Pressable>
+                          </View>
                         </View>
                       )}
                       keyExtractor={(item) => String(item.id)}
@@ -759,48 +836,23 @@ export default function AdminScreen() {
                   </>
                 )}
 
-                {certificates.filter((c: any) => c.category === "Certifikát").length > 0 && (
+                {/* 2. MISTROVSKÉ ODZNAKY */}
+                {certificates.filter((c: any) => (c.item_type === 'BADGE' || (!c.item_type && c.category === 'Badge')) && c.scope === 'PER_MASTER').length > 0 && (
                   <>
-                    <ThemedText style={[styles.certListLabel, { marginTop: Spacing.lg }]}>Certifikáty:</ThemedText>
+                    <ThemedText style={[styles.certListLabel, { marginTop: Spacing.lg, color: theme.textSecondary, fontSize: 13 }]}>Mistrovské Odznaky (Pro každého mistra):</ThemedText>
                     <FlatList
-                      data={certificates.filter((c: any) => c.category === "Certifikát")}
+                      data={certificates.filter((c: any) => (c.item_type === 'BADGE' || (!c.item_type && c.category === 'Badge')) && c.scope === 'PER_MASTER')}
                       renderItem={({ item }) => (
-                        <View
-                          style={[
-                            styles.certItem,
-                            { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-                            selectedCertId === item.id ? {
-                              borderColor: theme.primary,
-                              borderWidth: 3,
-                              backgroundColor: theme.primary + "15"
-                            } : { borderColor: theme.border },
-                          ]}
-                        >
-                          <Pressable
-                            style={{ flex: 1 }}
-                            onPress={() => {
-                              setSelectedCertId(item.id);
-                              loadRules(item.id);
-                            }}
-                          >
+                        <View style={[styles.certItem, { flexDirection: "row", alignItems: "center", justifyContent: "space-between" }, selectedCertId === item.id ? { borderColor: theme.primary, borderWidth: 3, backgroundColor: theme.primary + "15" } : { borderColor: theme.border }]}>
+                          <Pressable style={{ flex: 1 }} onPress={() => { setSelectedCertId(item.id); loadRules(item.id); }}>
                             <ThemedText style={[styles.certTitle, selectedCertId === item.id && { fontWeight: "bold", color: theme.primary }]}>{item.title}</ThemedText>
-                            <ThemedText style={[styles.certMeta, { color: theme.textSecondary }]}>
-                              {item.points} bodů
-                            </ThemedText>
+                            <ThemedText style={[styles.certMeta, { color: theme.textSecondary }]}>{item.points} bodů</ThemedText>
+                            <ThemedText style={{ fontSize: 12, color: theme.textSecondary, fontStyle: 'italic', marginTop: 2 }}>{formatRuleFormula(item)}</ThemedText>
                           </Pressable>
-                          <Pressable
-                            onPress={() => handleEditCert(item.id, item.title, item.points)}
-                            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                          >
-                            <Feather name="edit-2" size={16} color={theme.primary} />
-                          </Pressable>
-                          <Pressable
-                            onPress={() => handleDeleteCert(item.id)}
-                            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                            style={{ marginLeft: Spacing.md }}
-                          >
-                            <Feather name="trash-2" size={16} color={theme.error} />
-                          </Pressable>
+                          <View style={{ flexDirection: 'row', gap: 10 }}>
+                            <Pressable onPress={() => handleEditCert(item.id, item.title, item.points)}><Feather name="edit-2" size={16} color={theme.primary} /></Pressable>
+                            <Pressable onPress={() => handleDeleteCert(item.id)}><Feather name="trash-2" size={16} color={theme.error} /></Pressable>
+                          </View>
                         </View>
                       )}
                       keyExtractor={(item) => String(item.id)}
@@ -810,177 +862,48 @@ export default function AdminScreen() {
                   </>
                 )}
 
-                {selectedCertId && (
-                  <ThemedView style={[styles.formCard, { marginTop: Spacing.lg }]}>
-                    {/* Vybraný odznak/certifikát */}
-                    {certificates.find((c: any) => c.id === selectedCertId) && (
-                      <View style={[styles.certItem, { marginBottom: Spacing.lg, borderWidth: 2, borderColor: theme.primary }]}>
-                        <View style={{ flex: 1 }}>
-                          <ThemedText style={[styles.certTitle, { color: theme.primary, fontWeight: "bold" }]}>
-                            {certificates.find((c: any) => c.id === selectedCertId)?.title}
-                          </ThemedText>
-                          <ThemedText style={[styles.certMeta, { color: theme.textSecondary }]}>
-                            {certificates.find((c: any) => c.id === selectedCertId)?.points} bodů
-                          </ThemedText>
+                {/* Empty Badges State */}
+                {certificates.filter((c: any) => c.item_type === 'BADGE' || (!c.item_type && c.category === 'Badge')).length === 0 && (
+                  <ThemedText style={{ opacity: 0.5, fontStyle: 'italic', marginBottom: Spacing.md, marginTop: Spacing.sm }}>Žádné odznaky.</ThemedText>
+                )}
+
+                {/* --- CERTIFIKÁTY SECTION --- */}
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: Spacing.xl, marginBottom: Spacing.sm }}>
+                  <ThemedText style={{ fontSize: 18, fontWeight: 'bold', color: theme.text }}>Certifikáty</ThemedText>
+                  <Pressable
+                    style={[styles.addButton, { width: 32, height: 32, borderRadius: 16, justifyContent: 'center', alignItems: 'center' }]}
+                    onPress={() => { setNewCertCategory("Certifikát"); setShowAddCertForm(true); }}
+                  >
+                    <Feather name="plus" size={18} color="#fff" />
+                  </Pressable>
+                </View>
+
+                {/* 3. CERTIFIKÁTY */}
+                {certificates.filter((c: any) => c.item_type === 'CERTIFICATE' || (!c.item_type && c.category === 'Certifikát')).length > 0 ? (
+                  <>
+                    <ThemedText style={[styles.certListLabel, { marginTop: Spacing.sm, color: theme.textSecondary, fontSize: 13 }]}>Certifikáty (Aktivuje Mistr):</ThemedText>
+                    <FlatList
+                      data={certificates.filter((c: any) => c.item_type === 'CERTIFICATE' || (!c.item_type && c.category === 'Certifikát'))}
+                      renderItem={({ item }) => (
+                        <View style={[styles.certItem, { flexDirection: "row", alignItems: "center", justifyContent: "space-between" }, selectedCertId === item.id ? { borderColor: theme.primary, borderWidth: 3, backgroundColor: theme.primary + "15" } : { borderColor: theme.border }]}>
+                          <Pressable style={{ flex: 1 }} onPress={() => { setSelectedCertId(item.id); loadRules(item.id); }}>
+                            <ThemedText style={[styles.certTitle, selectedCertId === item.id && { fontWeight: "bold", color: theme.primary }]}>{item.title}</ThemedText>
+                            <ThemedText style={[styles.certMeta, { color: theme.textSecondary }]}>{item.points} bodů</ThemedText>
+                            <ThemedText style={{ fontSize: 12, color: theme.textSecondary, fontStyle: 'italic', marginTop: 2 }}>{formatRuleFormula(item)}</ThemedText>
+                          </Pressable>
+                          <View style={{ flexDirection: 'row', gap: 10 }}>
+                            <Pressable onPress={() => handleEditCert(item.id, item.title, item.points)}><Feather name="edit-2" size={16} color={theme.primary} /></Pressable>
+                            <Pressable onPress={() => handleDeleteCert(item.id)}><Feather name="trash-2" size={16} color={theme.error} /></Pressable>
+                          </View>
                         </View>
-                      </View>
-                    )}
-
-                    <View style={styles.rulesHeader}>
-                      <ThemedText style={styles.rulesTitle}>Pravidla odemknutí:</ThemedText>
-                      <Pressable
-                        style={({ pressed }) => [
-                          styles.addButton,
-                          { opacity: pressed ? 0.8 : 1 },
-                        ]}
-                        onPress={() => setShowAddRuleForm(!showAddRuleForm)}
-                      >
-                        <Feather name="plus" size={16} color="#fff" />
-                      </Pressable>
-                    </View>
-
-                    {showAddRuleForm && (
-                      <ThemedView style={styles.formCard}>
-                        <View style={styles.formRow}>
-                          <Pressable
-                            style={[
-                              styles.ruleTypeBtn,
-                              ruleType === "MANUAL" && { backgroundColor: theme.primary },
-                              { borderColor: theme.border },
-                            ]}
-                            onPress={() => setRuleType("MANUAL")}
-                          >
-                            <ThemedText style={{ color: ruleType === "MANUAL" ? "#fff" : theme.text, fontSize: 12 }}>
-                              A: MISTR
-                            </ThemedText>
-                          </Pressable>
-                          <Pressable
-                            style={[
-                              styles.ruleTypeBtn,
-                              ruleType === "AUTO" && { backgroundColor: theme.secondary },
-                              { borderColor: theme.border },
-                            ]}
-                            onPress={() => setRuleType("AUTO")}
-                          >
-                            <ThemedText style={{ color: ruleType === "AUTO" ? "#fff" : theme.text, fontSize: 12 }}>
-                              B: AUTO
-                            </ThemedText>
-                          </Pressable>
-                        </View>
-
-                        {ruleType === "AUTO" && (
-                          <>
-                            <View style={styles.formRow}>
-                              <Pressable
-                                style={[
-                                  styles.condBtn,
-                                  conditionType === "WORK_HOURS" && { backgroundColor: theme.primary },
-                                  { borderColor: theme.border },
-                                ]}
-                                onPress={() => setConditionType("WORK_HOURS")}
-                              >
-                                <ThemedText style={{ color: conditionType === "WORK_HOURS" ? "#fff" : theme.text, fontSize: 11 }}>
-                                  Práce
-                                </ThemedText>
-                              </Pressable>
-                              <Pressable
-                                style={[
-                                  styles.condBtn,
-                                  conditionType === "STUDY_HOURS" && { backgroundColor: theme.secondary },
-                                  { borderColor: theme.border },
-                                ]}
-                                onPress={() => setConditionType("STUDY_HOURS")}
-                              >
-                                <ThemedText style={{ color: conditionType === "STUDY_HOURS" ? "#fff" : theme.text, fontSize: 11 }}>
-                                  Studium
-                                </ThemedText>
-                              </Pressable>
-                              <Pressable
-                                style={[
-                                  styles.condBtn,
-                                  conditionType === "TOTAL_HOURS" && { backgroundColor: theme.primary },
-                                  { borderColor: theme.border },
-                                ]}
-                                onPress={() => setConditionType("TOTAL_HOURS")}
-                              >
-                                <ThemedText style={{ color: conditionType === "TOTAL_HOURS" ? "#fff" : theme.text, fontSize: 11 }}>
-                                  Celkem
-                                </ThemedText>
-                              </Pressable>
-                              <Pressable
-                                style={[
-                                  styles.condBtn,
-                                  conditionType === "PROJECTS" && { backgroundColor: theme.secondary },
-                                  { borderColor: theme.border },
-                                ]}
-                                onPress={() => setConditionType("PROJECTS")}
-                              >
-                                <ThemedText style={{ color: conditionType === "PROJECTS" ? "#fff" : theme.text, fontSize: 11 }}>
-                                  Projekty
-                                </ThemedText>
-                              </Pressable>
-                            </View>
-                            <TextInput
-                              style={[styles.input, { color: theme.text, borderColor: theme.border }]}
-                              placeholder="Počet (hodin/projektů)"
-                              placeholderTextColor={theme.textSecondary}
-                              keyboardType="numeric"
-                              value={conditionValue}
-                              onChangeText={setConditionValue}
-                            />
-                          </>
-                        )}
-
-                        <View style={styles.formRow}>
-                          <Pressable
-                            style={[styles.submitBtn, { backgroundColor: theme.primary }]}
-                            onPress={handleAddRule}
-                          >
-                            <ThemedText style={{ color: "#fff", fontWeight: "600" }}>Přidat</ThemedText>
-                          </Pressable>
-                          <Pressable
-                            style={[styles.submitBtn, { backgroundColor: theme.border }]}
-                            onPress={() => setShowAddRuleForm(false)}
-                          >
-                            <ThemedText style={{ color: theme.text, fontWeight: "600" }}>Zrušit</ThemedText>
-                          </Pressable>
-                        </View>
-                      </ThemedView>
-                    )}
-
-                    {rules.length === 0 ? (
-                      <ThemedText style={[styles.noRules, { color: theme.textSecondary }]}>
-                        Žádná pravidla
-                      </ThemedText>
-                    ) : (
-                      <FlatList
-                        data={rules}
-                        renderItem={({ item }) => (
-                          <ThemedView style={[styles.ruleItem, { flexDirection: "row", alignItems: "center" }]}>
-                            <View style={{ flex: 1 }}>
-                              <ThemedText style={styles.ruleType}>
-                                {item.rule_type === "MANUAL" ? "A - Odemknutí mistrem" : `B - Auto: ${item.condition_type}`}
-                              </ThemedText>
-                              {item.condition_value && (
-                                <ThemedText style={[styles.ruleCondition, { color: theme.textSecondary }]}>
-                                  Podmínka: {item.condition_value}
-                                </ThemedText>
-                              )}
-                            </View>
-                            <Pressable
-                              onPress={() => handleDeleteRule(item.id)}
-                              style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }, { padding: Spacing.sm }]}
-                            >
-                              <Feather name="trash-2" size={14} color={theme.error} />
-                            </Pressable>
-                          </ThemedView>
-                        )}
-                        keyExtractor={(item) => String(item.id)}
-                        scrollEnabled={false}
-                        ItemSeparatorComponent={() => <View style={{ height: Spacing.sm }} />}
-                      />
-                    )}
-                  </ThemedView>
+                      )}
+                      keyExtractor={(item) => String(item.id)}
+                      scrollEnabled={false}
+                      ItemSeparatorComponent={() => <View style={{ height: Spacing.md }} />}
+                    />
+                  </>
+                ) : (
+                  <ThemedText style={{ opacity: 0.5, fontStyle: 'italic', marginTop: Spacing.sm }}>Žádné certifikáty.</ThemedText>
                 )}
               </>
             )}
@@ -1394,6 +1317,35 @@ export default function AdminScreen() {
       </Modal>
 
       <Modal
+        visible={showDeleteCertConfirm}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowDeleteCertConfirm(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <ThemedView style={styles.modalContent}>
+            <ThemedText style={styles.modalTitle}>Smazat certifikát/odznak?</ThemedText>
+            <ThemedText style={{ marginBottom: 20, color: theme.text }}>
+              Opravdu chcete smazat tuto položku? Tato akce je nevratná.
+            </ThemedText>
+            <View style={styles.modalButtons}>
+              <Pressable
+                style={[styles.modalButton, styles.cancelButton]}
+                onPress={() => setShowDeleteCertConfirm(false)}
+              >
+                <ThemedText style={styles.buttonText}>Zrušit</ThemedText>
+              </Pressable>
+              <Pressable
+                style={[styles.modalButton, styles.deleteButtonModal]}
+                onPress={executeDeleteCert}
+              >
+                <ThemedText style={styles.buttonText}>Smazat</ThemedText>
+              </Pressable>
+            </View>
+          </ThemedView>
+        </View>
+      </Modal>
+      <Modal
         visible={deleteConfirmModal}
         transparent
         animationType="fade"
@@ -1427,6 +1379,153 @@ export default function AdminScreen() {
       </Modal>
 
       <Modal
+        visible={showAddCertForm}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowAddCertForm(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <ThemedView style={[styles.modalContent, { maxHeight: '90%' }]}>
+            <ThemedText style={styles.modalTitle}>
+              {newCertCategory === 'Badge' ? 'Nový Odznak' : 'Nový Certifikát'}
+            </ThemedText>
+
+            <ScrollView showsVerticalScrollIndicator={false}>
+              <TextInput
+                style={[styles.credsInput, { color: theme.text, borderColor: theme.border }]}
+                placeholder="Název"
+                placeholderTextColor={theme.textSecondary}
+                value={newCertTitle}
+                onChangeText={setNewCertTitle}
+              />
+
+              {newCertCategory === "Badge" && (
+                <View style={{ flexDirection: 'row', gap: 10, marginBottom: 12 }}>
+                  <Pressable
+                    style={[styles.categoryBtn, newCertScope === "GLOBAL" && { backgroundColor: theme.primary }]}
+                    onPress={() => setNewCertScope("GLOBAL")}>
+                    <ThemedText style={{ color: newCertScope === "GLOBAL" ? "#fff" : theme.text, fontSize: 12 }}>Globální</ThemedText>
+                  </Pressable>
+                  <Pressable
+                    style={[styles.categoryBtn, newCertScope === "PER_MASTER" && { backgroundColor: theme.primary }]}
+                    onPress={() => setNewCertScope("PER_MASTER")}>
+                    <ThemedText style={{ color: newCertScope === "PER_MASTER" ? "#fff" : theme.text, fontSize: 12 }}>U mistra</ThemedText>
+                  </Pressable>
+                </View>
+              )}
+
+              <TextInput
+                style={[styles.credsInput, { color: theme.text, borderColor: theme.border }]}
+                placeholder="Body"
+                placeholderTextColor={theme.textSecondary}
+                keyboardType="numeric"
+                value={newCertPoints}
+                onChangeText={setNewCertPoints}
+              />
+
+              {newCertCategory === "Badge" && (
+                <View style={{ marginTop: Spacing.sm }}>
+                  <ThemedText style={{ fontWeight: '600', marginBottom: 8 }}>Podmínky pro získání:</ThemedText>
+
+                  <View style={{ flexDirection: 'row', marginBottom: 12, borderWidth: 1, borderColor: theme.border, borderRadius: 8, overflow: 'hidden' }}>
+                    <Pressable style={{ flex: 1, padding: 8, backgroundColor: newCertRuleLogic === 'AND' ? theme.primary : 'transparent', alignItems: 'center' }} onPress={() => setNewCertRuleLogic('AND')}>
+                      <ThemedText style={{ color: newCertRuleLogic === 'AND' ? '#fff' : theme.text, fontSize: 12, fontWeight: '600' }}>Všechny (AND)</ThemedText>
+                    </Pressable>
+                    <View style={{ width: 1, backgroundColor: theme.border }} />
+                    <Pressable style={{ flex: 1, padding: 8, backgroundColor: newCertRuleLogic === 'OR' ? theme.primary : 'transparent', alignItems: 'center' }} onPress={() => setNewCertRuleLogic('OR')}>
+                      <ThemedText style={{ color: newCertRuleLogic === 'OR' ? '#fff' : theme.text, fontSize: 12, fontWeight: '600' }}>Alespoň 1 (OR)</ThemedText>
+                    </Pressable>
+                  </View>
+
+                  {/* Work Hours */}
+                  <View style={{ marginBottom: 8 }}>
+                    <Pressable onPress={() => setUseReqWorkHours(!useReqWorkHours)} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+                      <Feather name={useReqWorkHours ? "check-square" : "square"} size={20} color={theme.text} style={{ marginRight: 8 }} />
+                      <ThemedText style={{ fontWeight: '600' }}>Pracovní hodiny</ThemedText>
+                    </Pressable>
+                    {useReqWorkHours && (
+                      <TextInput
+                        style={[styles.input, { borderColor: theme.border, color: theme.text, marginLeft: 28, marginBottom: 0 }]}
+                        keyboardType="numeric"
+                        value={reqWorkHours}
+                        onChangeText={setReqWorkHours}
+                        placeholder="Počet"
+                        placeholderTextColor={theme.textSecondary}
+                      />
+                    )}
+                  </View>
+
+                  {/* Study Hours */}
+                  <View style={{ marginBottom: 8 }}>
+                    <Pressable onPress={() => setUseReqStudyHours(!useReqStudyHours)} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+                      <Feather name={useReqStudyHours ? "check-square" : "square"} size={20} color={theme.text} style={{ marginRight: 8 }} />
+                      <ThemedText style={{ fontWeight: '600' }}>Studijní hodiny</ThemedText>
+                    </Pressable>
+                    {useReqStudyHours && (
+                      <TextInput
+                        style={[styles.input, { borderColor: theme.border, color: theme.text, marginLeft: 28, marginBottom: 0 }]}
+                        keyboardType="numeric"
+                        value={reqStudyHours}
+                        onChangeText={setReqStudyHours}
+                        placeholder="Počet"
+                        placeholderTextColor={theme.textSecondary}
+                      />
+                    )}
+                  </View>
+
+                  {/* Projects */}
+                  <View style={{ marginBottom: 8 }}>
+                    <Pressable onPress={() => setUseReqProjects(!useReqProjects)} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+                      <Feather name={useReqProjects ? "check-square" : "square"} size={20} color={theme.text} style={{ marginRight: 8 }} />
+                      <ThemedText style={{ fontWeight: '600' }}>Počet projektů</ThemedText>
+                    </Pressable>
+                    {useReqProjects && (
+                      <TextInput
+                        style={[styles.input, { borderColor: theme.border, color: theme.text, marginLeft: 28, marginBottom: 0 }]}
+                        keyboardType="numeric"
+                        value={reqProjects}
+                        onChangeText={setReqProjects}
+                        placeholder="Počet"
+                        placeholderTextColor={theme.textSecondary}
+                      />
+                    )}
+                  </View>
+
+                  {/* Total Hours */}
+                  <View style={{ marginBottom: 8 }}>
+                    <Pressable onPress={() => setUseReqTotalHours(!useReqTotalHours)} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+                      <Feather name={useReqTotalHours ? "check-square" : "square"} size={20} color={theme.text} style={{ marginRight: 8 }} />
+                      <ThemedText style={{ fontWeight: '600' }}>Součet Práce+Studium</ThemedText>
+                    </Pressable>
+                    {useReqTotalHours && (
+                      <TextInput
+                        style={[styles.input, { borderColor: theme.border, color: theme.text, marginLeft: 28, marginBottom: 0 }]}
+                        keyboardType="numeric"
+                        value={reqTotalHours}
+                        onChangeText={setReqTotalHours}
+                        placeholder="Počet"
+                        placeholderTextColor={theme.textSecondary}
+                      />
+                    )}
+                  </View>
+                </View>
+              )}
+            </ScrollView>
+
+            <View style={styles.modalButtons}>
+              <Pressable style={[styles.modalButton, styles.cancelButton]} onPress={() => setShowAddCertForm(false)}>
+                <ThemedText style={styles.buttonText}>Zrušit</ThemedText>
+              </Pressable>
+              <Pressable style={[styles.modalButton, styles.saveButton]} onPress={handleAddCertificate}>
+                <ThemedText style={styles.buttonText}>Přidat</ThemedText>
+              </Pressable>
+            </View>
+
+          </ThemedView>
+        </View>
+      </Modal>
+
+      <Modal
         visible={editCertModal}
         transparent
         animationType="slide"
@@ -1435,6 +1534,19 @@ export default function AdminScreen() {
         <View style={styles.modalOverlay}>
           <ThemedView style={styles.modalContent}>
             <ThemedText style={styles.modalTitle}>Editovat odznak/certifikát</ThemedText>
+
+
+            {editCertType === "BADGE" && (
+              <View style={{ flexDirection: 'row', gap: 10, marginBottom: 12 }}>
+                <Pressable style={[styles.categoryBtn, editCertScope === "GLOBAL" && { backgroundColor: theme.primary }]} onPress={() => setEditCertScope("GLOBAL")}>
+                  <ThemedText style={{ color: editCertScope === "GLOBAL" ? "#fff" : theme.text, fontSize: 12 }}>Globální</ThemedText>
+                </Pressable>
+                <Pressable style={[styles.categoryBtn, editCertScope === "PER_MASTER" && { backgroundColor: theme.primary }]} onPress={() => setEditCertScope("PER_MASTER")}>
+                  <ThemedText style={{ color: editCertScope === "PER_MASTER" ? "#fff" : theme.text, fontSize: 12 }}>U mistra</ThemedText>
+                </Pressable>
+              </View>
+            )}
+
             <TextInput
               style={[styles.credsInput, { color: theme.text, borderColor: theme.border }]}
               placeholder="Název"
@@ -1450,6 +1562,94 @@ export default function AdminScreen() {
               value={editCertPoints}
               onChangeText={setEditCertPoints}
             />
+
+            {editCertType === "BADGE" && (
+              <View style={{ marginTop: Spacing.sm, marginBottom: Spacing.md }}>
+                <ThemedText style={{ fontWeight: '600', marginBottom: 8 }}>Podmínky pro získání:</ThemedText>
+
+                <View style={{ flexDirection: 'row', marginBottom: 12, borderWidth: 1, borderColor: theme.border, borderRadius: 8, overflow: 'hidden' }}>
+                  <Pressable style={{ flex: 1, padding: 8, backgroundColor: editCertRuleLogic === 'AND' ? theme.primary : 'transparent', alignItems: 'center' }} onPress={() => setEditCertRuleLogic('AND')}>
+                    <ThemedText style={{ color: editCertRuleLogic === 'AND' ? '#fff' : theme.text, fontSize: 12, fontWeight: '600' }}>Všechny (AND)</ThemedText>
+                  </Pressable>
+                  <View style={{ width: 1, backgroundColor: theme.border }} />
+                  <Pressable style={{ flex: 1, padding: 8, backgroundColor: editCertRuleLogic === 'OR' ? theme.primary : 'transparent', alignItems: 'center' }} onPress={() => setEditCertRuleLogic('OR')}>
+                    <ThemedText style={{ color: editCertRuleLogic === 'OR' ? '#fff' : theme.text, fontSize: 12, fontWeight: '600' }}>Alespoň 1 (OR)</ThemedText>
+                  </Pressable>
+                </View>
+
+                {/* Work Hours */}
+                <View style={{ marginBottom: 8 }}>
+                  <Pressable onPress={() => setEditUseReqWorkHours(!editUseReqWorkHours)} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+                    <Feather name={editUseReqWorkHours ? "check-square" : "square"} size={20} color={theme.text} style={{ marginRight: 8 }} />
+                    <ThemedText style={{ fontWeight: '600' }}>Pracovní hodiny</ThemedText>
+                  </Pressable>
+                  {editUseReqWorkHours && (
+                    <TextInput
+                      style={[styles.input, { borderColor: theme.border, color: theme.text, marginLeft: 28, marginBottom: 0 }]}
+                      keyboardType="numeric"
+                      value={editReqWorkHours}
+                      onChangeText={setEditReqWorkHours}
+                      placeholder="Počet"
+                      placeholderTextColor={theme.textSecondary}
+                    />
+                  )}
+                </View>
+
+                {/* Study Hours */}
+                <View style={{ marginBottom: 8 }}>
+                  <Pressable onPress={() => setEditUseReqStudyHours(!editUseReqStudyHours)} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+                    <Feather name={editUseReqStudyHours ? "check-square" : "square"} size={20} color={theme.text} style={{ marginRight: 8 }} />
+                    <ThemedText style={{ fontWeight: '600' }}>Studijní hodiny</ThemedText>
+                  </Pressable>
+                  {editUseReqStudyHours && (
+                    <TextInput
+                      style={[styles.input, { borderColor: theme.border, color: theme.text, marginLeft: 28, marginBottom: 0 }]}
+                      keyboardType="numeric"
+                      value={editReqStudyHours}
+                      onChangeText={setEditReqStudyHours}
+                      placeholder="Počet"
+                      placeholderTextColor={theme.textSecondary}
+                    />
+                  )}
+                </View>
+
+                {/* Projects */}
+                <View style={{ marginBottom: 8 }}>
+                  <Pressable onPress={() => setEditUseReqProjects(!editUseReqProjects)} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+                    <Feather name={editUseReqProjects ? "check-square" : "square"} size={20} color={theme.text} style={{ marginRight: 8 }} />
+                    <ThemedText style={{ fontWeight: '600' }}>Počet projektů</ThemedText>
+                  </Pressable>
+                  {editUseReqProjects && (
+                    <TextInput
+                      style={[styles.input, { borderColor: theme.border, color: theme.text, marginLeft: 28, marginBottom: 0 }]}
+                      keyboardType="numeric"
+                      value={editReqProjects}
+                      onChangeText={setEditReqProjects}
+                      placeholder="Počet"
+                      placeholderTextColor={theme.textSecondary}
+                    />
+                  )}
+                </View>
+
+                {/* Total Hours */}
+                <View style={{ marginBottom: 8 }}>
+                  <Pressable onPress={() => setEditUseReqTotalHours(!editUseReqTotalHours)} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+                    <Feather name={editUseReqTotalHours ? "check-square" : "square"} size={20} color={theme.text} style={{ marginRight: 8 }} />
+                    <ThemedText style={{ fontWeight: '600' }}>Součet Práce+Studium</ThemedText>
+                  </Pressable>
+                  {editUseReqTotalHours && (
+                    <TextInput
+                      style={[styles.input, { borderColor: theme.border, color: theme.text, marginLeft: 28, marginBottom: 0 }]}
+                      keyboardType="numeric"
+                      value={editReqTotalHours}
+                      onChangeText={setEditReqTotalHours}
+                      placeholder="Počet"
+                      placeholderTextColor={theme.textSecondary}
+                    />
+                  )}
+                </View>
+              </View>
+            )}
             <View style={styles.modalButtons}>
               <Pressable
                 style={[styles.modalButton, styles.cancelButton]}

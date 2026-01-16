@@ -188,7 +188,9 @@ const styles = StyleSheet.create({
     fontSize: 9,
     fontWeight: "700",
     textAlign: "center",
-    lineHeight: 11,
+    textAlignVertical: "center",
+    includeFontPadding: false,
+    lineHeight: 12,
   },
   masterNameText: {
     fontSize: 11,

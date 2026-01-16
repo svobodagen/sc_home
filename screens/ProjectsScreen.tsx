@@ -17,6 +17,7 @@ import { Spacing, Typography, BorderRadius } from "@/constants/theme";
 import { useData, Project } from "@/contexts/DataContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { api } from "@/services/api";
+import { GlobalProjectGallery } from "@/components/GlobalProjectGallery";
 
 type ProjectsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, "Main">;
 import { getInitials } from "@/utils/string";
@@ -63,9 +64,15 @@ export default function ProjectsScreen() {
     }, [viewMode, isHost])
   );
 
-  const projects = (isHost || viewMode === "global")
-    ? allProjects
-    : userData.projects; // Apprentice sees ALL their projects in personal view
+  // const projects = (isHost || viewMode === "global")
+  //   ? allProjects
+  //   : userData.projects; // Apprentice sees ALL their projects in personal view
+  const projects = React.useMemo(() => {
+    if (userData.selectedMasterId) {
+      return userData.projects.filter(p => p.master_id === userData.selectedMasterId);
+    }
+    return userData.projects;
+  }, [userData.projects, userData.selectedMasterId]);
 
 
 
@@ -171,7 +178,9 @@ export default function ProjectsScreen() {
           </Pressable>
         </View>
       )}
-      {projects.length === 0 ? (
+      {!isHost && viewMode === "global" ? (
+        <GlobalProjectGallery />
+      ) : projects.length === 0 ? (
         <View style={styles.emptyContainer}>
           <EmptyState
             title="Zatím žádné projekty"
@@ -190,6 +199,11 @@ export default function ProjectsScreen() {
               tintColor={theme.primary}
             />
           }
+          ListHeaderComponent={
+            <View style={{ paddingTop: Spacing.md, paddingBottom: Spacing.sm }}>
+              <ThemedText style={{ fontSize: 24, fontWeight: "800", textAlign: "center" }}>Projekty</ThemedText>
+            </View>
+          }
           renderItem={({ item }) => (
             <SwipeableProjectCard
               title={item.title}
@@ -198,17 +212,16 @@ export default function ProjectsScreen() {
               category={item.category}
               onPress={() => navigation.navigate("ProjectDetail", {
                 project: item,
-                projectIndex: (isHost || viewMode === "global") ? allProjects.indexOf(item) : userData.projects.indexOf(item),
-                isGlobal: (isHost || viewMode === "global")
+                projectIndex: projects.indexOf(item),
+                isGlobal: false
               })}
-              onEdit={() => isHost ? null : openEditModal(item)}
-              onDelete={() => isHost ? null : removeProject(item.id)}
+              onEdit={() => openEditModal(item)}
+              onDelete={() => removeProject(item.id)}
               masterComment={item.master_comment}
               isLiked={item.is_liked}
-              authorName={(isHost || viewMode === "global") ? getAuthorName(item.user_id) : undefined}
-              masterInitials={(isHost || viewMode === "global") ? undefined : (item.master_id ? getInitials(globalAllUsers.find(u => u.id === item.master_id)?.name || "") : undefined)}
-              masterName={(isHost || viewMode === "global") ? (item.master_id ? globalAllUsers.find(u => u.id === item.master_id)?.name : undefined) : undefined}
-              hideDelete={isHost || viewMode === "global"}
+              masterInitials={(item.master_id ? getInitials(globalAllUsers.find(u => u.id === item.master_id)?.name || "") : undefined)}
+              masterName={(item.master_id ? globalAllUsers.find(u => u.id === item.master_id)?.name : undefined)}
+              hideDelete={false}
             />
           )}
           contentContainerStyle={[

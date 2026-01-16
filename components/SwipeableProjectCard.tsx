@@ -84,7 +84,10 @@ export function SwipeableProjectCard({
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => false,
-      onMoveShouldSetPanResponder: () => false, // TEMPORARILY DISABLED FOR TESTING
+      onMoveShouldSetPanResponder: (_, gestureState) => {
+        const { dx, dy } = gestureState;
+        return Math.abs(dx) > DEAD_ZONE && Math.abs(dx) > Math.abs(dy);
+      },
       onPanResponderMove: (evt, gestureState) => {
         const { dx } = gestureState;
 

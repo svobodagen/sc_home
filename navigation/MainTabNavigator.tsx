@@ -1,8 +1,10 @@
 import React, { useMemo } from "react";
+import { Project } from "@/contexts/DataContext";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import { Platform, StyleSheet, Pressable, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "@/hooks/useTheme";
 import { Spacing, BorderRadius, Shadow } from "@/constants/theme";
 import { useAuth } from "@/contexts/AuthContext";
@@ -18,6 +20,7 @@ import MasterProjectsScreen from "@/screens/MasterProjectsScreen";
 import MasterHoursScreen from "@/screens/MasterHoursScreen";
 import MasterBadgesScreen from "@/screens/MasterBadgesScreen";
 import HostDashboardScreen from "@/screens/HostDashboardScreen";
+import HostProjectsScreen from "@/screens/HostProjectsScreen";
 import { HeaderTitle } from "@/components/HeaderTitle";
 import { ApprenticeHeaderTitle } from "@/components/ApprenticeHeaderTitle";
 
@@ -40,7 +43,7 @@ export type MainTabParamList = {
 // Sub-stack param lists
 export type DashboardStackParamList = {
   DashboardHome: undefined;
-  ProjectDetail: { project: any; projectIndex: number };
+  ProjectDetail: { project: Project; projectIndex: number; apprenticeId?: string; isGlobal?: boolean };
   HostApprenticeDetail: { apprenticeId: string; apprenticeName: string };
   HostMasterDetail: { masterId: string; masterName: string };
   ApprenticeDetail: { apprenticeId: string; apprenticeName: string };
@@ -48,7 +51,7 @@ export type DashboardStackParamList = {
 
 export type ProjectsStackParamList = {
   ProjectsHome: undefined;
-  ProjectDetail: { project: any; projectIndex: number };
+  ProjectDetail: { project: Project; projectIndex: number; apprenticeId?: string; isGlobal?: boolean };
   HostApprenticeDetail: { apprenticeId: string; apprenticeName: string };
 };
 
@@ -56,7 +59,7 @@ export type GuildOverviewStackParamList = {
   GuildOverviewHome: undefined;
   HostApprenticeDetail: { apprenticeId: string; apprenticeName: string };
   HostMasterDetail: { masterId: string; masterName: string };
-  ProjectDetail: { project: any; projectIndex: number };
+  ProjectDetail: { project: Project; projectIndex: number; apprenticeId?: string; isGlobal?: boolean };
 };
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -85,12 +88,13 @@ function DashboardStackNavigator() {
 function ProjectsStackNavigator() {
   const { user } = useAuth();
   const isMaster = user?.role === "Mistr";
+  const isHost = user?.role === "Host";
 
   return (
     <ProjectsStack.Navigator screenOptions={{ headerShown: false }}>
       <ProjectsStack.Screen
         name="ProjectsHome"
-        component={isMaster ? MasterProjectsScreen : ProjectsScreen}
+        component={isHost ? HostProjectsScreen : (isMaster ? MasterProjectsScreen : ProjectsScreen)}
       />
       <ProjectsStack.Screen name="ProjectDetail" component={ProjectDetailScreen} />
       <ProjectsStack.Screen name="HostApprenticeDetail" component={HostApprenticeDetailScreen} />
@@ -110,6 +114,7 @@ function GuildOverviewStackNavigator() {
 }
 
 export default function MainTabNavigator() {
+  const insets = useSafeAreaInsets();
   const { theme } = useTheme();
   const { user } = useAuth();
 
@@ -128,8 +133,9 @@ export default function MainTabNavigator() {
           position: "absolute",
           backgroundColor: "#111827",
           borderTopWidth: 0,
-          height: 80,
+          height: 80 + insets.bottom,
           paddingTop: 10,
+          paddingBottom: insets.bottom,
           paddingHorizontal: isGuest ? "20%" : 0, // Vystředění pro Host (jen 2 ikony)
         },
         tabBarBackground: () => <BlurView intensity={80} style={StyleSheet.absoluteFill} tint="dark" />,
@@ -140,6 +146,12 @@ export default function MainTabNavigator() {
           borderBottomWidth: 1,
           borderBottomColor: theme.border,
           height: 125,
+        },
+        headerTitleAlign: "center",
+        headerTitleContainerStyle: {
+          height: '100%',
+          justifyContent: 'flex-end',
+          paddingBottom: 20, // Space for the floating badge
         },
         headerTitleStyle: {
           // This ensures the content below knows where the header ends
@@ -253,6 +265,13 @@ export default function MainTabNavigator() {
           headerLeft: () => null,
           tabBarButton: () => null,
           tabBarItemStyle: { display: 'none' }, // Ensure it takes 0 space
+          headerTransparent: false,
+          headerStyle: {
+            backgroundColor: theme.backgroundDefault,
+            borderBottomWidth: 1,
+            borderBottomColor: theme.border,
+            height: 125,
+          },
         }}
       />
 

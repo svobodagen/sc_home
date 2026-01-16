@@ -10,207 +10,186 @@ import { Spacing, Typography, BorderRadius } from "@/constants/theme";
 import { useData } from "@/contexts/DataContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { api } from "@/services/api";
+import { calculateBadgeStatus, BadgeDisplayData } from "@/services/BadgeCalculator";
 
 export default function BadgesScreen() {
   const { theme } = useTheme();
   const insets = useScreenInsets();
   const { user } = useAuth();
-  const { getAllBadgesAndCertificates } = useData();
+  const { allUsers, userData } = useData(); // Context data
   const [showBadges, setShowBadges] = useState(true);
-  const [allBadges, setAllBadges] = useState<any[]>([]);
-  const [selectedBadge, setSelectedBadge] = useState<any>(null);
-  const [selectedApprenticeData, setSelectedApprenticeData] = useState<any>(null);
-  const [apprenticeCerts, setApprentiecCerts] = useState<any[]>([]);
-  const [unlockedCertsCount, setUnlockedCertsCount] = useState(0);
 
-  const calculateCertificatesForApprentice = async (userId: string) => {
+  // Data State
+  const [displayItems, setDisplayItems] = useState<BadgeDisplayData[]>([]);
+  const [selectedBadge, setSelectedBadge] = useState<BadgeDisplayData | null>(null);
+  const [unlockedCount, setUnlockedCount] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalPoints, setTotalPoints] = useState(0);
+
+  const loadAndCalculateData = async () => {
     try {
-      console.log("📊 calculateCertificatesForApprentice spuštěn pro userId:", userId);
+      console.log("🔄 Loading Badge Data via Calculator...");
+      const userId = user?.id;
+      if (!userId) return;
 
-      // Načti všechny šablony certifikátů místo jen přidělených
-      const certificateTemplates = await api.getCertificateTemplates().catch(() => []);
-      const workHours = await api.getWorkHours(userId).catch(() => []);
-      const projects = await api.getProjects(userId).catch(() => []);
+      const selectedMasterId = userData.selectedMasterId;
 
-      // Count only WORK hours (not study)
-      const totalWorkHours = workHours
-        .filter((h: any) => h.description && h.description.includes("Práce"))
-        .reduce((sum: number, h: any) => sum + (h.hours || h.duration || 0), 0);
+      // 1. Fetch Raw Data
+      const [dbCerts, hours, projs, templates, mstrConns, allRules, history] = await Promise.all([
+        api.getCertificates(user.id).catch(() => []),
+        api.getWorkHours(user.id).catch(() => []),
+        api.getProjects(user.id).catch(() => []),
+        api.getCertificateTemplates().catch(() => []),
+        api.getMastersForApprentice(user.id).catch(() => []),
+        api.getAllCertificateUnlockRules().catch(() => []),
+        api.getCertificateUnlockHistory(user.id).catch(() => [])
+      ]);
 
-      const totalStudyHours = workHours
-        .filter((h: any) => h.description && h.description.includes("Studium"))
-        .reduce((sum: number, h: any) => sum + (h.hours || h.duration || 0), 0);
+      // 2. Prepare Calculation Context
+      // Filter stats by master if a specific master is selected in UI context
+      let relevantWorkHours = hours;
+      let relevantProjects = projs;
 
-      const totalAllHours = totalWorkHours + totalStudyHours;
+      if (selectedMasterId) {
+        relevantWorkHours = hours.filter((h: any) => String(h.master_id) === String(selectedMasterId));
+        relevantProjects = projs.filter((p: any) => String(p.master_id) === String(selectedMasterId));
+      }
 
-      const totalProjects = projects?.length || 0;
+      const stats = {
+        workHours: relevantWorkHours
+          .filter((h: any) => h.description && /pr[áa]ce|work/i.test(h.description))
+          .reduce((s: number, h: any) => s + (h.hours || h.duration || 0), 0),
+        studyHours: relevantWorkHours
+          .filter((h: any) => h.description && /studium|study/i.test(h.description))
+          .reduce((s: number, h: any) => s + (h.hours || h.duration || 0), 0),
+        totalHours: 0,
+        projectCount: relevantProjects?.length || 0
+      };
+      stats.totalHours = stats.workHours + stats.studyHours;
 
-      let unlockedCount = 0;
-      // Načti SKUTEČNÉ certifikáty z DB (včetně stavu locked/unlocked)
-      const dbCertificates = await api.getCertificates(userId).catch(() => []);
-      console.log("📥 BadgesScreen - DB certifikáty:", dbCertificates.length);
+      // 3. Process All Templates
+      let uCount = 0;
+      let tPoints = 0;
 
-      const certsWithRules = await Promise.all(
-        certificateTemplates.map(async (certTemplate: any) => {
-          // 1. Zkus najít existující záznam v DB
-          const existingCert = dbCertificates.find((c: any) => c.title === certTemplate.title);
+      const processed: BadgeDisplayData[] = await Promise.all(templates.map(async (tmpl: any) => {
+        // Find DB records for this template
+        const relevantDBRecords = dbCerts.filter((c: any) => String(c.template_id) === String(tmpl.id));
+        const tmplRules = allRules.filter((r: any) => r.template_id === tmpl.id);
 
-          let shouldBeUnlocked = false;
-          let hasManualRule = false;
-          let requirementText = "Splnění kritérií";
+        const result = calculateBadgeStatus(tmpl, {
+          role: "Učedník",
+          userStats: stats,
+          dbRecords: relevantDBRecords,
+          rules: tmplRules,
+          allUsers: allUsers,
+          currentMasterId: selectedMasterId ? String(selectedMasterId) : undefined,
+          unlockHistory: history
+        });
 
-          if (existingCert && !existingCert.locked) {
-            shouldBeUnlocked = true; // Respektuj DB stav
-            console.log(`✅ Certifikát "${certTemplate.title}" odemčen dle DB.`);
-          }
-
-          const rules = await api.getCertificateUnlockRules(certTemplate.id).catch(() => []);
-
-
-          if (rules.length === 0) {
-            requirementText = "Bez kritérií (zamčeno)";
-            if (!shouldBeUnlocked) shouldBeUnlocked = false;
+        // DB Sync (Auto-Lock/Unlock handling)
+        if (result.shouldUpdateDB) {
+          console.log(`⚠️ DB Sync needed for ${tmpl.title}: ${result.newLockedStatus ? "LOCK" : "UNLOCK"}`);
+          if (result.newLockedStatus) {
+            await api.lockCertificateForUser(userId, tmpl.id).catch(e => console.error(e));
           } else {
-            const descriptions: string[] = [];
-            const automaticRules = rules.filter((r: any) => r.rule_type !== "MANUAL");
-
-            // Build description text
-            for (const rule of rules) {
-              if (rule.rule_type === "MANUAL") {
-                descriptions.push("Odemknutí mistrem");
-                hasManualRule = true;
-              } else if (rule.condition_type === "WORK_HOURS") {
-                descriptions.push(`Odpracuj ${rule.condition_value} hodin`);
-              } else if (rule.condition_type === "STUDY_HOURS") {
-                descriptions.push(`Nastuduj ${rule.condition_value} hodin`);
-              } else if (rule.condition_type === "TOTAL_HOURS") {
-                descriptions.push(`Celkem ${rule.condition_value} hodin (práce + studium)`);
-              } else if (rule.condition_type === "PROJECTS") {
-                descriptions.push(`Dokončeno ${rule.condition_value} projektů`);
-              } else if (rule.condition_type === "NONE") {
-                descriptions.push("Automaticky odemčeno");
-              }
-            }
-            requirementText = descriptions.join(" • ");
-
-            // Pokud ještě NENÍ odemčeno z DB, zkus spočítat automatická pravidla
-            if (!shouldBeUnlocked) {
-              if (automaticRules.length > 0) {
-                shouldBeUnlocked = automaticRules.every((rule: any) => {
-                  if (rule.condition_type === "NONE") return true;
-
-                  if (rule.condition_type === "WORK_HOURS") {
-                    return totalWorkHours >= rule.condition_value;
-                  } else if (rule.condition_type === "STUDY_HOURS") {
-                    return totalStudyHours >= rule.condition_value;
-                  } else if (rule.condition_type === "TOTAL_HOURS") {
-                    return totalAllHours >= rule.condition_value;
-                  } else if (rule.condition_type === "PROJECTS") {
-                    return totalProjects >= rule.condition_value;
-                  }
-                  return false;
-                });
-              }
-            }
+            await api.unlockCertificateForUser(userId, tmpl.id).catch(e => console.error(e));
           }
+        }
 
-          if (shouldBeUnlocked) unlockedCount++;
-          const result = {
-            ...certTemplate, // Template data base
-            ...existingCert, // DB data override (id, earned_at)
-            user_id: userId,
-            locked: !shouldBeUnlocked,
-            requirement: requirementText,
-            hasManualRule
-          };
-          console.log(`  ✅ ${certTemplate.title}: requirement="${requirementText}", locked=${!shouldBeUnlocked}`);
-          return result;
-        })
-      );
+        if (!result.isLocked) {
+          uCount++;
+          tPoints += result.points;
+        }
 
-      console.log("📋 certsWithRules:", certsWithRules);
-      setApprentiecCerts(certsWithRules);
-      setUnlockedCertsCount(unlockedCount);
-    } catch (error) {
-      console.error("❌ Chyba při počítání certifikátů:", error);
+        return result;
+      }));
+
+      // Sort: ID asc
+      processed.sort((a, b) => (parseInt(a.templateId) || 0) - (parseInt(b.templateId) || 0));
+
+      setDisplayItems(processed);
+      setUnlockedCount(uCount);
+      setTotalCount(processed.length);
+      setTotalPoints(tPoints);
+
+    } catch (e) {
+      console.error("❌ Failed to load badges:", e);
     }
   };
 
   useFocusEffect(
     React.useCallback(() => {
-      const loadData = async () => {
-        console.log("🔄 useFocusEffect na BadgesScreen - role:", user?.role);
-        if (user?.role === "Mistr") {
-          const data = await AsyncStorage.getItem("masterSelectedApprenticeData");
-          if (data) {
-            const parsed = JSON.parse(data);
-            setSelectedApprenticeData(parsed);
-            setAllBadges(parsed.certificates || []);
-          }
-        } else if (user?.role === "Učedník") {
-          // Reload certifikáty s pravidly
-          await calculateCertificatesForApprentice(user.id);
-        }
-      };
-      loadData();
-    }, [user?.id, user?.role])
+      loadAndCalculateData();
+    }, [user?.id, userData.selectedMasterId])
   );
 
-  // Použij apprenticeCerts pro Učedníka, allBadges pro Mistry
-  const displayCerts = user?.role === "Učedník" ? apprenticeCerts : allBadges;
-  const badges = displayCerts.filter((item) => item.category === "Badge");
-  const certificates = displayCerts.filter((item) => item.category === "Certifikát");
-  const displayItems = (showBadges ? badges : certificates)
-    .sort((a, b) => (a.id || 0) - (b.id || 0));
+  // Filter View
+  const typeFilter = showBadges ? "Odznak" : "Certifikát";
+  const filteredItems = displayItems.filter(i => i.category === typeFilter);
+  const filteredUnlocked = filteredItems.filter(i => !i.isLocked).length;
 
-  const BadgeItem = ({ cert }: any) => (
-    <Pressable
-      onPress={() => setSelectedBadge(cert)}
-      style={({ pressed }) => [
-        styles.badgeCard,
-        {
-          backgroundColor: cert.locked ? theme.backgroundDefault : theme.backgroundDefault,
-          borderColor: cert.locked ? theme.border : theme.primary,
-          opacity: pressed ? 0.7 : 1,
-        },
-      ]}
-    >
-      <View
-        style={[
-          styles.badgeIcon,
+  const BadgeItem = ({ item }: { item: BadgeDisplayData }) => {
+    const isGray = item.iconColor === "gray";
+    const primaryColor = item.category === "Odznak" ? theme.primary : theme.secondary;
+    const cardBorderColor = isGray ? theme.border : primaryColor;
+    const iconBgColor = isGray ? theme.backgroundRoot : primaryColor + "20";
+    const iconColor = isGray ? theme.textSecondary : primaryColor;
+
+    return (
+      <Pressable
+        onPress={() => setSelectedBadge(item)}
+        style={({ pressed }) => [
+          styles.badgeCard,
           {
-            backgroundColor: cert.locked ? theme.backgroundRoot : theme.primary + "20",
+            backgroundColor: theme.backgroundDefault,
+            borderColor: cardBorderColor,
+            opacity: pressed ? 0.7 : 1,
           },
         ]}
       >
-        <Feather
-          name={cert.locked ? "lock" : "award"}
-          size={32}
-          color={cert.locked ? theme.textSecondary : theme.primary}
-        />
-      </View>
-      <ThemedText style={[styles.badgeTitle, { fontWeight: "600", color: cert.locked ? theme.textSecondary : theme.text }]}>
-        {cert.title}
-      </ThemedText>
-      <ThemedText style={[styles.badgeCategory, { color: theme.textSecondary }]}>
-        {cert.category}
-      </ThemedText>
-      {cert.hasManualRule && (
-        <ThemedText style={{ fontSize: 12, color: theme.primary }}>★</ThemedText>
-      )}
-      <View style={styles.badgePoints}>
-        <Feather name="zap" size={14} color={cert.locked ? theme.border : theme.primary} />
-        <ThemedText style={[styles.pointsText, { color: cert.locked ? theme.border : theme.primary }]}>
-          {cert.points}
+        {/* Initials Row */}
+        {item.initials.length > 0 && !item.isLocked && (
+          <View style={{ width: '100%', flexDirection: 'row', flexWrap: 'wrap', gap: 4, marginBottom: Spacing.sm }}>
+            {item.initials.map((init, idx) => (
+              <View key={idx} style={[styles.miniBadge, { borderColor: primaryColor, backgroundColor: theme.backgroundDefault }]}>
+                <ThemedText style={[styles.miniBadgeText, { color: primaryColor }]}>{init}</ThemedText>
+              </View>
+            ))}
+          </View>
+        )}
+
+        <View style={[styles.badgeIcon, { backgroundColor: iconBgColor }]}>
+          <Feather
+            name={isGray ? "lock" : (item.category === "Odznak" ? "award" : "file-text")}
+            size={32}
+            color={iconColor}
+          />
+        </View>
+
+        <ThemedText style={[styles.badgeTitle, { fontWeight: "600", color: isGray ? theme.textSecondary : theme.text }]}>
+          {item.headerTitle}
         </ThemedText>
-      </View>
-    </Pressable>
-  );
+
+        <ThemedText style={[styles.badgeCategory, { color: theme.textSecondary }]}>
+          {item.category}
+        </ThemedText>
+
+        <View style={styles.badgePoints}>
+          <Feather name="zap" size={14} color={isGray ? theme.border : primaryColor} />
+          <ThemedText style={[styles.pointsText, { color: isGray ? theme.border : primaryColor }]}>
+            {item.points}
+          </ThemedText>
+        </View>
+      </Pressable>
+    );
+  };
 
   const BadgeModal = () => {
     if (!selectedBadge) return null;
-    const isWork = selectedBadge.category === "Badge";
-    const badgeColor = isWork ? theme.primary : theme.secondary;
+    const item = selectedBadge;
+    const isGray = item.iconColor === "gray";
+    const primaryColor = item.category === "Odznak" ? theme.primary : theme.secondary;
+    const displayColor = isGray ? theme.textSecondary : primaryColor;
 
     return (
       <Modal
@@ -229,59 +208,58 @@ export default function BadgesScreen() {
               styles.modalContent,
               {
                 backgroundColor: theme.backgroundDefault,
-                borderColor: badgeColor,
+                borderColor: displayColor,
               },
             ]}
           >
-            <View
-              style={[
-                styles.modalIconContainer,
-                {
-                  backgroundColor: badgeColor + "20",
-                },
-              ]}
-            >
-              <Feather
-                name={selectedBadge.locked ? "lock" : "award"}
-                size={48}
-                color={badgeColor}
-              />
+            <View style={[styles.modalIconContainer, { backgroundColor: displayColor + "20" }]}>
+              <Feather name={isGray ? "lock" : (item.category === "Odznak" ? "award" : "file-text")} size={48} color={displayColor} />
             </View>
 
-            <ThemedText style={[styles.modalTitle, { color: badgeColor, fontWeight: "700" }]}>
-              {selectedBadge.title}
+            <ThemedText style={[styles.modalTitle, { color: displayColor, fontWeight: "700" }]}>
+              {item.headerTitle}
             </ThemedText>
 
             <ThemedText style={[styles.modalCategory, { color: theme.textSecondary }]}>
-              {selectedBadge.category}
+              {item.category}
             </ThemedText>
 
-            <View
-              style={[
-                styles.requirementBox,
-                {
-                  backgroundColor: theme.backgroundRoot,
-                  borderColor: badgeColor,
-                },
-              ]}
-            >
-              <ThemedText style={[styles.requirementLabel, { color: theme.textSecondary }]}>
-                Jak získat:
-              </ThemedText>
-              <ThemedText style={[styles.requirementText, { color: theme.text }]}>
-                {selectedBadge.requirement || "Splnění kritérií"}
+            <View style={[styles.masterNameBox, { width: "100%", alignItems: 'center' }]}>
+              <ThemedText style={[styles.masterNameLabel, { color: theme.textSecondary }]}>
+                Učedník: <ThemedText style={{ color: theme.text, fontWeight: '700' }}>Já</ThemedText>
               </ThemedText>
             </View>
 
+            {/* Info / Context Text */}
+            <View style={[styles.masterNameBox, { marginTop: Spacing.sm }]}>
+              <ThemedText style={[styles.masterNameLabel, { color: theme.textSecondary, textAlign: 'center' }]}>
+                {item.infoText.split(": ")[0]}:{"\n"}
+                <ThemedText style={{ color: displayColor, fontWeight: '600' }}>
+                  {item.infoText.split(": ")[1] || ""}
+                </ThemedText>
+              </ThemedText>
+            </View>
+
+            {/* Rule Box - ALWAYS SHOWN */}
+            <View style={[styles.requirementBox, { backgroundColor: theme.backgroundRoot, borderColor: displayColor }]}>
+              <ThemedText style={[styles.requirementLabel, { color: theme.textSecondary }]}>
+                Podmínky pro získání:
+              </ThemedText>
+              <ThemedText style={[styles.requirementText, { color: theme.text }]}>
+                {item.ruleText}
+              </ThemedText>
+            </View>
+
+            {/* Footer */}
             <View style={styles.modalFooter}>
               <View style={styles.pointsRow}>
-                <Feather name="zap" size={16} color={badgeColor} />
-                <ThemedText style={[styles.pointsValue, { color: badgeColor, fontWeight: "700" }]}>
-                  {selectedBadge.points} bodů
+                <Feather name="zap" size={16} color={displayColor} />
+                <ThemedText style={[styles.pointsValue, { color: displayColor, fontWeight: "700" }]}>
+                  {item.points} bodů
                 </ThemedText>
               </View>
-              {!selectedBadge.locked && (
-                <ThemedText style={[styles.unlockedLabel, { color: badgeColor }]}>
+              {!item.isLocked && (
+                <ThemedText style={[styles.unlockedLabel, { color: theme.success }]}>
                   ✓ Odemčeno
                 </ThemedText>
               )}
@@ -289,9 +267,9 @@ export default function BadgesScreen() {
 
             <Pressable
               onPress={() => setSelectedBadge(null)}
-              style={[styles.closeButton, { backgroundColor: badgeColor }]}
+              style={[styles.closeButton, { backgroundColor: displayColor }]}
             >
-              <ThemedText style={[styles.closeButtonText]}>Zavřít</ThemedText>
+              <ThemedText style={styles.closeButtonText}>Zavřít</ThemedText>
             </Pressable>
           </Pressable>
         </Pressable>
@@ -299,93 +277,101 @@ export default function BadgesScreen() {
     );
   };
 
-  const unlockedItems = displayItems.filter((cert) => !cert.locked);
-  const totalPoints = displayCerts.filter((cert) => !cert.locked).reduce((sum, cert) => sum + cert.points, 0);
-
   return (
-    <ScrollView
-      style={[styles.container, { backgroundColor: theme.backgroundRoot }]}
-      contentContainerStyle={[
-        styles.contentContainer,
-        {
-          paddingTop: Spacing.xl + 8,
-          paddingBottom: insets.bottom + Spacing.xl,
-        },
-      ]}
-      showsVerticalScrollIndicator={false}
-    >
-      <View style={[styles.header, { backgroundColor: theme.backgroundDefault, borderColor: theme.border }]}>
-        <View style={styles.headerContent}>
-          <View style={[styles.pointsIcon, { backgroundColor: theme.primary }]}>
-            <Feather name="zap" size={28} color="#FFFFFF" />
+    <View style={{ flex: 1 }}>
+      <ScrollView
+        style={[styles.container, { backgroundColor: theme.backgroundRoot }]}
+        contentContainerStyle={[
+          styles.contentContainer,
+          {
+            paddingTop: Spacing.xl + 8,
+            paddingBottom: insets.bottom + Spacing.xl + 20,
+          },
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={[styles.header, { backgroundColor: theme.backgroundDefault, borderColor: theme.border }]}>
+          <View style={styles.headerContent}>
+            <View style={[styles.pointsIcon, { backgroundColor: theme.primary }]}>
+              <Feather name="zap" size={28} color="#FFFFFF" />
+            </View>
+            <View>
+              <ThemedText style={styles.pointsLabel}>Celkem bodů</ThemedText>
+              <ThemedText style={[styles.pointsValue, { color: theme.primary }]}>
+                {totalPoints}
+              </ThemedText>
+            </View>
           </View>
-          <View>
-            <ThemedText style={styles.pointsLabel}>Celkem bodů</ThemedText>
-            <ThemedText style={[styles.pointsValue, { color: theme.primary }]}>
-              {totalPoints}
+          <View style={styles.badgeCount}>
+            <ThemedText style={[styles.badgeCountText, { color: theme.textSecondary }]}>
+              {unlockedCount} / {displayItems.length}
             </ThemedText>
           </View>
         </View>
-        <View style={styles.badgeCount}>
-          <ThemedText style={[styles.badgeCountText, { color: theme.textSecondary }]}>
-            {displayCerts.filter((c) => !c.locked).length} / {displayCerts.length}
-          </ThemedText>
+
+        <View style={[styles.toggleContainer, { paddingHorizontal: Spacing.lg }]}>
+          <Pressable
+            onPress={() => setShowBadges(true)}
+            style={[
+              styles.toggleButton,
+              {
+                backgroundColor: showBadges ? theme.primary : theme.backgroundDefault,
+                borderColor: theme.border,
+              },
+            ]}
+          >
+            <ThemedText style={[styles.toggleText, { color: showBadges ? "#FFFFFF" : theme.text, fontWeight: "600" }]}>
+              Odznaky
+            </ThemedText>
+          </Pressable>
+          <Pressable
+            onPress={() => setShowBadges(false)}
+            style={[
+              styles.toggleButton,
+              {
+                backgroundColor: !showBadges ? theme.primary : theme.backgroundDefault,
+                borderColor: theme.border,
+              },
+            ]}
+          >
+            <ThemedText style={[styles.toggleText, { color: !showBadges ? "#FFFFFF" : theme.text, fontWeight: "600" }]}>
+              Certifikáty
+            </ThemedText>
+          </Pressable>
         </View>
-      </View>
 
-      <View style={[styles.toggleContainer, { paddingHorizontal: Spacing.lg }]}>
+        <ThemedText style={[styles.sectionTitle, { color: theme.text, marginHorizontal: Spacing.lg }]}>
+          {typeFilter} ({filteredUnlocked} / {filteredItems.length})
+        </ThemedText>
+
+        <View style={[styles.badgesGrid, { paddingHorizontal: Spacing.lg }]}>
+          {filteredItems.map((item) => (
+            <BadgeItem key={item.templateId} item={item} />
+          ))}
+        </View>
+
+        <BadgeModal />
+      </ScrollView>
+
+      {user?.role === "Učedník" && (
         <Pressable
-          onPress={() => setShowBadges(true)}
-          style={[
-            styles.toggleButton,
+          onPress={() => {
+            console.log("🔄 Manual reload triggered");
+            loadAndCalculateData();
+          }}
+          style={({ pressed }) => [
+            styles.floatingReloadButton,
             {
-              backgroundColor: showBadges ? theme.primary : theme.backgroundDefault,
-              borderColor: theme.border,
-            },
+              backgroundColor: theme.primary,
+              opacity: pressed ? 0.7 : 1,
+              bottom: insets.bottom - 10,
+            }
           ]}
         >
-          <ThemedText
-            style={[
-              styles.toggleText,
-              { color: showBadges ? "#FFFFFF" : theme.text, fontWeight: "600" },
-            ]}
-          >
-            Odznaky
-          </ThemedText>
+          <Feather name="refresh-cw" size={24} color="#FFFFFF" />
         </Pressable>
-        <Pressable
-          onPress={() => setShowBadges(false)}
-          style={[
-            styles.toggleButton,
-            {
-              backgroundColor: !showBadges ? theme.primary : theme.backgroundDefault,
-              borderColor: theme.border,
-            },
-          ]}
-        >
-          <ThemedText
-            style={[
-              styles.toggleText,
-              { color: !showBadges ? "#FFFFFF" : theme.text, fontWeight: "600" },
-            ]}
-          >
-            Certifikáty
-          </ThemedText>
-        </Pressable>
-      </View>
-
-      <ThemedText style={[styles.sectionTitle, { color: theme.text, marginHorizontal: Spacing.lg }]}>
-        {showBadges ? "Odznaky" : "Certifikáty"} ({unlockedItems.length} / {displayItems.length})
-      </ThemedText>
-
-      <View style={[styles.badgesGrid, { paddingHorizontal: Spacing.lg }]}>
-        {displayItems.map((cert, idx) => (
-          <BadgeItem key={idx} cert={cert} />
-        ))}
-      </View>
-
-      <BadgeModal />
-    </ScrollView>
+      )}
+    </View>
   );
 }
 
@@ -487,9 +473,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginBottom: Spacing.xs,
   },
-  badgeDate: {
-    marginBottom: Spacing.sm,
-  },
   badgePoints: {
     flexDirection: "row",
     alignItems: "center",
@@ -541,8 +524,31 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.sm,
   },
   requirementText: {
-    ...Typography.body,
+    fontSize: 14,
     lineHeight: 22,
+  },
+  miniBadge: {
+    minWidth: 20,
+    height: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    paddingHorizontal: 2,
+  },
+  miniBadgeText: {
+    fontSize: 10,
+    fontWeight: '800',
+    textAlign: 'center',
+    textAlignVertical: 'center',
+    includeFontPadding: false,
+    lineHeight: 12,
+  },
+  masterNameBox: {
+    marginBottom: Spacing.md,
+  },
+  masterNameLabel: {
+    ...Typography.small,
   },
   modalFooter: {
     flexDirection: "row",
@@ -571,5 +577,20 @@ const styles = StyleSheet.create({
     ...Typography.body,
     fontWeight: "700",
     color: "#FFFFFF",
+  },
+  floatingReloadButton: {
+    position: 'absolute',
+    left: '50%',
+    marginLeft: -28,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
 });

@@ -68,10 +68,12 @@ export const api = {
       // Pro každou šablonu vytvoř certificate s locked: true
       const certificatesToInsert = templates.map((t: any) => ({
         user_id: userId,
+        template_id: t.id,
         title: t.title,
-        category: t.category,
+        item_type: t.item_type || (t.category === 'Badge' ? 'BADGE' : 'CERTIFICATE'),
+        scope: t.scope || 'GLOBAL',
         points: t.points || 0,
-        requirement: t.description || "",
+        requirement: t.category === "Badge" ? "Automaticky dle pravidel" : "Aktivuje mistr",
         locked: true,
         earned_at: null
       }));
@@ -407,6 +409,86 @@ export const api = {
     }
   },
 
+  // Master - Projekty pod mistrem
+  async getProjectsForMaster(masterId: string) {
+    try {
+      const { data, error } = await supabase
+        .from("projects")
+        .select("*")
+        .eq("master_id", masterId)
+        .order("created_at", { ascending: false });
+
+      if (error) throw new Error(error.message);
+      return data || [];
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při stažení projektů pro mistra");
+    }
+  },
+
+  // Master - Hodiny pro seznam projektů
+  async getWorkHoursForProjects(projectIds: any[]) {
+    if (!projectIds || projectIds.length === 0) return [];
+    try {
+      const { data, error } = await supabase
+        .from("work_hours")
+        .select("*")
+        .in("project_id", projectIds);
+
+      if (error) throw new Error(error.message);
+      return data || [];
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při stažení hodin");
+    }
+  },
+
+  // Master - Seznam učedníků
+  async getApprenticesForMaster(masterId: string) {
+    try {
+      const { data: conns, error: connError } = await supabase
+        .from("master_apprentices")
+        .select("apprentice_id")
+        .eq("master_id", masterId);
+
+      if (connError) throw connError;
+      if (!conns || conns.length === 0) return [];
+
+      const appIds = conns.map((c: any) => c.apprentice_id);
+
+      const { data: users, error: userError } = await supabase
+        .from("users")
+        .select("id, name, email")
+        .in("id", appIds);
+
+      if (userError) throw userError;
+
+      return users.map((u: any) => ({
+        apprenticeId: u.id,
+        apprenticeName: u.name,
+        email: u.email
+      }));
+    } catch (err: any) {
+      console.error("Error fetching apprentices:", err);
+      return [];
+    }
+  },
+
+  // Master - Certifikáty pro seznam učedníků
+  async getCertificatesForApprentices(apprenticeIds: string[]) {
+    if (!apprenticeIds || apprenticeIds.length === 0) return [];
+    try {
+      const { data, error } = await supabase
+        .from("certificates")
+        .select("*")
+        .in("user_id", apprenticeIds);
+
+      if (error) throw error;
+      return data || [];
+    } catch (err: any) {
+      console.error("Error fetching certs:", err);
+      return [];
+    }
+  },
+
   // Host - Stažení všech projektů
   async getAllProjects() {
     try {
@@ -592,32 +674,84 @@ export const api = {
   // Certifikáty - Stažení (vrácení SKUTEČNÝCH certifikátů z tabulky certificates)
   async getCertificates(userId: string) {
     try {
-      // Stáhni SKUTEČNÉ certifikáty pro daného uživatele z tabulky certificates
-      const { data: certificates, error: certErr } = await supabase
+      // 1. Načti šablony
+      const { data: templates } = await supabase.from("certificate_templates").select("*");
+      if (!templates) return [];
+
+      // 2. Načti stávající certifikáty uživatele
+      const { data: certificates } = await supabase
         .from("certificates")
         .select("*")
-        .eq("user_id", userId)
-        .order("created_at", { ascending: false });
+        .eq("user_id", userId);
 
-      if (certErr) {
-        console.error("❌ Chyba při stažení certifikátů:", certErr?.message);
-        return [];
+      // 3. Načti mistry uživatele (pro PER_MASTER scope)
+      const { data: masters } = await supabase
+        .from("master_apprentices")
+        .select("master_id")
+        .eq("apprentice_id", userId);
+
+      const masterIds = (masters || []).map(m => m.master_id);
+      const toInsert: any[] = [];
+
+      for (const t of templates) {
+        const itemType = t.item_type || (t.category === 'Badge' ? 'BADGE' : 'CERTIFICATE');
+        const scope = t.scope || 'GLOBAL';
+
+        if (scope === 'GLOBAL') {
+          // Zkontroluj, zda existuje jakýkoliv záznam pro tuto šablonu
+          const exists = certificates?.some(c => c.template_id === t.id);
+          if (!exists) {
+            toInsert.push({
+              user_id: userId,
+              template_id: t.id,
+              master_id: null,
+              title: t.title,
+              item_type: itemType,
+              scope: scope,
+              points: t.points || 0,
+              requirement: t.description || "Automaticky",
+              locked: true,
+              earned_at: null
+            });
+          }
+        } else if (scope === 'PER_MASTER') {
+          for (const masterId of masterIds) {
+            // Check logic: must match template_id AND master_id
+            const exists = certificates?.some(c => c.template_id === t.id && c.master_id === masterId);
+            if (!exists) {
+              toInsert.push({
+                user_id: userId,
+                template_id: t.id,
+                master_id: masterId,
+                title: t.title,
+                item_type: itemType,
+                scope: scope,
+                points: t.points || 0,
+                requirement: t.description || "Aktivuje mistr",
+                locked: true,
+                earned_at: null
+              });
+            }
+          }
+        }
       }
 
-      // Pokud uživatel nemá certifikáty, inicializuj je
-      if (!certificates || certificates.length === 0) {
-        console.log("📋 Žádné certifikáty pro", userId, "inicializuji je...");
-        await this.initializeCertificatesForUser(userId);
+      if (toInsert.length > 0) {
+        console.log(`📋 Přidávám ${toInsert.length} chybějících certifikátů...`);
+        const { error: insertErr } = await supabase.from("certificates").insert(toInsert);
+        if (insertErr) console.error("Insert error:", insertErr);
 
-        // Stáhni znovu po inicializaci
-        const { data: newCerts } = await supabase
+        // Refetch
+        const { data: finalCerts } = await supabase
           .from("certificates")
           .select("*")
-          .eq("user_id", userId);
-        return newCerts || [];
+          .eq("user_id", userId)
+          .order("created_at", { ascending: false });
+        // Return refetched
+        return finalCerts || [];
       }
 
-      return certificates || [];
+      return (certificates || []).sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
     } catch (err: any) {
       console.error("❌ Chyba v getCertificates:", err?.message || err);
       return [];
@@ -641,7 +775,7 @@ export const api = {
   },
 
   // Certifikáty - Odemčení
-  async unlockCertificate(certificateId: number) {
+  async unlockCertificate(certificateId: number, masterUserId?: string, templateId?: number) {
     try {
       const { data, error } = await supabase
         .from("certificates")
@@ -651,6 +785,22 @@ export const api = {
         .single();
 
       if (error) throw new Error(error.message);
+
+      console.log(`🔓 Certifikát odemčen! Master: ${masterUserId}, TemplateID: ${templateId}, CertID: ${certificateId}`);
+
+      if (masterUserId && templateId) {
+        // Zkus nejprve smazat starý záznam pokud existuje (aby nebyla duplicita)
+        await supabase.from("certificate_unlock_history").delete().eq("user_id", data.user_id).eq("template_id", templateId);
+
+        await supabase
+          .from("certificate_unlock_history")
+          .insert([{
+            user_id: data.user_id,
+            template_id: templateId,
+            unlocked_by: masterUserId
+          }]);
+      }
+
       return data;
     } catch (err: any) {
       throw new Error(err.message || "Chyba při odemčení certifikátu");
@@ -658,7 +808,7 @@ export const api = {
   },
 
   // Certifikáty - Zamčení (zrušení aktivace)
-  async lockCertificate(certificateId: number) {
+  async lockCertificate(certificateId: number, templateId?: number) {
     try {
       const { data, error } = await supabase
         .from("certificates")
@@ -668,6 +818,15 @@ export const api = {
         .single();
 
       if (error) throw new Error(error.message);
+
+      if (templateId && data?.user_id) {
+        await supabase
+          .from("certificate_unlock_history")
+          .delete()
+          .eq("user_id", data.user_id)
+          .eq("template_id", templateId);
+      }
+
       return data;
     } catch (err: any) {
       throw new Error(err.message || "Chyba při zamčení certifikátu");
@@ -683,7 +842,7 @@ export const api = {
         .from("certificates")
         .select("*")
         .eq("user_id", userId)
-        .eq("title", title)
+        .ilike("title", title.trim())
         .maybeSingle();  // Vrátí null pokud nic nenajde, chyba jen pokud 2+ řádky
 
       if (error) {
@@ -873,7 +1032,7 @@ export const api = {
     try {
       const { data, error } = await supabase
         .from("certificate_templates")
-        .select("*")
+        .select("*, certificate_rules:certificate_unlock_rules(*)")
         .eq("visible_to_all", true);
 
       if (error) throw new Error(error.message);
@@ -883,12 +1042,34 @@ export const api = {
     }
   },
 
-  // Certifikáty - Přidání šablony
-  async addCertificateTemplate(title: string, category: string, points: number, description: string) {
+  async getAllCertificateTemplates() {
     try {
       const { data, error } = await supabase
         .from("certificate_templates")
-        .insert([{ title, category, points, description, visible_to_all: true }])
+        .select("*, certificate_rules:certificate_unlock_rules(*)");
+
+      if (error) throw new Error(error.message);
+      return data || [];
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při stažení všech šablon");
+    }
+  },
+
+  // Certifikáty - Přidání šablony
+  async addCertificateTemplate(title: string, itemType: string, scope: string, points: number, description: string, ruleLogic: "AND" | "OR" = "AND") {
+    try {
+      const { data, error } = await supabase
+        .from("certificate_templates")
+        .insert([{
+          title,
+          item_type: itemType,
+          scope: scope,
+          points,
+          description,
+          visible_to_all: true,
+          category: itemType === 'BADGE' ? 'Badge' : 'Certifikát', // Backwards compat/UI grouping
+          rule_logic: ruleLogic
+        }])
         .select()
         .single();
 
@@ -900,11 +1081,18 @@ export const api = {
   },
 
   // Certifikáty - Aktualizace šablony
-  async updateCertificateTemplate(templateId: number, title: string, points: number) {
+  async updateCertificateTemplate(templateId: number, title: string, points: number, itemType?: string, scope?: string, ruleLogic?: "AND" | "OR") {
     try {
+      const updates: any = { title, points };
+      if (itemType) updates.item_type = itemType;
+      // Pro jistotu update category
+      if (itemType) updates.category = itemType === 'BADGE' ? 'Badge' : 'Certifikát';
+      if (scope) updates.scope = scope;
+      if (ruleLogic) updates.rule_logic = ruleLogic;
+
       const { data, error } = await supabase
         .from("certificate_templates")
-        .update({ title, points })
+        .update(updates)
         .eq("id", templateId)
         .select()
         .single();
@@ -943,6 +1131,21 @@ export const api = {
       return data || [];
     } catch (err: any) {
       throw new Error(err.message || "Chyba při stažení pravidel");
+    }
+  },
+
+  // Získat VŠECHNA pravidla najednou (optimalizace)
+  async getAllCertificateUnlockRules() {
+    try {
+      const { data, error } = await supabase
+        .from("certificate_unlock_rules")
+        .select("*");
+
+      if (error) throw new Error(error.message);
+      return data || [];
+    } catch (err: any) {
+      console.error("❌ Chyba při stahování všech pravidel:", err);
+      return [];
     }
   },
 
@@ -995,7 +1198,7 @@ export const api = {
   },
 
   // Kontrola odemknutí certifikátu
-  async checkCertificateUnlock(userId: string, templateId: number, workHours: number, studyHours: number, projectCount: number, points: number) {
+  async checkCertificateUnlock(userId: string, templateId: number, workHours: number, studyHours: number, projectCount: number, points: number, certificateId?: number) {
     try {
       const rules = await this.getCertificateUnlockRules(templateId);
       console.log(`🔍 Checking cert ${templateId} - rules:`, rules);
@@ -1006,37 +1209,70 @@ export const api = {
         return false;
       }
 
-      // Pro MANUAL pravidla - zkontroluj jestli je v user_certificates s earned_at
-      const unlockedCount = await supabase
-        .from("user_certificates")
+      // Pro MANUAL pravidla - zkontroluj jestli je v certificates s earned_at
+      let query = supabase
+        .from("certificates")
         .select("*", { count: "exact" })
         .eq("user_id", userId)
         .eq("template_id", templateId)
         .not("earned_at", "is", null);
+
+      if (certificateId) {
+        query = query.eq("id", certificateId);
+      }
+
+      const unlockedCount = await query;
 
       if ((unlockedCount.count || 0) > 0) {
         console.log(`✅ Cert ${templateId}: MANUAL mistr odemknul`);
         return true;
       }
 
+      const { data: tmpl } = await supabase.from("certificate_templates").select("rule_logic").eq("id", templateId).single();
+      const logic = tmpl?.rule_logic || "AND";
+
       // Zkontroluj AUTO pravidla
-      for (const rule of rules) {
-        if (rule.rule_type === "MANUAL") continue;
+      const autoRules = rules.filter((r: any) => r.rule_type !== "MANUAL");
 
-        let conditionMet = false;
-        if (rule.condition_type === "WORK_HOURS" && workHours >= (rule.condition_value || 0)) conditionMet = true;
-        if (rule.condition_type === "STUDY_HOURS" && studyHours >= (rule.condition_value || 0)) conditionMet = true;
-        if (rule.condition_type === "PROJECTS" && projectCount >= (rule.condition_value || 0)) conditionMet = true;
-        if (rule.condition_type === "POINTS" && points >= (rule.condition_value || 0)) conditionMet = true;
+      if (autoRules.length === 0) return false;
 
-        if (conditionMet) {
-          console.log(`✅ Cert ${templateId}: AUTO pravidlo ${rule.condition_type}=${rule.condition_value} splněno!`);
-          return true;
+      const totalHours = workHours + studyHours;
+
+      if (logic === "OR") {
+        for (const rule of autoRules) {
+          let conditionMet = false;
+          if (rule.condition_type === "WORK_HOURS" && workHours >= (rule.condition_value || 0)) conditionMet = true;
+          if (rule.condition_type === "STUDY_HOURS" && studyHours >= (rule.condition_value || 0)) conditionMet = true;
+          if (rule.condition_type === "TOTAL_HOURS" && totalHours >= (rule.condition_value || 0)) conditionMet = true;
+          if (rule.condition_type === "PROJECTS" && projectCount >= (rule.condition_value || 0)) conditionMet = true;
+          if (rule.condition_type === "POINTS" && points >= (rule.condition_value || 0)) conditionMet = true;
+
+          if (conditionMet) {
+            console.log(`✅ Cert ${templateId}: OR logika - splněno pravidlo ${rule.condition_type}`);
+            return true;
+          }
         }
-      }
+        console.log(`🔒 Cert ${templateId}: OR logika - nic nesplněno`);
+        return false;
+      } else {
+        // AND - všechna musí platit
+        for (const rule of autoRules) {
+          let conditionMet = false;
+          if (rule.condition_type === "WORK_HOURS" && workHours >= (rule.condition_value || 0)) conditionMet = true;
+          if (rule.condition_type === "STUDY_HOURS" && studyHours >= (rule.condition_value || 0)) conditionMet = true;
+          if (rule.condition_type === "TOTAL_HOURS" && totalHours >= (rule.condition_value || 0)) conditionMet = true;
+          if (rule.condition_type === "PROJECTS" && projectCount >= (rule.condition_value || 0)) conditionMet = true;
+          if (rule.condition_type === "POINTS" && points >= (rule.condition_value || 0)) conditionMet = true;
 
-      console.log(`🔒 Cert ${templateId}: Pravidla nesplněna`);
-      return false;
+          if (!conditionMet) {
+            console.log(`🔒 Cert ${templateId}: AND logika - pravidlo ${rule.condition_type} nesplněno`);
+            return false;
+          }
+        }
+
+        console.log(`✅ Cert ${templateId}: Všechna pravidla splněna`);
+        return true;
+      }
     } catch (err: any) {
       console.error(`❌ Chyba v checkCertificateUnlock pro ${templateId}:`, err);
       return false;
@@ -1044,28 +1280,65 @@ export const api = {
   },
 
   // Certifikáty - Odemknutí mistrem (MANUAL)
-  async unlockCertificateForUser(userId: string, templateId: number, masterUserId: string) {
+  async unlockCertificateForUser(userId: string, templateId: number, masterUserId?: string) {
     try {
-      // Najdi pravidlo MANUAL pro tento certifikát
-      const { data: rules, error: rulesError } = await supabase
+      // 1. Fetch Template Details
+      const { data: tmpl, error: tmplError } = await supabase
+        .from("certificate_templates")
+        .select("*")
+        .eq("id", templateId)
+        .single();
+
+      if (tmplError) throw new Error("Template not found");
+
+      // 2. Check if certificate record exists (handle potential duplicates)
+      const { data: existingCerts } = await supabase
+        .from("certificates")
+        .select("id")
+        .eq("user_id", userId)
+        .eq("template_id", templateId);
+
+      if (existingCerts && existingCerts.length > 0) {
+        // Update ALL existing records
+        const ids = existingCerts.map(c => c.id);
+        const { error: updateError } = await supabase
+          .from("certificates")
+          .update({
+            locked: false,
+            earned_at: new Date().toISOString(),
+            master_id: masterUserId || null
+          })
+          .in("id", ids);
+
+        if (updateError) throw new Error(updateError.message);
+      } else {
+        // Create new
+        const { error: insertError } = await supabase
+          .from("certificates")
+          .insert([{
+            user_id: userId,
+            template_id: templateId,
+            master_id: masterUserId || null,
+            title: tmpl.title,
+            item_type: (tmpl.category?.toLowerCase().includes("cert") || tmpl.category?.toLowerCase().includes("list")) ? "CERTIFICATE" : "BADGE",
+            scope: tmpl.scope,
+            points: tmpl.points,
+            requirement: "Manuálně uděleno",
+            locked: false,
+            earned_at: new Date().toISOString()
+          }]);
+
+        if (insertError) throw new Error(insertError.message);
+      }
+
+      // 3. Record History
+      const { data: rules } = await supabase
         .from("certificate_unlock_rules")
         .select("id")
         .eq("template_id", templateId)
         .eq("rule_type", "MANUAL")
-        .single();
+        .maybeSingle();
 
-      if (rulesError && rulesError.code !== "PGRST116") throw rulesError;
-
-      // Aktualizuj user_certificates na locked = false
-      const { error: updateError } = await supabase
-        .from("user_certificates")
-        .update({ locked: false, earned_at: new Date().toISOString() })
-        .eq("user_id", userId)
-        .eq("template_id", templateId);
-
-      if (updateError) throw new Error(updateError.message);
-
-      // Zaznamenej do historie
       await supabase
         .from("certificate_unlock_history")
         .insert([{
@@ -1078,6 +1351,42 @@ export const api = {
       return { success: true };
     } catch (err: any) {
       throw new Error(err.message || "Chyba při odemykání certifikátu");
+    }
+  },
+
+  // Certifikáty - Zamčení mistrem (MANUAL)
+  // Certifikáty - Deaktivace mistrem (MANUAL) - Nyní maže záznam
+  async lockCertificateForUser(userId: string, templateId: number) {
+    try {
+      // 1. Smazat záznam z certificates
+      const { error: deleteCertError } = await supabase
+        .from("certificates")
+        .delete()
+        .eq("user_id", userId)
+        .eq("template_id", templateId);
+
+      if (deleteCertError) throw deleteCertError;
+
+      // History unlock records are preserved for audit trail (showing all masters who granted it)
+
+      return { success: true };
+    } catch (err: any) {
+      throw new Error(err.message || "Chyba při zamykání certifikátu");
+    }
+  },
+
+  async getCertificateUnlockHistory(userId: string) {
+    try {
+      const { data, error } = await supabase
+        .from("certificate_unlock_history")
+        .select("*")
+        .eq("user_id", userId);
+
+      if (error) throw error;
+      return data || [];
+    } catch (err) {
+      console.error("❌ Chyba při načítání historie certifikátů:", err);
+      return [];
     }
   },
 

@@ -47,14 +47,13 @@ export default function RegisterScreen({ onSwitchToLogin }: { onSwitchToLogin: (
     <ScrollView
       style={[styles.container, { backgroundColor: theme.backgroundRoot }]}
       contentContainerStyle={{
-        paddingTop: insets.top,
+        paddingTop: Spacing.xl,
         paddingBottom: insets.bottom + Spacing.xl,
         flexGrow: 1,
       }}
       showsVerticalScrollIndicator={false}
     >
       <View style={styles.header}>
-        <ApprenticeHeaderTitle />
         <ThemedText style={[styles.subtitle, { color: theme.textSecondary }]}>Nový účet</ThemedText>
       </View>
 
