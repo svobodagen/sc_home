@@ -4,7 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL || "https://imivlsfkgmqkhqhhiilf.supabase.co";
 const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImltaXZsc2ZrZ21xa2hxaGhpaWxmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQzNDY3MzEsImV4cCI6MjA3OTkyMjczMX0.KR4RHoQ4UlK2Sg7GB9LxdkaewPbDC86S7gIj8Inf0MA";
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 export const api = {
   // Auth - Přihlášení
@@ -1544,6 +1544,64 @@ export const api = {
       return { success: true };
     } catch (err: any) {
       throw new Error(err.message || "Chyba při ukládání limitů učedníka");
+    }
+  },
+
+  // Notifications
+  async getNotifications(userId: string) {
+    try {
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data || [];
+    } catch (err) {
+      console.error("Error fetching notifications:", err);
+      return [];
+    }
+  },
+
+  async markNotificationRead(id: number) {
+    try {
+      const { error } = await supabase
+        .from('notifications')
+        .update({ is_read: true })
+        .eq('id', id);
+      if (error) throw error;
+    } catch (err) {
+      console.error("Error marking notification read:", err);
+    }
+  },
+
+  async markAllNotificationsRead(userId: string) {
+    try {
+      const { error } = await supabase
+        .from('notifications')
+        .update({ is_read: true })
+        .eq('user_id', userId)
+        .eq('is_read', false);
+      if (error) throw error;
+    } catch (err) {
+      console.error("Error marking all notifications read:", err);
+    }
+  },
+
+  async createNotification(userId: string, title: string, message: string, type: 'info' | 'success' | 'warning' | 'error' | 'admin' = 'info') {
+    try {
+      const { error } = await supabase
+        .from('notifications')
+        .insert({
+          user_id: userId,
+          title,
+          message,
+          type
+        });
+      if (error) throw error;
+    } catch (err) {
+      console.error("Error creating notification:", err);
     }
   }
 };

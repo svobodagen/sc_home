@@ -1,11 +1,12 @@
-import React, { useRef, useState, useEffect } from "react";
-import { View, StyleSheet, Animated, PanResponder, Pressable, Modal } from "react-native";
+import React, { useRef, useState } from "react";
+import { View, StyleSheet, Pressable, Animated, Modal } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { ThemedText } from "@/components/ThemedText";
 import { ProjectCard } from "@/components/ProjectCard";
 import { useTheme } from "@/hooks/useTheme";
 import { Spacing, BorderRadius, Typography } from "@/constants/theme";
-
+import Swipeable from "react-native-gesture-handler/Swipeable";
+import { RectButton } from "react-native-gesture-handler";
 
 interface SwipeableProjectCardProps {
   title: string;
@@ -25,11 +26,8 @@ interface SwipeableProjectCardProps {
   authorName?: string;
   masterInitials?: string;
   masterName?: string;
+  description?: string;
 }
-
-const DEAD_ZONE = 6; // Dead zone before box moves
-const ELASTIC_THRESHOLD = 60;
-const SWIPE_THRESHOLD = 120;
 
 export function SwipeableProjectCard({
   title,
@@ -49,180 +47,117 @@ export function SwipeableProjectCard({
   authorName,
   masterInitials,
   masterName,
+  description,
 }: SwipeableProjectCardProps) {
   const { theme } = useTheme();
-  const pan = useRef(new Animated.ValueXY()).current;
-  const [cardHeight, setCardHeight] = useState(0);
+  const swipeableRef = useRef<Swipeable>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const isSwippingRef = useRef(false);
-  const hasStartedMovingRef = useRef(false);
-  const hideDeleteRef = useRef(hideDelete);
-
-  useEffect(() => {
-    hideDeleteRef.current = hideDelete;
-  }, [hideDelete]);
-
-  const resetPosition = (triggerEnd = true) => {
-    Animated.spring(pan, {
-      toValue: { x: 0, y: 0 },
-      useNativeDriver: false,
-      tension: 40,
-      friction: 7,
-    }).start(() => {
-      if (triggerEnd && isSwippingRef.current) {
-        isSwippingRef.current = false;
-        onSwipeEnd?.();
-      }
-    });
-  };
 
   const handleDeleteConfirm = () => {
     setShowDeleteConfirm(false);
     onDelete();
   };
 
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => false,
-      onMoveShouldSetPanResponder: (_, gestureState) => {
-        const { dx, dy } = gestureState;
-        return Math.abs(dx) > DEAD_ZONE && Math.abs(dx) > Math.abs(dy);
-      },
-      onPanResponderMove: (evt, gestureState) => {
-        const { dx } = gestureState;
+  const renderLeftActions = (progress: Animated.AnimatedInterpolation<number>, dragX: Animated.AnimatedInterpolation<number>) => {
+    const scale = dragX.interpolate({
+      inputRange: [0, 80],
+      outputRange: [0.8, 1],
+      extrapolate: "clamp",
+    });
 
-        // Check if we've passed the dead zone and started actual movement
-        if (!hasStartedMovingRef.current && Math.abs(dx) > DEAD_ZONE) {
-          hasStartedMovingRef.current = true;
-          if (!isSwippingRef.current) {
-            isSwippingRef.current = true;
-            onSwipeStart?.();
-          }
-        }
+    return (
+      <View style={styles.actionsWrapperLeft}>
+        <RectButton
+          style={[styles.actionButton, styles.leftAction]}
+          onPress={() => {
+            swipeableRef.current?.close();
+            onEdit();
+          }}
+        >
+          <Animated.View style={{ transform: [{ scale }] }}>
+            <Feather
+              name={isMaster ? "message-circle" : "edit-2"}
+              size={24}
+              color="#8b5cf6"
+            />
+          </Animated.View>
+        </RectButton>
+      </View>
+    );
+  };
 
-        // Only move the box if we're past the dead zone
-        if (Math.abs(dx) > DEAD_ZONE) {
-          const adjustedDx = dx > 0 ? dx - DEAD_ZONE : dx + DEAD_ZONE;
+  const renderRightActions = (progress: Animated.AnimatedInterpolation<number>, dragX: Animated.AnimatedInterpolation<number>) => {
+    if (!isMaster && hideDelete) return null;
 
-          if (adjustedDx > 0) {
-            if (adjustedDx <= ELASTIC_THRESHOLD) {
-              pan.x.setValue(adjustedDx);
+    const scale = dragX.interpolate({
+      inputRange: [-80, 0],
+      outputRange: [1, 0.8],
+      extrapolate: "clamp",
+    });
+
+    return (
+      <View style={styles.actionsWrapperRight}>
+        <RectButton
+          style={[styles.actionButton, styles.rightAction]}
+          onPress={() => {
+            swipeableRef.current?.close();
+            if (isMaster) {
+              onLike?.();
             } else {
-              const elasticDx = ELASTIC_THRESHOLD + (adjustedDx - ELASTIC_THRESHOLD) * 0.3;
-              pan.x.setValue(Math.min(elasticDx, SWIPE_THRESHOLD));
+              if (hideDelete) {
+                onDelete();
+              } else {
+                setShowDeleteConfirm(true);
+              }
             }
-          }
-          else if (adjustedDx < 0) {
-            if (adjustedDx >= -ELASTIC_THRESHOLD) {
-              pan.x.setValue(adjustedDx);
-            } else {
-              const elasticDx = -ELASTIC_THRESHOLD + (adjustedDx + ELASTIC_THRESHOLD) * 0.3;
-              pan.x.setValue(Math.max(elasticDx, -SWIPE_THRESHOLD));
-            }
-          }
-        }
-      },
-      onPanResponderRelease: (evt, gestureState) => {
-        const { dx } = gestureState;
-        const adjustedDx = Math.abs(dx) > DEAD_ZONE ? (dx > 0 ? dx - DEAD_ZONE : dx + DEAD_ZONE) : 0;
-
-        if (adjustedDx >= SWIPE_THRESHOLD) {
-          onEdit();
-          resetPosition(false);
-          isSwippingRef.current = false;
-          hasStartedMovingRef.current = false;
-          onSwipeEnd?.();
-        }
-        else if (adjustedDx <= -SWIPE_THRESHOLD) {
-          if (isMaster) {
-            onLike?.();
-          } else {
-            if (hideDeleteRef.current) {
-              onDelete();
-            } else {
-              setShowDeleteConfirm(true);
-            }
-          }
-          resetPosition(false);
-          isSwippingRef.current = false;
-          hasStartedMovingRef.current = false;
-          onSwipeEnd?.();
-        }
-        else {
-          resetPosition(true);
-          isSwippingRef.current = false;
-          hasStartedMovingRef.current = false;
-        }
-      },
-      onPanResponderTerminate: () => {
-        hasStartedMovingRef.current = false;
-        isSwippingRef.current = false;
-        onSwipeEnd?.();
-      },
-    })
-  ).current;
+          }}
+        >
+          <Animated.View style={{ transform: [{ scale }] }}>
+            <Feather
+              name={isMaster ? "heart" : "trash-2"}
+              size={24}
+              color="#8b5cf6"
+            />
+          </Animated.View>
+        </RectButton>
+      </View>
+    );
+  };
 
   return (
     <>
       <View style={styles.container}>
-        {/* LEFT SIDE - Edit for non-master (swipe right), Comment for master (swipe left) */}
-        <View style={[styles.actionsWrapperLeft, { height: cardHeight }]}>
-          {isMaster ? (
-            <Pressable
-              style={styles.commentContainer}
-              onPress={() => {
-                resetPosition();
-                onEdit();
-              }}
-            >
-              <Feather name="message-circle" size={20} color="#8b5cf6" />
-            </Pressable>
-          ) : (
-            <Pressable
-              style={styles.editContainer}
-              onPress={() => {
-                resetPosition();
-                onEdit();
-              }}
-            >
-              <Feather name="edit-2" size={20} color="#8b5cf6" />
-            </Pressable>
-          )}
-        </View>
-
-        {/* RIGHT SIDE - Trash for non-master (swipe left), Heart for master (swipe right) */}
-        <View style={[styles.actionsWrapperRight, { height: cardHeight }]}>
-          {isMaster ? (
-            <Pressable
-              style={styles.likeContainer}
-              onPress={() => {
-                resetPosition();
+        <Swipeable
+          ref={swipeableRef}
+          friction={2}
+          leftThreshold={80}
+          rightThreshold={80}
+          renderLeftActions={renderLeftActions}
+          renderRightActions={renderRightActions}
+          onSwipeableOpen={() => {
+            // No-op, handled in onSwipeableWillOpen
+          }}
+          onSwipeableWillOpen={(direction) => {
+            onSwipeStart?.();
+            if (direction === "left") {
+              // Swiped right (to reveal left actions) -> Edit / Comment
+              swipeableRef.current?.close();
+              onEdit();
+            } else if (direction === "right") {
+              // Swiped left (to reveal right actions) -> Delete / Like
+              swipeableRef.current?.close();
+              if (isMaster) {
                 onLike?.();
-              }}
-            >
-              <Feather name="heart" size={20} color="#8b5cf6" />
-            </Pressable>
-          ) : (
-            !hideDelete && (
-              <Pressable
-                style={styles.deleteContainer}
-                onPress={() => {
+              } else {
+                if (hideDelete) {
+                  onDelete();
+                } else {
                   setShowDeleteConfirm(true);
-                }}
-              >
-                <Feather name="trash-2" size={20} color="#8b5cf6" />
-              </Pressable>
-            )
-          )}
-        </View>
-
-        <Animated.View
-          style={[
-            styles.cardWrapper,
-            { transform: [{ translateX: pan.x }] }
-          ]}
-          onLayout={(e) => setCardHeight(e.nativeEvent.layout.height)}
-          {...panResponder.panHandlers}
+                }
+              }
+            }
+          }}
+          onSwipeableClose={() => onSwipeEnd?.()}
         >
           <ProjectCard
             title={title}
@@ -231,7 +166,7 @@ export function SwipeableProjectCard({
             category={category}
             onPress={onPress || (() => { })}
             onEdit={() => {
-              resetPosition();
+              swipeableRef.current?.close();
               onEdit();
             }}
             masterComment={masterComment}
@@ -239,8 +174,9 @@ export function SwipeableProjectCard({
             authorName={authorName}
             masterInitials={masterInitials}
             masterName={masterName}
+            description={description}
           />
-        </Animated.View>
+        </Swipeable>
       </View>
 
       <Modal
@@ -278,54 +214,32 @@ export function SwipeableProjectCard({
 
 const styles = StyleSheet.create({
   container: {
-    position: "relative",
     marginBottom: Spacing.md,
     borderRadius: BorderRadius.sm,
-    overflow: "hidden",
+    // overflow: "hidden", // Removed to allow natural swipe movement without masking
+    backgroundColor: "transparent",
   },
   actionsWrapperLeft: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    zIndex: 0,
+    width: 80,
     justifyContent: "center",
-    borderRadius: BorderRadius.sm,
+    alignItems: "center",
   },
   actionsWrapperRight: {
-    position: "absolute",
-    top: 0,
-    right: 0,
-    zIndex: 0,
-    justifyContent: "center",
-    borderRadius: BorderRadius.sm,
-  },
-  cardWrapper: {
-    zIndex: 1,
-  },
-  editContainer: {
+    width: 80,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: Spacing.md,
   },
-  deleteContainer: {
+  actionButton: {
+    flex: 1,
+    width: "100%",
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: Spacing.md,
   },
-  likeContainer: {
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: Spacing.lg,
+  leftAction: {
+    backgroundColor: "transparent",
   },
-  commentContainer: {
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: Spacing.lg,
-  },
-  actionText: {
-    ...Typography.h4,
-    fontWeight: "700",
-    color: "#FFFFFF",
+  rightAction: {
+    backgroundColor: "transparent",
   },
   modalOverlay: {
     flex: 1,

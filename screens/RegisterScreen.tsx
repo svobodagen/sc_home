@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, TextInput, StyleSheet, Pressable, ScrollView } from "react-native";
+import { View, TextInput, StyleSheet, Pressable, ScrollView, KeyboardAvoidingView, Platform } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
 import { useTheme } from "@/hooks/useTheme";
 import { Spacing, Typography, BorderRadius } from "@/constants/theme";
@@ -44,129 +44,139 @@ export default function RegisterScreen({ onSwitchToLogin }: { onSwitchToLogin: (
   };
 
   return (
-    <ScrollView
-      style={[styles.container, { backgroundColor: theme.backgroundRoot }]}
-      contentContainerStyle={{
-        paddingTop: Spacing.xl,
-        paddingBottom: insets.bottom + Spacing.xl,
-        flexGrow: 1,
-      }}
-      showsVerticalScrollIndicator={false}
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
     >
-      <View style={styles.header}>
-        <ThemedText style={[styles.subtitle, { color: theme.textSecondary }]}>Nový účet</ThemedText>
-      </View>
-
-      <View style={styles.form}>
-        <View style={styles.inputGroup}>
-          <ThemedText style={[styles.label, { color: theme.text }]}>Jméno</ThemedText>
-          <TextInput
-            style={[
-              styles.input,
-              {
-                backgroundColor: theme.backgroundDefault,
-                borderColor: theme.border,
-                color: theme.text,
-              },
-            ]}
-            placeholder="Vaše jméno"
-            placeholderTextColor={theme.textSecondary}
-            value={name}
-            onChangeText={setName}
-            editable={!loading}
-          />
+      <ScrollView
+        style={[styles.container, { backgroundColor: theme.backgroundRoot }]}
+        contentContainerStyle={{
+          paddingTop: Spacing.xl,
+          paddingBottom: insets.bottom + Spacing.xl + 20, // Extra padding at bottom
+          flexGrow: 1,
+        }}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.header}>
+          <ThemedText style={[styles.subtitle, { color: theme.textSecondary }]}>Nový účet</ThemedText>
         </View>
 
-        <View style={styles.inputGroup}>
-          <ThemedText style={[styles.label, { color: theme.text }]}>E-mail</ThemedText>
-          <TextInput
-            style={[
-              styles.input,
-              {
-                backgroundColor: theme.backgroundDefault,
-                borderColor: theme.border,
-                color: theme.text,
-              },
-            ]}
-            placeholder="jmeno@example.com"
-            placeholderTextColor={theme.textSecondary}
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            editable={!loading}
-          />
-        </View>
+        <View style={styles.form}>
+          <View style={styles.inputGroup}>
+            <ThemedText style={[styles.label, { color: theme.text }]}>Jméno</ThemedText>
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  backgroundColor: theme.backgroundDefault,
+                  borderColor: theme.border,
+                  color: theme.text,
+                },
+              ]}
+              placeholder="Vaše jméno"
+              placeholderTextColor={theme.textSecondary}
+              value={name}
+              onChangeText={setName}
+              editable={!loading}
+            />
+          </View>
 
-        <View style={styles.inputGroup}>
-          <ThemedText style={[styles.label, { color: theme.text }]}>Heslo</ThemedText>
-          <TextInput
-            style={[
-              styles.input,
-              {
-                backgroundColor: theme.backgroundDefault,
-                borderColor: theme.border,
-                color: theme.text,
-              },
-            ]}
-            placeholder="Minimálně 4 znaky"
-            placeholderTextColor={theme.textSecondary}
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            editable={!loading}
-          />
-        </View>
+          <View style={styles.inputGroup}>
+            <ThemedText style={[styles.label, { color: theme.text }]}>E-mail</ThemedText>
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  backgroundColor: theme.backgroundDefault,
+                  borderColor: theme.border,
+                  color: theme.text,
+                },
+              ]}
+              placeholder="jmeno@example.com"
+              placeholderTextColor={theme.textSecondary}
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              editable={!loading}
+            />
+          </View>
 
-        <View style={styles.inputGroup}>
-          <ThemedText style={[styles.label, { color: theme.text }]}>Vaše role</ThemedText>
-          <View style={styles.roleContainer}>
-            {roles.map((role) => (
-              <Pressable
-                key={role}
-                onPress={() => setSelectedRole(role)}
-                disabled={loading}
-                style={[
-                  styles.roleButton,
-                  {
-                    backgroundColor: selectedRole === role ? theme.primary : theme.backgroundDefault,
-                    borderColor: theme.border,
-                  },
-                ]}
-              >
-                <ThemedText
+          <View style={styles.inputGroup}>
+            <ThemedText style={[styles.label, { color: theme.text }]}>Heslo</ThemedText>
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  backgroundColor: theme.backgroundDefault,
+                  borderColor: theme.border,
+                  color: theme.text,
+                },
+              ]}
+              placeholder="Minimálně 4 znaky"
+              placeholderTextColor={theme.textSecondary}
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              editable={!loading}
+            />
+          </View>
+
+          <View style={styles.inputGroup}>
+            <ThemedText style={[styles.label, { color: theme.text }]}>Vaše role</ThemedText>
+            <View style={styles.roleContainer}>
+              {roles.map((role) => (
+                <Pressable
+                  key={role}
+                  onPress={() => setSelectedRole(role)}
+                  disabled={loading}
                   style={[
-                    styles.roleButtonText,
+                    styles.roleButton,
                     {
-                      color: selectedRole === role ? "#FFFFFF" : theme.text,
-                      fontWeight: selectedRole === role ? "700" : "600",
+                      backgroundColor: selectedRole === role ? theme.primary : theme.backgroundDefault,
+                      borderColor: theme.border,
                     },
                   ]}
                 >
-                  {role}
-                </ThemedText>
-              </Pressable>
-            ))}
+                  <ThemedText
+                    style={[
+                      styles.roleButtonText,
+                      {
+                        color: selectedRole === role ? "#FFFFFF" : theme.text,
+                        fontWeight: selectedRole === role ? "700" : "600",
+                      },
+                    ]}
+                  >
+                    {role}
+                  </ThemedText>
+                </Pressable>
+              ))}
+            </View>
           </View>
+
+          {/* Explicit spacer to force layout separation */}
+          <View style={{ height: 40, width: '100%' }} />
+
+          {error ? (
+            <ThemedText style={[styles.error, { color: theme.primary }]}>{error}</ThemedText>
+          ) : null}
+
+          <Pressable
+            style={[styles.button, { backgroundColor: theme.primary, opacity: loading ? 0.6 : 1 }]}
+            onPress={handleRegister}
+            disabled={loading}
+          >
+            <ThemedText style={styles.buttonText}>{loading ? "Registrace..." : "Vytvořit účet"}</ThemedText>
+          </Pressable>
+
+          <Pressable onPress={onSwitchToLogin}>
+            <ThemedText style={[styles.switchText, { color: theme.primary }]}>Již mám účet</ThemedText>
+          </Pressable>
         </View>
-
-        {error ? (
-          <ThemedText style={[styles.error, { color: theme.primary }]}>{error}</ThemedText>
-        ) : null}
-
-        <Pressable
-          style={[styles.button, { backgroundColor: theme.primary, opacity: loading ? 0.6 : 1 }]}
-          onPress={handleRegister}
-          disabled={loading}
-        >
-          <ThemedText style={styles.buttonText}>{loading ? "Registrace..." : "Vytvořit účet"}</ThemedText>
-        </Pressable>
-
-        <Pressable onPress={onSwitchToLogin}>
-          <ThemedText style={[styles.switchText, { color: theme.primary }]}>Již mám účet</ThemedText>
-        </Pressable>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </KeyboardAvoidingView >
   );
 }
 

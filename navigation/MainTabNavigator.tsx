@@ -23,6 +23,7 @@ import HostDashboardScreen from "@/screens/HostDashboardScreen";
 import HostProjectsScreen from "@/screens/HostProjectsScreen";
 import { HeaderTitle } from "@/components/HeaderTitle";
 import { ApprenticeHeaderTitle } from "@/components/ApprenticeHeaderTitle";
+import { HeaderNotificationBell } from "@/components/HeaderNotificationBell";
 
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import ProjectDetailScreen from "@/screens/ProjectDetailScreen";
@@ -164,6 +165,11 @@ export default function MainTabNavigator() {
           >
             <Feather name="more-vertical" size={26} color={theme.text} />
           </Pressable>
+        ),
+        headerLeft: () => (
+          <View style={{ marginLeft: Spacing.lg, marginTop: -36 }}>
+            <HeaderNotificationBell />
+          </View>
         ),
         tabBarItemStyle: {
           height: 60,

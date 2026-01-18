@@ -21,7 +21,7 @@ export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const { user, logout, getAllUsers } = useAuth();
   const navigation = useNavigation<any>();
-  const { userData, setSelectedMaster, setWeeklyGoal, setApprenticeLevel, getTotalHours, deleteAllWorkHours, deleteAllProjects, apprenticeGoals, saveApprenticeGoals, reloadApprenticeGoals, adminSettings, allUsers } = useData();
+  const { userData, setSelectedMaster, setWeeklyGoal, setApprenticeLevel, getTotalHours, deleteAllWorkHours, deleteAllProjects, apprenticeGoals, saveApprenticeGoals, reloadApprenticeGoals, adminSettings, userLimits, allUsers } = useData();
   const { apprentices: masterApprentices, removeApprentice } = useMaster();
   const [masterModalVisible, setMasterModalVisible] = useState(false);
   const [goalModalVisible, setGoalModalVisible] = useState(false);
@@ -65,6 +65,36 @@ export default function ProfileScreen() {
       loadAllApprentices();
     }
   }, [user?.id]);
+
+  /* New state for persistent keyboard offset */
+  const [persistentBottomPadding, setPersistentBottomPadding] = useState(0);
+
+  useEffect(() => {
+    // Only listener for showing keyboard to "lock" the height
+    const showListener = Keyboard.addListener(
+      Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
+      (e) => {
+        // Use a slightly smaller value than full keyboard height if desired, 
+        // or full height to be safe. e.endCoordinates.height is standard.
+        // We set it once and don't reset it on hide.
+        setPersistentBottomPadding(e.endCoordinates.height);
+      }
+    );
+
+    // We do NOT listen to keyboardDidHide to reset it, per user request.
+    // It will only reset when modal closes.
+
+    return () => {
+      showListener.remove();
+    };
+  }, []);
+
+  // Reset padding when modal closes
+  useEffect(() => {
+    if (!goalModalVisible) {
+      setPersistentBottomPadding(0);
+    }
+  }, [goalModalVisible]);
 
   // Update local state when apprenticeGoals changes from context
   useEffect(() => {
@@ -801,7 +831,7 @@ export default function ProfileScreen() {
               <ProfileItem icon="award" label="Stupeň" value={selectedApprenticeData.apprenticeLevel} />
             ) : (
               <>
-                <ProfileItem icon="target" label="Týdenní cíl" onPress={() => setGoalModalVisible(true)} />
+                <ProfileItem icon="target" label="Hodinové cíle" onPress={() => setGoalModalVisible(true)} />
                 <ProfileItem icon="award" label="Stupeň" value={userData.apprenticeLevel} onPress={() => setLevelModalVisible(true)} />
                 <ProfileItem icon="bell" label="Upozornění" onPress={() => { }} />
                 <ProfileItem icon="moon" label="Tmavý režim" onPress={() => { }} />
@@ -1235,142 +1265,175 @@ export default function ProfileScreen() {
       </Modal>
 
       <Modal visible={goalModalVisible} transparent={true} animationType="slide">
-        <View style={[styles.modalOverlay, { backgroundColor: "rgba(0,0,0,0.5)" }]}>
-          <View style={[styles.modalContent, { backgroundColor: theme.backgroundDefault }]}>
-            <View style={styles.modalHeader}>
-              <ThemedText style={styles.modalTitle}>Nastavit cile</ThemedText>
-              <Pressable onPress={() => setGoalModalVisible(false)}>
-                <Feather name="x" size={24} color={theme.text} />
-              </Pressable>
-            </View>
-
-            <View style={styles.periodTabs}>
-              {(["week", "month", "year"] as const).map((p) => (
-                <Pressable
-                  key={p}
-                  onPress={() => setGoalPeriod(p)}
-                  style={[
-                    styles.periodTab,
-                    {
-                      backgroundColor: goalPeriod === p ? theme.primary : theme.backgroundTertiary,
-                      borderColor: goalPeriod === p ? theme.primary : theme.border,
-                    }
-                  ]}
-                >
-                  <ThemedText style={{ color: goalPeriod === p ? "#fff" : theme.text, fontWeight: "600" }}>
-                    {p === "week" ? "Tyden" : p === "month" ? "Mesic" : "Rok"}
-                  </ThemedText>
-                </Pressable>
-              ))}
-            </View>
-
-            <ScrollView style={{ maxHeight: 300 }}>
-              <View style={styles.goalInputContainer}>
-                {goalPeriod === "week" && (
-                  <>
-                    <ThemedText style={[styles.goalLabel, { color: theme.text }]}>
-                      Prace (max {adminSettings.max_work_hours_week}h)
-                    </ThemedText>
-                    <TextInput
-                      style={[styles.goalInput, { backgroundColor: theme.backgroundRoot, borderColor: theme.border, color: theme.text }]}
-                      value={workGoalWeek}
-                      onChangeText={setWorkGoalWeek}
-                      keyboardType="numeric"
-                      placeholder="20"
-                      placeholderTextColor={theme.textSecondary}
-                    />
-                    <ThemedText style={[styles.goalLabel, { color: theme.text, marginTop: Spacing.md }]}>
-                      Studium (max {adminSettings.max_study_hours_week}h)
-                    </ThemedText>
-                    <TextInput
-                      style={[styles.goalInput, { backgroundColor: theme.backgroundRoot, borderColor: theme.border, color: theme.text }]}
-                      value={studyGoalWeek}
-                      onChangeText={setStudyGoalWeek}
-                      keyboardType="numeric"
-                      placeholder="10"
-                      placeholderTextColor={theme.textSecondary}
-                    />
-                  </>
-                )}
-                {goalPeriod === "month" && (
-                  <>
-                    <ThemedText style={[styles.goalLabel, { color: theme.text }]}>
-                      Prace (max {adminSettings.max_work_hours_month}h)
-                    </ThemedText>
-                    <TextInput
-                      style={[styles.goalInput, { backgroundColor: theme.backgroundRoot, borderColor: theme.border, color: theme.text }]}
-                      value={workGoalMonth}
-                      onChangeText={setWorkGoalMonth}
-                      keyboardType="numeric"
-                      placeholder="80"
-                      placeholderTextColor={theme.textSecondary}
-                    />
-                    <ThemedText style={[styles.goalLabel, { color: theme.text, marginTop: Spacing.md }]}>
-                      Studium (max {adminSettings.max_study_hours_month}h)
-                    </ThemedText>
-                    <TextInput
-                      style={[styles.goalInput, { backgroundColor: theme.backgroundRoot, borderColor: theme.border, color: theme.text }]}
-                      value={studyGoalMonth}
-                      onChangeText={setStudyGoalMonth}
-                      keyboardType="numeric"
-                      placeholder="40"
-                      placeholderTextColor={theme.textSecondary}
-                    />
-                  </>
-                )}
-                {goalPeriod === "year" && (
-                  <>
-                    <ThemedText style={[styles.goalLabel, { color: theme.text }]}>
-                      Prace (max {adminSettings.max_work_hours_year}h)
-                    </ThemedText>
-                    <TextInput
-                      style={[styles.goalInput, { backgroundColor: theme.backgroundRoot, borderColor: theme.border, color: theme.text }]}
-                      value={workGoalYear}
-                      onChangeText={setWorkGoalYear}
-                      keyboardType="numeric"
-                      placeholder="960"
-                      placeholderTextColor={theme.textSecondary}
-                    />
-                    <ThemedText style={[styles.goalLabel, { color: theme.text, marginTop: Spacing.md }]}>
-                      Studium (max {adminSettings.max_study_hours_year}h)
-                    </ThemedText>
-                    <TextInput
-                      style={[styles.goalInput, { backgroundColor: theme.backgroundRoot, borderColor: theme.border, color: theme.text }]}
-                      value={studyGoalYear}
-                      onChangeText={setStudyGoalYear}
-                      keyboardType="numeric"
-                      placeholder="480"
-                      placeholderTextColor={theme.textSecondary}
-                    />
-                  </>
-                )}
-
-                <Pressable
-                  style={({ pressed }) => [
-                    styles.createButton,
-                    { backgroundColor: theme.primary, opacity: pressed ? 0.8 : 1, marginTop: Spacing.lg }
-                  ]}
-                  onPress={async () => {
-                    try {
-                      const goals: ApprenticeGoals = {
-                        work_goal_week: parseInt(workGoalWeek) || 20,
-                        study_goal_week: parseInt(studyGoalWeek) || 10,
-                        work_goal_month: parseInt(workGoalMonth) || 80,
-                        study_goal_month: parseInt(studyGoalMonth) || 40,
-                        work_goal_year: parseInt(workGoalYear) || 960,
-                        study_goal_year: parseInt(studyGoalYear) || 480,
-                      };
-                      await saveApprenticeGoals(goals);
-                      setGoalModalVisible(false);
-                    } catch (error) {
-                      console.error("Chyba pri ukladani cilu:", error);
-                    }
-                  }}
-                >
-                  <ThemedText style={styles.createText}>Ulozit cile</ThemedText>
+        <View style={{ flex: 1, justifyContent: "center" }}>
+          <View style={[
+            styles.modalOverlay,
+            {
+              backgroundColor: "rgba(0,0,0,0.5)",
+              // Apply persistent padding to the bottom of the overlay/container
+              paddingBottom: persistentBottomPadding
+            }
+          ]}>
+            <View style={[styles.modalContent, { backgroundColor: theme.backgroundDefault, maxHeight: "80%" }]}>
+              <View style={styles.modalHeader}>
+                <ThemedText style={styles.modalTitle}>Nastavit cile</ThemedText>
+                <Pressable onPress={() => setGoalModalVisible(false)}>
+                  <Feather name="x" size={24} color={theme.text} />
                 </Pressable>
               </View>
-            </ScrollView>
+
+              <ScrollView contentContainerStyle={{ paddingBottom: 20 }} keyboardShouldPersistTaps="always">
+                <View style={styles.periodTabs}>
+                  {(["week", "month", "year"] as const).map((p) => (
+                    <Pressable
+                      key={p}
+                      onPress={() => setGoalPeriod(p)}
+                      style={[
+                        styles.periodTab,
+                        {
+                          backgroundColor: goalPeriod === p ? theme.primary : theme.backgroundTertiary,
+                          borderColor: goalPeriod === p ? theme.primary : theme.border,
+                          paddingVertical: 8, // Compact
+                        }
+                      ]}
+                    >
+                      <ThemedText style={{ color: goalPeriod === p ? "#fff" : theme.text, fontWeight: "600", fontSize: 13 }}>
+                        {p === "week" ? "Tyden" : p === "month" ? "Mesic" : "Rok"}
+                      </ThemedText>
+                    </Pressable>
+                  ))}
+                </View>
+
+                <View style={styles.goalInputContainer}>
+                  {(() => {
+                    const limits = userLimits || adminSettings;
+                    let workVal, setWork, workMax, studyVal, setStudy, studyMax;
+
+                    switch (goalPeriod) {
+                      case "week":
+                        workVal = workGoalWeek; setWork = setWorkGoalWeek; workMax = limits.max_work_hours_week;
+                        studyVal = studyGoalWeek; setStudy = setStudyGoalWeek; studyMax = limits.max_study_hours_week;
+                        break;
+                      case "month":
+                        workVal = workGoalMonth; setWork = setWorkGoalMonth; workMax = limits.max_work_hours_month;
+                        studyVal = studyGoalMonth; setStudy = setStudyGoalMonth; studyMax = limits.max_study_hours_month;
+                        break;
+                      case "year":
+                        workVal = workGoalYear; setWork = setWorkGoalYear; workMax = limits.max_work_hours_year;
+                        studyVal = studyGoalYear; setStudy = setStudyGoalYear; studyMax = limits.max_study_hours_year;
+                        break;
+                      default: // fallback
+                        workVal = workGoalWeek; setWork = setWorkGoalWeek; workMax = limits.max_work_hours_week;
+                        studyVal = studyGoalWeek; setStudy = setStudyGoalWeek; studyMax = limits.max_study_hours_week;
+                    }
+
+                    return (
+                      <View style={{ flexDirection: "row", gap: 10 }}>
+                        <View style={{ flex: 1 }}>
+                          <ThemedText style={[styles.goalLabel, { color: theme.text, fontSize: 13 }]}>
+                            Prace (max {workMax})
+                          </ThemedText>
+                          <TextInput
+                            style={[styles.goalInput, { backgroundColor: theme.backgroundRoot, borderColor: theme.border, color: theme.text }]}
+                            value={workVal}
+                            onChangeText={setWork}
+                            keyboardType="decimal-pad"
+                          />
+                        </View>
+                        <View style={{ flex: 1 }}>
+                          <ThemedText style={[styles.goalLabel, { color: theme.text, fontSize: 13 }]}>
+                            Studium (max {studyMax})
+                          </ThemedText>
+                          <TextInput
+                            style={[styles.goalInput, { backgroundColor: theme.backgroundRoot, borderColor: theme.border, color: theme.text }]}
+                            value={studyVal}
+                            onChangeText={setStudy}
+                            keyboardType="decimal-pad"
+                          />
+                        </View>
+                      </View>
+                    );
+                  })()}
+
+                  <Pressable
+                    style={({ pressed }) => [
+                      styles.createButton,
+                      { backgroundColor: theme.secondary, opacity: pressed ? 0.8 : 1, marginTop: Spacing.md, marginBottom: Spacing.xs, paddingVertical: 10 }
+                    ]}
+                    onPress={() => {
+                      const maxs = userLimits || adminSettings;
+                      const currentP = goalPeriod; // capture current
+                      if (currentP === 'week') {
+                        setWorkGoalWeek(String(maxs.max_work_hours_week));
+                        setStudyGoalWeek(String(maxs.max_study_hours_week));
+                      } else if (currentP === 'month') {
+                        setWorkGoalMonth(String(maxs.max_work_hours_month));
+                        setStudyGoalMonth(String(maxs.max_study_hours_month));
+                      } else {
+                        setWorkGoalYear(String(maxs.max_work_hours_year));
+                        setStudyGoalYear(String(maxs.max_study_hours_year));
+                      }
+                      // Keep redundant sets for consistency with previous behavior or simplify later
+                      setWorkGoalWeek(String(maxs.max_work_hours_week));
+                      setStudyGoalWeek(String(maxs.max_study_hours_week));
+                      setWorkGoalMonth(String(maxs.max_work_hours_month));
+                      setStudyGoalMonth(String(maxs.max_study_hours_month));
+                      setWorkGoalYear(String(maxs.max_work_hours_year));
+                      setStudyGoalYear(String(maxs.max_study_hours_year));
+                    }}
+                  >
+                    <ThemedText style={[styles.createText, { fontSize: 14 }]}>Nastavit vše na maximum</ThemedText>
+                  </Pressable>
+
+                  <Pressable
+                    style={({ pressed }) => [
+                      styles.createButton,
+                      { backgroundColor: theme.primary, opacity: pressed ? 0.8 : 1, marginTop: Spacing.sm, paddingVertical: 10 }
+                    ]}
+                    onPress={async () => {
+                      try {
+                        // Helper to validate and parse
+                        const parseGoal = (val: string, name: string) => {
+                          if (!val) return 0;
+                          // Replace comma with dot (global regex)
+                          const normalized = val.replace(/,/g, '.');
+                          const num = parseFloat(normalized);
+                          if (isNaN(num)) return 0;
+
+                          // Check for 0.5 increment
+                          if (num % 0.5 !== 0) {
+                            throw new Error(`Hodnota pro ${name} musí být celé číslo nebo půlhodina (např. 10.5).`);
+                          }
+                          return num;
+                        };
+
+                        const goals: ApprenticeGoals = {
+                          work_goal_week: parseGoal(workGoalWeek, "Týdenní práce"),
+                          study_goal_week: parseGoal(studyGoalWeek, "Týdenní studium"),
+                          work_goal_month: parseGoal(workGoalMonth, "Měsíční práce"),
+                          study_goal_month: parseGoal(studyGoalMonth, "Měsíční studium"),
+                          work_goal_year: parseGoal(workGoalYear, "Roční práce"),
+                          study_goal_year: parseGoal(studyGoalYear, "Roční studium"),
+                        };
+
+                        await saveApprenticeGoals(goals);
+
+                        Alert.alert(
+                          "Uloženo",
+                          `Týden:\nPráce: ${goals.work_goal_week}h, Studium: ${goals.study_goal_week}h\n\nMěsíc:\nPráce: ${goals.work_goal_month}h, Studium: ${goals.study_goal_month}h\n\nRok:\nPráce: ${goals.work_goal_year}h, Studium: ${goals.study_goal_year}h`,
+                          [{ text: "OK", onPress: () => setGoalModalVisible(false) }]
+                        );
+                      } catch (error: any) {
+                        console.log("Validace cíle:", error.message); // Changed from error to log to avoid RedBox
+                        Alert.alert("Chyba zadání", error.message || "Zkontrolujte zadané hodnoty.");
+                      }
+                    }}
+                  >
+                    <ThemedText style={[styles.createText, { fontSize: 14 }]}>Uložit cíle</ThemedText>
+                  </Pressable>
+                </View>
+              </ScrollView>
+            </View>
           </View>
         </View>
       </Modal>
@@ -1520,7 +1583,7 @@ export default function ProfileScreen() {
           </View>
         </View>
       </Modal>
-    </ScrollView>
+    </ScrollView >
   );
 }
 
@@ -1669,8 +1732,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: BorderRadius.xs,
     paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.md,
+    paddingVertical: 0,
+    height: 50,
+    textAlignVertical: "center",
+    includeFontPadding: false,
     ...Typography.body,
+    fontSize: 20, // Override Typography.body
   },
   createButton: {
     padding: Spacing.lg,

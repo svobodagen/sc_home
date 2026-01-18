@@ -1,7 +1,9 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { Alert } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAuth } from "./AuthContext";
-import { api } from "@/services/api";
+import { api, supabase } from "@/services/api";
+import { useNotifications } from "./NotificationContext";
 
 export interface Project {
   id: number;
@@ -128,6 +130,7 @@ const defaultData: UserData = {
 interface DataContextType {
   userData: UserData;
   adminSettings: AdminSettings;
+  userLimits: AdminSettings | null;
   apprenticeGoals: ApprenticeGoals;
   setSelectedMaster: (masterName: string, masterId?: string | null) => void;
   setWeeklyGoal: (goals: { work: number; study: number }) => void;
@@ -172,6 +175,7 @@ export const useData = () => {
 
 export const DataProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useAuth();
+  const { addNotification } = useNotifications();
   const [userData, setUserData] = useState<UserData>(defaultData);
   const [isLoading, setIsLoading] = useState(false);
   const [allUsers, setAllUsers] = useState<any[]>([]);
@@ -196,14 +200,18 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     study_goal_year: 480,
   });
 
+  const [userLimits, setUserLimits] = useState<AdminSettings | null>(null);
+
   const loadData = async (userId: string) => {
     setIsLoading(true);
     try {
-      const [projects, workHours, certificates, users] = await Promise.all([
+      const [projects, workHours, certificates, users, loadedAdminSettings, loadedUserLimits] = await Promise.all([
         api.getProjects(userId),
         api.getWorkHours(userId),
         api.getCertificates(userId),
         api.getUsers(),
+        api.getAdminSettings(),
+        api.getUserHourLimits(userId)
       ]);
 
       setUserData(prev => ({
@@ -213,6 +221,8 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
         certificates: certificates || [],
       }));
       setAllUsers(users || []);
+      if (loadedAdminSettings) setAdminSettings(loadedAdminSettings);
+      if (loadedUserLimits) setUserLimits(loadedUserLimits);
     } catch (error) {
       console.error("Error loading data:", error);
     } finally {
@@ -227,6 +237,80 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
       setUserData(defaultData);
     }
   }, [user?.id]);
+
+  // Realtime Subscriptions for Limits
+  useEffect(() => {
+    if (!user?.id) return;
+
+    // 1. Subscribe to GLOBAL Admin Settings
+    const adminChannel = supabase
+      .channel('admin-limits-updates')
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'admin_settings', filter: 'id=eq.1' },
+        (payload) => {
+          console.log('Realtime Admin Settings Update:', payload.new);
+          if (payload.new) {
+            setAdminSettings(payload.new as AdminSettings);
+            // Replace Alert with Notification
+            addNotification("Aktualizace", "Globální limity pro učedníky byly změněny správcem.", "admin");
+          }
+        }
+      )
+      .subscribe();
+
+    // 2. Subscribe to PERSONAL User Limits
+    const userChannel = supabase
+      .channel(`user-limits-${user.id}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'user_hour_limits', filter: `user_id=eq.${user.id}` },
+        (payload) => {
+          console.log('Realtime User Limits Update:', payload);
+          if (payload.eventType === 'DELETE') {
+            setUserLimits(null); // Revert to global if deleted
+            addNotification("Aktualizace", "Vaše osobní limity byly resetovány na globální.", "admin");
+          } else if (payload.new) {
+            setUserLimits(payload.new as AdminSettings);
+            addNotification("Aktualizace", "Vaše osobní limity byly upraveny mistrem.", "admin");
+          }
+        }
+      )
+      .subscribe();
+
+    // 3. Polling Fallback (Every 30s)
+    const interval = setInterval(async () => {
+      // Check Admin Settings
+      const newAdminSettings = await api.getAdminSettings();
+      if (JSON.stringify(newAdminSettings) !== JSON.stringify(adminSettings)) {
+        console.log("Polling: Admin Settings changed", newAdminSettings);
+        setAdminSettings(newAdminSettings);
+        addNotification("Aktualizace", "Globální limity pro učedníky byly změněny správcem.", "admin");
+      }
+
+      // Check User Limits
+      const newUserLimits = await api.getUserHourLimits(user.id);
+      // Handle null/diff cases
+      const currentJson = JSON.stringify(userLimits);
+      const newJson = JSON.stringify(newUserLimits);
+
+      if (currentJson !== newJson) {
+        console.log("Polling: User Limits changed", newUserLimits);
+        setUserLimits(newUserLimits);
+        if (!newUserLimits && userLimits) {
+          addNotification("Aktualizace", "Vaše osobní limity byly resetovány na globální.", "admin");
+        } else if (newUserLimits) {
+          addNotification("Aktualizace", "Vaše osobní limity byly upraveny mistrem.", "admin");
+        }
+      }
+    }, 30000);
+
+    return () => {
+      adminChannel.unsubscribe();
+      userChannel.unsubscribe();
+      clearInterval(interval);
+    };
+  }, [user?.id, adminSettings, userLimits]); // Added dependencies for polling comparison
 
   const setSelectedMaster = (masterName: string, masterId: string | null = null) => {
     setUserData(prev => ({ ...prev, selectedMaster: masterName, selectedMasterId: masterId }));
@@ -512,6 +596,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
       value={{
         userData,
         adminSettings,
+        userLimits,
         apprenticeGoals,
         setSelectedMaster,
         setWeeklyGoal,

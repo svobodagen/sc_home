@@ -218,6 +218,7 @@ export function ApprenticeHeaderTitle({ showApprenticeNameOnly = false }: Appren
 
 const styles = StyleSheet.create({
   container: {
+    width: "100%",
     alignItems: "center",
     justifyContent: "center",
     paddingTop: 0,

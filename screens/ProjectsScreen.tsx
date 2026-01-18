@@ -213,7 +213,8 @@ export default function ProjectsScreen() {
               onPress={() => navigation.navigate("ProjectDetail", {
                 project: item,
                 projectIndex: projects.indexOf(item),
-                isGlobal: false
+                isGlobal: false,
+                projectList: projects, // Pass the filtered list
               })}
               onEdit={() => openEditModal(item)}
               onDelete={() => removeProject(item.id)}
@@ -222,6 +223,7 @@ export default function ProjectsScreen() {
               masterInitials={(item.master_id ? getInitials(globalAllUsers.find(u => u.id === item.master_id)?.name || "") : undefined)}
               masterName={(item.master_id ? globalAllUsers.find(u => u.id === item.master_id)?.name : undefined)}
               hideDelete={false}
+              description={item.description}
             />
           )}
           contentContainerStyle={[
@@ -244,7 +246,7 @@ export default function ProjectsScreen() {
             {
               backgroundColor: !userData.selectedMasterId ? theme.border : theme.primary,
               opacity: !userData.selectedMasterId ? 0.5 : (pressed ? 0.8 : 1),
-              bottom: insets.bottom + (Spacing.lg / 2),
+              bottom: insets.bottom + Spacing.xs, // Reduced to minimum spacing
             },
           ]}
           onPress={() => {
@@ -257,10 +259,7 @@ export default function ProjectsScreen() {
             setModalVisible(true);
           }}
         >
-          <Feather name="plus" size={24} color="#FFFFFF" />
-          <ThemedText style={styles.addProjectText}>
-            {!userData.selectedMasterId ? "Vyber mistra" : "Nový projekt"}
-          </ThemedText>
+          <Feather name="plus" size={32} color="#FFFFFF" />
         </Pressable>
       )}
 
@@ -281,7 +280,7 @@ export default function ProjectsScreen() {
                       {editingProject ? "Upravit projekt" : "Nový projekt"}
                     </ThemedText>
                     <ThemedText style={[styles.masterLabel, { color: theme.textSecondary }]}>
-                      Řemeslo: {getMasterCraft()}
+                      Pro mistra: {globalAllUsers.find(u => u.id === (editingProject?.master_id || userData.selectedMasterId))?.name || "Neznámý mistr"}
                     </ThemedText>
                   </View>
                   <Pressable onPress={() => { Keyboard.dismiss(); closeModal(); }}>
@@ -406,16 +405,23 @@ const styles = StyleSheet.create({
   },
   addProjectButton: {
     position: "absolute",
-    bottom: 0,
-    alignSelf: "center",
+    bottom: 20, // This is overridden by inline style
+    // right: 20, // Removed to center
+    alignSelf: "center", // Center horizontally
     zIndex: 10,
-    flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: Spacing.sm,
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.md,
-    borderRadius: BorderRadius.full,
+    width: 60, // Fixed size for circle
+    height: 60, // Fixed size for circle
+    borderRadius: 30, // Half of width/height
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4.65,
+    elevation: 8,
   },
   toggleContainer: {
     flexDirection: "row",

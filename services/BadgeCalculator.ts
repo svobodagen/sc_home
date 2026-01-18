@@ -88,7 +88,8 @@ export const calculateBadgeStatus = (
 
     // 1. Determine Type
     const catLower = (template.category || "").toLowerCase();
-    const isBadge = catLower.includes("badge") || catLower.includes("odznak");
+    const hasAutoRules = rules.some(r => r.rule_type !== "MANUAL");
+    const isBadge = catLower.includes("badge") || catLower.includes("odznak") || hasAutoRules;
     const type = isBadge ? "Odznak" : "Certifikát";
 
     // 2. Filter Rules (Strict Enforcement)
@@ -275,6 +276,10 @@ export const calculateBadgeStatus = (
                     const names = resolveNames(masterIds);
                     infoText = `Získáno u mistra: ${names.join(", ")}`;
                     initials = resolveInitials(masterIds);
+                } else {
+                    // Met globally (sum of masters) but no specific attribution
+                    initials = ["+"];
+                    infoText = "Získáno (součet mistrů)";
                 }
             } else {
                 // Certificates

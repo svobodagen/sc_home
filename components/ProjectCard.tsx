@@ -4,6 +4,7 @@ import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { ThemedText } from "@/components/ThemedText";
 import { useTheme } from "@/hooks/useTheme";
 import { BorderRadius, Spacing, Typography, Shadow } from "@/constants/theme";
+import { getInitials } from "@/utils/string";
 
 interface ProjectCardProps {
   title: string;
@@ -17,9 +18,10 @@ interface ProjectCardProps {
   authorName?: string;
   masterInitials?: string;
   masterName?: string;
+  description?: string;
 }
 
-export function ProjectCard({ title, date, imageUrl, category, onPress, onEdit, masterComment, isLiked, authorName, masterInitials, masterName }: ProjectCardProps) {
+export function ProjectCard({ title, date, imageUrl, category, onPress, onEdit, masterComment, isLiked, authorName, masterInitials, masterName, description }: ProjectCardProps) {
   const { theme } = useTheme();
 
   const categoryColors: Record<string, string> = {
@@ -60,13 +62,25 @@ export function ProjectCard({ title, date, imageUrl, category, onPress, onEdit, 
               {authorName && (
                 <ThemedText style={[styles.authorName, { color: theme.primary }]}>{authorName}</ThemedText>
               )}
-              <ThemedText style={[styles.date, { color: theme.textSecondary }]}>{authorName ? " • " : ""}{date}</ThemedText>
               {!masterName && masterInitials && (
-                <View style={[styles.masterBadge, { borderColor: theme.textSecondary }]}>
+                <View style={[styles.masterBadge, { borderColor: theme.textSecondary, marginRight: Spacing.sm }]}>
                   <ThemedText style={[styles.masterBadgeText, { color: theme.textSecondary }]}>{masterInitials}</ThemedText>
                 </View>
               )}
+              {masterName && (
+                <View style={[styles.masterCircle, { borderColor: theme.textSecondary, marginRight: Spacing.sm, marginTop: 0 }]}>
+                  <ThemedText style={[styles.masterCircleText, { color: theme.textSecondary }]}>
+                    {masterInitials || getInitials(masterName)}
+                  </ThemedText>
+                </View>
+              )}
+              <ThemedText style={[styles.date, { color: theme.textSecondary }]}>{authorName ? " • " : ""}{date}</ThemedText>
             </View>
+            {description ? (
+              <ThemedText style={[styles.description, { color: theme.textSecondary }]} numberOfLines={1}>
+                {description}
+              </ThemedText>
+            ) : null}
           </View>
           {isLiked && (
             <View style={styles.likeContainer}>
@@ -79,14 +93,9 @@ export function ProjectCard({ title, date, imageUrl, category, onPress, onEdit, 
             <ThemedText style={[styles.badgeText, { color: backgroundColor }]}>{category}</ThemedText>
           </View>
         ) : null}
-        {masterName && (
-          <View style={[styles.masterNameBox, { borderColor: theme.text, backgroundColor: theme.backgroundSecondary }]}>
-            <ThemedText style={[styles.masterNameLabel, { color: theme.textSecondary }]}>Mistr: </ThemedText>
-            <ThemedText style={[styles.masterNameValue, { color: theme.text }]}>{masterName}</ThemedText>
-          </View>
-        )}
+
         {masterComment && (
-          <View style={[styles.masterCommentPreview, { borderColor: theme.text, backgroundColor: theme.backgroundSecondary }]}>
+          <View style={styles.masterCommentPreview}>
             <Feather name="message-circle" size={14} color={theme.primary} />
             <ThemedText style={[styles.masterCommentText, { color: theme.primary }]} numberOfLines={1}>
               {masterComment}
@@ -122,11 +131,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: Spacing.sm,
+    marginBottom: 0, // Removed margin to reduce gap
     marginHorizontal: -Spacing.md,
     marginTop: -Spacing.md,
     paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
+    paddingTop: Spacing.sm,
+    paddingBottom: Spacing.xs, // Reduced bottom padding
   },
   likeContainer: {
     justifyContent: "center",
@@ -163,16 +173,24 @@ const styles = StyleSheet.create({
   masterCommentPreview: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: Spacing.sm,
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: Spacing.xs,
-    borderRadius: BorderRadius.xs,
-    borderWidth: 1,
+    justifyContent: "flex-end", // Align to right
+    marginTop: 0, // Removed top margin to reduce gap
+    // paddingHorizontal: Spacing.sm, // Removed padding as border is gone
+    // paddingVertical: Spacing.xs, // Removed padding
+    // borderRadius: BorderRadius.xs, // Removed border radius
+    // borderWidth: 1, // Removed border
     gap: Spacing.xs,
+  },
+  description: {
+    fontSize: 13,
+    marginTop: Spacing.xs,
+    marginBottom: 0, // Removed bottom margin
+    fontStyle: "italic",
   },
   masterCommentText: {
     fontSize: 12,
-    flex: 1,
+    flexShrink: 1, // Allow text to shrink so it doesn't force full width
+    textAlign: "right", // Align text to right
   },
   masterBadge: {
     marginLeft: Spacing.sm,
@@ -197,21 +215,19 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     marginLeft: Spacing.sm,
   },
-  masterNameBox: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: Spacing.xs,
-    borderRadius: BorderRadius.xs,
+  masterCircle: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     borderWidth: 1,
+    justifyContent: "center",
+    alignItems: "center",
     marginTop: Spacing.sm,
   },
-  masterNameLabel: {
-    fontSize: 12,
-    fontWeight: "600",
-  },
-  masterNameValue: {
-    fontSize: 12,
-    fontWeight: "500",
+  masterCircleText: {
+    fontSize: 10,
+    fontWeight: "700",
+    textAlign: "center",
+    lineHeight: 12,
   },
 });

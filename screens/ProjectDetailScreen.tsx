@@ -54,12 +54,14 @@ const ProjectCard = React.memo(({
   const author = allUsers.find(u => u.id === proj.user_id);
   const authorName = author ? author.name : "Neznámý autor";
 
+  const isMasterView = user?.role === "Mistr";
+
   return (
     <ScrollView
       style={{ width: containerWidth }}
       contentContainerStyle={{
         paddingTop: Spacing.lg,
-        paddingBottom: insets.bottom + Spacing.lg,
+        paddingBottom: insets.bottom + 100, // Increased padding to prevent footer overlap
         paddingHorizontal: Spacing.lg,
       }}
       scrollEventThrottle={16}
@@ -76,20 +78,6 @@ const ProjectCard = React.memo(({
           <ThemedText style={[styles.title, { color: theme.text }]}>
             {proj.title}
           </ThemedText>
-          <Pressable
-            onPress={() => {
-              if (author) {
-                navigation.navigate("HostApprenticeDetail", {
-                  apprenticeId: author.id,
-                  apprenticeName: author.name
-                });
-              }
-            }}
-          >
-            <ThemedText style={[styles.authorName, { color: theme.primary }]}>
-              Autor: {authorName}
-            </ThemedText>
-          </Pressable>
           {proj.is_liked && (
             <MaterialCommunityIcons name="heart" size={24} color="#FF3B30" />
           )}
@@ -105,28 +93,27 @@ const ProjectCard = React.memo(({
             </View>
           )}
 
-          {proj.category && (
-            <View style={styles.metadataItem}>
-              <Feather name="briefcase" size={14} color={theme.textSecondary} />
-              <ThemedText style={[styles.metadataText, { color: theme.textSecondary }]}>
-                {proj.category}
-              </ThemedText>
-            </View>
-          )}
-
-          {(typeof proj.photos === 'number' ? proj.photos : (proj.photos?.length || 0)) > 0 && (
-            <View style={styles.metadataItem}>
-              <Feather name="image" size={14} color={theme.textSecondary} />
-              <ThemedText style={[styles.metadataText, { color: theme.textSecondary }]}>
-                {typeof proj.photos === 'number' ? proj.photos : proj.photos!.length} {(typeof proj.photos === 'number' ? proj.photos : proj.photos!.length) === 1 ? "fotka" : "fotek"}
-              </ThemedText>
-            </View>
-          )}
+          <Pressable
+            onPress={() => {
+              if (author) {
+                navigation.navigate("HostApprenticeDetail", {
+                  apprenticeId: author.id,
+                  apprenticeName: author.name
+                });
+              }
+            }}
+            style={styles.metadataItem}
+          >
+            <Feather name="user" size={14} color={isMasterView ? theme.primary : theme.textSecondary} />
+            <ThemedText style={[styles.metadataText, { color: isMasterView ? theme.primary : theme.textSecondary, fontWeight: isMasterView ? "600" : "400" }]}>
+              Autor: {authorName}
+            </ThemedText>
+          </Pressable>
 
           {proj.master_id && (
             <View style={styles.metadataItem}>
-              <Feather name="user" size={14} color={theme.textSecondary} />
-              <ThemedText style={[styles.metadataText, { color: theme.textSecondary }]}>
+              <Feather name="award" size={14} color={!isMasterView ? theme.primary : theme.textSecondary} />
+              <ThemedText style={[styles.metadataText, { color: !isMasterView ? theme.primary : theme.textSecondary, fontWeight: !isMasterView ? "600" : "400" }]}>
                 Mistr: {allUsers.find(u => u.id === proj.master_id)?.name || "Neznámý"}
               </ThemedText>
             </View>
@@ -145,11 +132,11 @@ const ProjectCard = React.memo(({
       )}
 
       {proj.master_comment && (
-        <View style={[styles.masterCommentSection, { backgroundColor: theme.primary + "10", borderLeftColor: theme.primary }]}>
+        <View style={[styles.masterCommentSection, { backgroundColor: theme.primary + "10" }]}>
           <View style={styles.masterCommentHeader}>
             <Feather name="message-circle" size={16} color={theme.primary} />
             <ThemedText style={[styles.masterCommentTitle, { color: theme.primary }]}>
-              {user?.role === "Mistr" ? (user?.name || "Mistr") : (userData.selectedMaster || "Mistr")}
+              {allUsers.find(u => u.id === proj.master_id)?.name || "Mistr"}
             </ThemedText>
           </View>
           <ThemedText style={[styles.masterCommentText, { color: theme.text }]}>
@@ -334,9 +321,8 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.xs,
   },
   metadataRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: Spacing.md,
+    flexDirection: "column",
+    gap: Spacing.sm,
   },
   metadataItem: {
     flexDirection: "row",
@@ -361,12 +347,13 @@ const styles = StyleSheet.create({
   description: {
     ...Typography.body,
     lineHeight: 24,
+    fontStyle: "italic",
   },
   masterCommentSection: {
     marginTop: Spacing.md,
     padding: Spacing.md,
     borderRadius: 8,
-    borderLeftWidth: 4,
+    // borderLeftWidth: 4, // Removed as requested
   },
   masterCommentHeader: {
     flexDirection: "row",

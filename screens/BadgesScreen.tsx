@@ -11,6 +11,8 @@ import { useData } from "@/contexts/DataContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { api } from "@/services/api";
 import { calculateBadgeStatus, BadgeDisplayData } from "@/services/BadgeCalculator";
+import { AchievementBadge } from "@/components/AchievementBadge";
+import { getInitials } from "@/utils/string";
 
 export default function BadgesScreen() {
   const { theme } = useTheme();
@@ -29,8 +31,8 @@ export default function BadgesScreen() {
   const loadAndCalculateData = async () => {
     try {
       console.log("🔄 Loading Badge Data via Calculator...");
-      const userId = user?.id;
-      if (!userId) return;
+      if (!user?.id) return;
+      if (allUsers.length === 0) return; // Wait for users to avoid flash
 
       const selectedMasterId = userData.selectedMasterId;
 
@@ -86,13 +88,90 @@ export default function BadgesScreen() {
           unlockHistory: history
         });
 
+        // SMART ATTRIBUTION FIX (Apprentice View):
+        // If met globally but calculator gave "+" (no specific attribution in DB/context),
+        // check if any single master stats satisfy the condition.
+
+        // DEBUG BEFORE CHECK
+        if (tmpl.title.includes("Student 21") || tmpl.title.includes("50 hodin")) {
+          console.log(`🔍 APPRENTICE PRE-CHECK ${tmpl.title}:`, {
+            isLocked: result.isLocked,
+            initials: result.initials,
+            hasPlus: result.initials.includes("+"),
+            selectedMasterId
+          });
+        }
+
+        // Check if any single master stats satisfy the condition.
+        // We do this even if selectedMasterId is present, because sometimes the calculator might return "+"
+        // if the DB record lacks attribution or if it thinks it's a global achievement.
+        if (!result.isLocked && result.initials.includes("+")) {
+          const tmplWorkH = hours; // Full Raw Data
+          const tmplProjs = projs;
+
+          const involvedMasterIds = [...new Set([
+            ...tmplWorkH.map((h: any) => h.master_id),
+            ...tmplProjs.map((p: any) => p.master_id)
+          ])].filter(Boolean);
+
+          const qualifyingMasterIds: string[] = [];
+
+          involvedMasterIds.forEach(mid => {
+            const mHours = tmplWorkH.filter((h: any) => String(h.master_id) === String(mid));
+            const mProjs = tmplProjs.filter((p: any) => String(p.master_id) === String(mid));
+
+            const wSum = mHours.filter((h: any) => h.description && /pr[áa]ce|work/i.test(h.description)).reduce((s: number, h: any) => s + (h.hours || h.duration || 0), 0);
+            const sSum = mHours.filter((h: any) => h.description && /studium|study/i.test(h.description)).reduce((s: number, h: any) => s + (h.hours || h.duration || 0), 0);
+
+            const mStats = {
+              workHours: wSum,
+              studyHours: sSum,
+              totalHours: wSum + sSum,
+              projectCount: mProjs.length
+            };
+
+            const mResult = calculateBadgeStatus(tmpl, {
+              role: "Mistr",
+              userStats: mStats,
+              dbRecords: [],
+              rules: tmplRules,
+              allUsers: allUsers,
+              unlockHistory: history,
+            } as any);
+
+            if (!mResult.isLocked) {
+              qualifyingMasterIds.push(String(mid));
+            }
+          });
+
+          if (qualifyingMasterIds.length > 0) {
+            // Override with qualifying masters
+            const qNames = qualifyingMasterIds.map(id => {
+              const u = allUsers.find((user: any) => String(user.id) === String(id));
+              return u ? u.name : "Neznámý";
+            });
+            result.initials = qualifyingMasterIds.map(id => {
+              const u = allUsers.find((user: any) => String(user.id) === String(id));
+              return getInitials(u ? u.name : "?");
+            });
+
+            // Only show "Získáno u mistra" if we are not filtering by that specific master already (redundant info)
+            if (!selectedMasterId) {
+              result.infoText = `Získáno u mistra: ${qNames.join(", ")}`;
+            } else {
+              // We are in specific master view, so just showing initials is enough, text can match rule.
+              // Or we can keep it standard "Splněno".
+            }
+          }
+        }
+
         // DB Sync (Auto-Lock/Unlock handling)
         if (result.shouldUpdateDB) {
           console.log(`⚠️ DB Sync needed for ${tmpl.title}: ${result.newLockedStatus ? "LOCK" : "UNLOCK"}`);
           if (result.newLockedStatus) {
-            await api.lockCertificateForUser(userId, tmpl.id).catch(e => console.error(e));
+            await api.lockCertificateForUser(user.id, tmpl.id).catch(e => console.error(e));
           } else {
-            await api.unlockCertificateForUser(userId, tmpl.id).catch(e => console.error(e));
+            await api.unlockCertificateForUser(user.id, tmpl.id).catch(e => console.error(e));
           }
         }
 
@@ -105,7 +184,13 @@ export default function BadgesScreen() {
       }));
 
       // Sort: ID asc
-      processed.sort((a, b) => (parseInt(a.templateId) || 0) - (parseInt(b.templateId) || 0));
+      // Sort by ID (Robust)
+      processed.sort((a, b) => {
+        const idA = parseInt(a.templateId);
+        const idB = parseInt(b.templateId);
+        if (!isNaN(idA) && !isNaN(idB)) return idA - idB;
+        return String(a.templateId).localeCompare(String(b.templateId));
+      });
 
       setDisplayItems(processed);
       setUnlockedCount(uCount);
@@ -120,7 +205,7 @@ export default function BadgesScreen() {
   useFocusEffect(
     React.useCallback(() => {
       loadAndCalculateData();
-    }, [user?.id, userData.selectedMasterId])
+    }, [user?.id, userData.selectedMasterId, allUsers.length])
   );
 
   // Filter View
@@ -128,61 +213,7 @@ export default function BadgesScreen() {
   const filteredItems = displayItems.filter(i => i.category === typeFilter);
   const filteredUnlocked = filteredItems.filter(i => !i.isLocked).length;
 
-  const BadgeItem = ({ item }: { item: BadgeDisplayData }) => {
-    const isGray = item.iconColor === "gray";
-    const primaryColor = item.category === "Odznak" ? theme.primary : theme.secondary;
-    const cardBorderColor = isGray ? theme.border : primaryColor;
-    const iconBgColor = isGray ? theme.backgroundRoot : primaryColor + "20";
-    const iconColor = isGray ? theme.textSecondary : primaryColor;
 
-    return (
-      <Pressable
-        onPress={() => setSelectedBadge(item)}
-        style={({ pressed }) => [
-          styles.badgeCard,
-          {
-            backgroundColor: theme.backgroundDefault,
-            borderColor: cardBorderColor,
-            opacity: pressed ? 0.7 : 1,
-          },
-        ]}
-      >
-        {/* Initials Row */}
-        {item.initials.length > 0 && !item.isLocked && (
-          <View style={{ width: '100%', flexDirection: 'row', flexWrap: 'wrap', gap: 4, marginBottom: Spacing.sm }}>
-            {item.initials.map((init, idx) => (
-              <View key={idx} style={[styles.miniBadge, { borderColor: primaryColor, backgroundColor: theme.backgroundDefault }]}>
-                <ThemedText style={[styles.miniBadgeText, { color: primaryColor }]}>{init}</ThemedText>
-              </View>
-            ))}
-          </View>
-        )}
-
-        <View style={[styles.badgeIcon, { backgroundColor: iconBgColor }]}>
-          <Feather
-            name={isGray ? "lock" : (item.category === "Odznak" ? "award" : "file-text")}
-            size={32}
-            color={iconColor}
-          />
-        </View>
-
-        <ThemedText style={[styles.badgeTitle, { fontWeight: "600", color: isGray ? theme.textSecondary : theme.text }]}>
-          {item.headerTitle}
-        </ThemedText>
-
-        <ThemedText style={[styles.badgeCategory, { color: theme.textSecondary }]}>
-          {item.category}
-        </ThemedText>
-
-        <View style={styles.badgePoints}>
-          <Feather name="zap" size={14} color={isGray ? theme.border : primaryColor} />
-          <ThemedText style={[styles.pointsText, { color: isGray ? theme.border : primaryColor }]}>
-            {item.points}
-          </ThemedText>
-        </View>
-      </Pressable>
-    );
-  };
 
   const BadgeModal = () => {
     if (!selectedBadge) return null;
@@ -346,7 +377,13 @@ export default function BadgesScreen() {
 
         <View style={[styles.badgesGrid, { paddingHorizontal: Spacing.lg }]}>
           {filteredItems.map((item) => (
-            <BadgeItem key={item.templateId} item={item} />
+            <View key={item.templateId} style={{ width: "48%", marginBottom: Spacing.md }}>
+              <AchievementBadge
+                item={item}
+                onPress={() => setSelectedBadge(item)}
+              // Removing scale prop as we handle width in parent container
+              />
+            </View>
           ))}
         </View>
 

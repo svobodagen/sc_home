@@ -15,6 +15,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { MasterProvider } from "@/contexts/MasterContext";
 import { MasterDataProvider } from "@/contexts/MasterDataContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { NotificationProvider } from "@/contexts/NotificationContext";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -59,15 +60,17 @@ export default function App() {
           <KeyboardProvider>
             <ThemeProvider>
               <AuthProvider>
-                <MasterProvider>
-                  <DataProvider>
-                    <MasterDataProvider>
-                      <NavigationContainer>
-                        <RootNavigator />
-                      </NavigationContainer>
-                    </MasterDataProvider>
-                  </DataProvider>
-                </MasterProvider>
+                <NotificationProvider>
+                  <MasterProvider>
+                    <DataProvider>
+                      <MasterDataProvider>
+                        <NavigationContainer>
+                          <RootNavigator />
+                        </NavigationContainer>
+                      </MasterDataProvider>
+                    </DataProvider>
+                  </MasterProvider>
+                </NotificationProvider>
               </AuthProvider>
             </ThemeProvider>
             <StatusBar style="auto" />

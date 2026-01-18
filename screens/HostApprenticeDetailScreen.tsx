@@ -11,6 +11,7 @@ import { Feather } from "@expo/vector-icons";
 import { api } from "@/services/api";
 import { useNavigation } from "@react-navigation/native";
 import { calculateBadgeStatus, BadgeDisplayData } from "@/services/BadgeCalculator";
+import { AchievementBadge } from "@/components/AchievementBadge";
 
 export default function HostApprenticeDetailScreen({ route }: any) {
     const { theme } = useTheme();
@@ -80,17 +81,18 @@ export default function HostApprenticeDetailScreen({ route }: any) {
                 });
             });
 
-            processed.sort((a, b) => (parseInt(a.templateId) || 0) - (parseInt(b.templateId) || 0));
+            // Sort by ID (Robust)
+            processed.sort((a, b) => {
+                const idA = parseInt(a.templateId);
+                const idB = parseInt(b.templateId);
+                if (!isNaN(idA) && !isNaN(idB)) return idA - idB;
+                return String(a.templateId).localeCompare(String(b.templateId));
+            });
 
             // Host only sees unlocked items? Or all? Usually detail screens show what was achieved.
-            // Let's emulate previous behavior: show what is unlocked, maybe gray locked?
-            // Previous code showed locked as well (if found in DB?).
-            // For now, let's show only unlocked in the horizontal scroll to avoid clutter, 
-            // BUT if the design requires showing empty slots, valid.
-            // The previous code had a condition: `.filter(c => !c.locked ...)`
-            // So we also filter only unlocked.
-
-            const unlockedItems = processed.filter(i => !i.isLocked);
+            // Host only sees unlocked items (earned badges/certificates) AND those with initials (attributed/confirmed)
+            // This prevents showing "calculated but not synced" badges that users consider "inactive".
+            const unlockedItems = processed.filter(i => !i.isLocked && i.initials.length > 0);
 
             setDisplayBadges(unlockedItems.filter(i => i.category === "Odznak"));
             setDisplayCerts(unlockedItems.filter(i => i.category === "Certifikát"));
@@ -283,23 +285,9 @@ export default function HostApprenticeDetailScreen({ route }: any) {
                     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.badgeScroll}>
                         {displayBadges.length > 0 ? (
                             displayBadges.map((badge) => (
-                                <Pressable
-                                    key={badge.templateId}
-                                    onPress={() => setSelectedBadge(badge)}
-                                    style={[styles.badgeItem, { backgroundColor: theme.primary + "15" }]}
-                                >
-                                    {badge.initials.length > 0 && (
-                                        <View style={{ width: '100%', flexDirection: 'row', flexWrap: 'wrap', gap: 2, marginBottom: 4 }}>
-                                            {badge.initials.map((init, idx) => (
-                                                <View key={idx} style={[styles.miniBadge, { backgroundColor: theme.backgroundDefault, borderColor: theme.primary }]}>
-                                                    <ThemedText style={[styles.miniBadgeText, { color: theme.primary }]}>{init}</ThemedText>
-                                                </View>
-                                            ))}
-                                        </View>
-                                    )}
-                                    <Feather name="award" size={24} color={theme.primary} />
-                                    <ThemedText style={styles.badgeTitle}>{badge.headerTitle}</ThemedText>
-                                </Pressable>
+                                <View key={badge.templateId} style={{ marginRight: Spacing.md }}>
+                                    <AchievementBadge item={badge} onPress={() => setSelectedBadge(badge)} />
+                                </View>
                             ))
                         ) : (
                             <ThemedText style={[styles.emptyText, { color: theme.textSecondary }]}>Zatím žádné získané odznaky</ThemedText>
@@ -313,23 +301,9 @@ export default function HostApprenticeDetailScreen({ route }: any) {
                     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.badgeScroll}>
                         {displayCerts.length > 0 ? (
                             displayCerts.map((cert) => (
-                                <Pressable
-                                    key={cert.templateId}
-                                    onPress={() => setSelectedBadge(cert)}
-                                    style={[styles.badgeItem, { backgroundColor: theme.secondary + "15" }]}
-                                >
-                                    {cert.initials.length > 0 && (
-                                        <View style={{ width: '100%', flexDirection: 'row', flexWrap: 'wrap', gap: 2, marginBottom: 4 }}>
-                                            {cert.initials.map((init, idx) => (
-                                                <View key={idx} style={[styles.miniBadge, { backgroundColor: theme.backgroundDefault, borderColor: theme.secondary }]}>
-                                                    <ThemedText style={[styles.miniBadgeText, { color: theme.secondary }]}>{init}</ThemedText>
-                                                </View>
-                                            ))}
-                                        </View>
-                                    )}
-                                    <Feather name="file-text" size={24} color={theme.secondary} />
-                                    <ThemedText style={styles.badgeTitle}>{cert.headerTitle}</ThemedText>
-                                </Pressable>
+                                <View key={cert.templateId} style={{ marginRight: Spacing.md }}>
+                                    <AchievementBadge item={cert} onPress={() => setSelectedBadge(cert)} />
+                                </View>
                             ))
                         ) : (
                             <ThemedText style={[styles.emptyText, { color: theme.textSecondary }]}>Zatím žádné získané certifikáty</ThemedText>

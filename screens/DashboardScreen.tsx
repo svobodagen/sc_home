@@ -20,7 +20,7 @@ import { api } from "@/services/api";
 import { NoApprenticeSelected } from "@/components/NoApprenticeSelected";
 import { getInitials } from "@/utils/string";
 import { useMaster } from "@/contexts/MasterContext";
-import { calculateBadgeStatus, BadgeDisplayData } from "@/services/BadgeCalculator";
+import { BadgeDisplayData, calculateBadgeStatus, BadgeRule } from "@/services/BadgeCalculator";
 
 export default function DashboardScreen() {
   const { theme } = useTheme();
@@ -28,7 +28,7 @@ export default function DashboardScreen() {
   const navigation = useNavigation();
   const { user } = useAuth();
   const { selectedApprenticeId } = useMaster();
-  const { userData, adminSettings, getRecentProjects, allUsers } = useData();
+  const { userData, adminSettings, getRecentProjects, allUsers, userLimits } = useData();
 
   const [selectedBadge, setSelectedBadge] = useState<BadgeDisplayData | null>(null);
   const [selectedApprenticeData, setSelectedApprenticeData] = useState<any>(null);
@@ -37,8 +37,6 @@ export default function DashboardScreen() {
   // New State for Calculator Data
   const [displayBadges, setDisplayBadges] = useState<BadgeDisplayData[]>([]);
   const [displayCerts, setDisplayCerts] = useState<BadgeDisplayData[]>([]);
-
-  const [userLimits, setUserLimits] = useState<AdminSettings | null>(null);
 
   // Stats display
   const [statsSummary, setStatsSummary] = useState({
@@ -65,6 +63,9 @@ export default function DashboardScreen() {
           masterFilterId = userData.selectedMasterId || undefined; // Apprentice filter
         }
 
+        // OPTIMIZATION: Wait for allUsers to be loaded to avoid double-fetch and "?" flash
+        if (allUsers.length === 0) return;
+
         if (!currentUserId) {
           if (user?.role === "Mistr" && !selectedApprenticeId) {
             // Aggregate stats for all apprentices
@@ -88,11 +89,25 @@ export default function DashboardScreen() {
               });
 
               // Load Badges for All
+              // Load Badges for All (LIVE CALCULATION)
               const tmpls = await api.getAllCertificateTemplates();
+              const rules = await api.getAllCertificateUnlockRules().catch(() => []);
+
+              // We need full data for calculation: Hours, Projects, Certs for ALL apprentices
               const appIds = apps.map((a: any) => a.apprenticeId);
-              const certsPromises = appIds.map((id: string) => api.getCertificates(id));
-              const certsResults = await Promise.all(certsPromises);
-              const allTeamCerts = certsResults.flat();
+
+              const apprenticesDataPromises = apps.map(async (app: any) => {
+                const [hours, projs, certs, history] = await Promise.all([
+                  api.getWorkHours(app.apprenticeId).catch(() => []),
+                  api.getProjects(app.apprenticeId).catch(() => []),
+                  api.getCertificates(app.apprenticeId).catch(() => []),
+                  api.getCertificateUnlockHistory(app.apprenticeId).catch(() => [])
+                ]);
+                return { apprenticeId: app.apprenticeId, apprenticeName: app.apprenticeName, hours, projs, certs, history };
+              });
+
+              const apprenticesData = await Promise.all(apprenticesDataPromises);
+              const currentMasterId = user.id;
 
               const newBadges: BadgeDisplayData[] = [];
               const newCerts: BadgeDisplayData[] = [];
@@ -101,16 +116,44 @@ export default function DashboardScreen() {
                 const catLower = (tmpl.category || "").toLowerCase();
                 const isBadge = catLower.includes("badge") || catLower.includes("odznak");
                 const type = isBadge ? "Odznak" : "Certifikát";
+                const tmplRules = rules.filter((r: any) => r.template_id === tmpl.id);
 
-                const earners = allTeamCerts.filter((c: any) =>
-                  String(c.template_id) === String(tmpl.id) && !c.locked
-                );
+                const successfulApprentices: any[] = [];
 
-                if (earners.length > 0) {
-                  const earnerIds = [...new Set(earners.map((c: any) => c.user_id))];
-                  const earnerObjs = earnerIds.map(uid => apps.find((a: any) => a.apprenticeId === uid)).filter(Boolean);
-                  const initials = earnerObjs.map((a: any) => getInitials(a.apprenticeName));
-                  const names = earnerObjs.map((a: any) => a.apprenticeName);
+                apprenticesData.forEach(ad => {
+                  // Filter details by Current Master
+                  const masterHours = ad.hours.filter((h: any) => String(h.master_id) === String(currentMasterId));
+                  const masterProjs = ad.projs.filter((p: any) => String(p.master_id) === String(currentMasterId));
+
+                  const myStats = {
+                    workHours: masterHours.filter((h: any) => h.description && /pr[áa]ce|work/i.test(h.description)).reduce((s: number, h: any) => s + (h.hours || 0), 0),
+                    studyHours: masterHours.filter((h: any) => h.description && /studium|study/i.test(h.description)).reduce((s: number, h: any) => s + (h.hours || 0), 0),
+                    totalHours: 0,
+                    projectCount: masterProjs.length
+                  };
+                  myStats.totalHours = myStats.workHours + myStats.studyHours;
+
+                  const relevantRecords = ad.certs.filter((c: any) => String(c.template_id) === String(tmpl.id));
+
+                  const result = calculateBadgeStatus(tmpl, {
+                    role: "Mistr",
+                    userStats: myStats,
+                    dbRecords: relevantRecords,
+                    rules: tmplRules,
+                    allUsers: allUsers,
+                    currentMasterId: currentMasterId,
+                    unlockHistory: ad.history,
+                    targetUserId: ad.apprenticeId
+                  });
+
+                  if (!result.isLocked) {
+                    successfulApprentices.push(ad);
+                  }
+                });
+
+                if (successfulApprentices.length > 0) {
+                  const names = successfulApprentices.map(a => a.apprenticeName);
+                  const initials = successfulApprentices.map(a => getInitials(a.apprenticeName));
 
                   const item: BadgeDisplayData = {
                     templateId: String(tmpl.id),
@@ -132,6 +175,17 @@ export default function DashboardScreen() {
                   else newCerts.push(item);
                 }
               });
+
+              // Robust Sort
+              const sortFn = (a: BadgeDisplayData, b: BadgeDisplayData) => {
+                const idA = parseInt(a.templateId);
+                const idB = parseInt(b.templateId);
+                if (!isNaN(idA) && !isNaN(idB)) return idA - idB;
+                return String(a.templateId).localeCompare(String(b.templateId));
+              };
+
+              newBadges.sort(sortFn);
+              newCerts.sort(sortFn);
 
               setDisplayBadges(newBadges);
               setDisplayCerts(newCerts);
@@ -196,20 +250,88 @@ export default function DashboardScreen() {
             setSelectedApprenticeData(null);
           }
 
-          // 3. Process Badges via Calculator
+          // 3. Process Templates
           const processed: BadgeDisplayData[] = await Promise.all(templates.map(async (tmpl: any) => {
             const relevantRecords = dbCerts.filter((c: any) => String(c.template_id) === String(tmpl.id));
             const tmplRules = allRules.filter((r: any) => r.template_id === tmpl.id);
+            const tmplWorkH = workHours; // Full context for per-master check
+            const tmplProjs = projects;
 
-            const result = calculateBadgeStatus(tmpl, {
+            let result = calculateBadgeStatus(tmpl, {
               role: roleForCalc,
               userStats: stats,
               dbRecords: relevantRecords,
               rules: tmplRules,
               allUsers: allUsers,
+              currentMasterId: masterFilterId,
               unlockHistory: history,
-              currentMasterId: masterFilterId
+              targetUserId: currentUserId
             });
+
+            // SMART ATTRIBUTION FIX:
+            // If met globally but calculator gave "+" (no specific attribution in DB/Context),
+            // check if any single master stats satisfy the condition.
+            if (!result.isLocked && result.initials.includes("+")) {
+              const involvedMasterIds = [...new Set([
+                ...tmplWorkH.map((h: any) => h.master_id),
+                ...tmplProjs.map((p: any) => p.master_id)
+              ])].filter(Boolean);
+
+              // DEBUG LOG FOR TARGET BADGES
+              if (tmpl.title.includes("Student 21") || tmpl.title.includes("50 hodin")) {
+                console.log(`🐛 SMART ATTR CHECK for ${tmpl.title}:`, { involvedCount: involvedMasterIds.length, detailed: involvedMasterIds });
+              }
+
+              const qualifyingMasterIds: string[] = [];
+
+              involvedMasterIds.forEach(mid => {
+                const mHours = tmplWorkH.filter((h: any) => String(h.master_id) === String(mid));
+                const mProjs = tmplProjs.filter((p: any) => String(p.master_id) === String(mid));
+
+                const wSum = mHours.filter((h: any) => h.description && /pr[áa]ce|work/i.test(h.description)).reduce((s: number, h: any) => s + (h.hours || h.duration || 0), 0);
+                const sSum = mHours.filter((h: any) => h.description && /studium|study/i.test(h.description)).reduce((s: number, h: any) => s + (h.hours || h.duration || 0), 0);
+
+                const mStats = {
+                  workHours: wSum,
+                  studyHours: sSum,
+                  totalHours: wSum + sSum,
+                  projectCount: mProjs.length
+                };
+
+                // Run calc for this master
+                const mResult = calculateBadgeStatus(tmpl, {
+                  role: "Mistr", // Simulate Master View to check active status
+                  userStats: mStats,
+                  dbRecords: [], // Don't rely on DB for this check, purely stats
+                  rules: tmplRules,
+                  allUsers: allUsers,
+                  unlockHistory: history,
+                } as any);
+
+                if ((tmpl.title.includes("Student 21") || tmpl.title.includes("50 hodin"))) {
+                  console.log(`   > Checking Master ${mid}:`, {
+                    stats: mStats,
+                    isLocked: mResult.isLocked
+                  });
+                }
+
+                if (!mResult.isLocked) {
+                  qualifyingMasterIds.push(String(mid));
+                }
+              });
+
+              if (qualifyingMasterIds.length > 0) {
+                // Override with qualifying masters
+                const qNames = qualifyingMasterIds.map(id => allUsers.find((u: any) => String(u.id) === String(id))?.name || "Neznámý");
+                result.initials = qualifyingMasterIds.map(id => getInitials(allUsers.find((u: any) => String(u.id) === String(id))?.name));
+                result.infoText = `Získáno u mistra: ${qNames.join(", ")}`;
+
+                if (tmpl.title.includes("Student 21") || tmpl.title.includes("50 hodin")) {
+                  console.log(`   ✅ MATCH FOUND: ${qNames.join(", ")}`);
+                }
+              }
+            }
+
 
             // DB Sync (Auto-Lock/Unlock handling)
             // Dashboard is the primary place for this sync
@@ -246,22 +368,10 @@ export default function DashboardScreen() {
       };
 
       loadDashboardData();
-    }, [user?.role, user?.id, selectedApprenticeId, userData.selectedMasterId])
+    }, [user, selectedApprenticeId, userData.selectedMasterId, allUsers.length])
   );
 
-  useEffect(() => {
-    const loadUserLimits = async () => {
-      const userId = user?.role === "Mistr" && selectedApprenticeId ? selectedApprenticeId : user?.id;
-      if (!userId) return;
-      try {
-        const limits = await api.getUserHourLimits(userId);
-        setUserLimits(limits ?? null);
-      } catch (error) {
-        console.error("Chyba pri nacitani limitu:", error);
-      }
-    };
-    loadUserLimits();
-  }, [user?.id, user?.role, selectedApprenticeId]);
+  // Determine recent projects list source
 
 
 
@@ -459,22 +569,9 @@ export default function DashboardScreen() {
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.achievementsScroll}>
         {displayBadges.length > 0 ? (
           displayBadges.map((badge: BadgeDisplayData) => (
-            <Pressable key={badge.templateId} onPress={() => setSelectedBadge(badge)} style={styles.badgeWrapper}>
-              <View style={[styles.badgeCard, { backgroundColor: theme.primary + "20", borderColor: theme.primary }]}>
-                {badge.initials.length > 0 && (
-                  <View style={{ width: '100%', flexDirection: 'row', flexWrap: 'wrap', gap: 2, marginBottom: 4 }}>
-                    {badge.initials.map((init, idx) => (
-                      <View key={idx} style={[styles.miniBadge, { backgroundColor: theme.backgroundDefault, borderColor: theme.primary }]}>
-                        <ThemedText style={[styles.miniBadgeText, { color: theme.primary }]}>{init}</ThemedText>
-                      </View>
-                    ))}
-                  </View>
-                )}
-
-                <Feather name="award" size={32} color={theme.primary} />
-                <ThemedText style={[styles.badgeTitle, { color: theme.text, marginTop: Spacing.sm }]}>{badge.headerTitle}</ThemedText>
-              </View>
-            </Pressable>
+            <View key={badge.templateId} style={{ marginRight: Spacing.md }}>
+              <AchievementBadge item={badge} onPress={() => setSelectedBadge(badge)} />
+            </View>
           ))
         ) : (
           <View style={{ paddingLeft: Spacing.lg }}>
@@ -489,22 +586,9 @@ export default function DashboardScreen() {
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.achievementsScroll}>
         {displayCerts.length > 0 ? (
           displayCerts.map((cert: BadgeDisplayData) => (
-            <Pressable key={cert.templateId} onPress={() => setSelectedBadge(cert)} style={styles.badgeWrapper}>
-              <View style={[styles.badgeCard, { backgroundColor: theme.secondary + "20", borderColor: theme.secondary }]}>
-                {cert.initials.length > 0 && (
-                  <View style={{ width: '100%', flexDirection: 'row', flexWrap: 'wrap', gap: 2, marginBottom: 4 }}>
-                    {cert.initials.map((init, idx) => (
-                      <View key={idx} style={[styles.miniBadge, { backgroundColor: theme.backgroundDefault, borderColor: theme.secondary }]}>
-                        <ThemedText style={[styles.miniBadgeText, { color: theme.secondary }]}>{init}</ThemedText>
-                      </View>
-                    ))}
-                  </View>
-                )}
-
-                <Feather name="file-text" size={32} color={theme.secondary} />
-                <ThemedText style={[styles.badgeTitle, { color: theme.text, marginTop: Spacing.sm }]}>{cert.headerTitle}</ThemedText>
-              </View>
-            </Pressable>
+            <View key={cert.templateId} style={{ marginRight: Spacing.md }}>
+              <AchievementBadge item={cert} onPress={() => setSelectedBadge(cert)} />
+            </View>
           ))
         ) : (
           <View style={{ paddingLeft: Spacing.lg }}>
@@ -551,21 +635,7 @@ const styles = StyleSheet.create({
   badgeWrapper: {
     marginRight: Spacing.md,
   },
-  badgeCard: {
-    width: 100,
-    minHeight: 120,
-    borderRadius: BorderRadius.sm,
-    borderWidth: 1,
-    padding: Spacing.md,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  badgeTitle: {
-    ...Typography.small,
-    fontSize: 12,
-    textAlign: "center",
-    fontWeight: "600",
-  },
+  // Removed old badgeCard styles
   emptyText: {
     ...Typography.body,
     fontSize: 14,
